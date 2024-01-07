@@ -66,10 +66,43 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className={styles.divider}></div>
+              <div style={{position: "relative"}}>
+                <div className={styles.blurredCircle} style={{position: "absolute", top: "-5%", backgroundColor: "#f66d4bff"}}></div>
+                <div className={styles.divider}></div>
+                <h3 className={styles.header} style={{ color: "black", textAlign: "center", marginBottom: "40px" }}><a style={{ backgroundColor: "#fbac29ff" }}>21,808</a> people need your help</h3>
+                <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto auto auto" }}>
+                  <div className={styles.card} style={{ margin: "auto", textAlign: "center" }}>
+                    <h1 className={styles.header} style={{ color: "rgba(0, 0, 0, 0.504)" }}>District of Columbia</h1>
+                    <p className={styles.description}>According to Homelessness in Metropolitan: Results and Analysis from the Annual Point-in-Time (PIT) Count of Persons Experiencing Homelessness, 8,944 total people in the District of Columbia (DC) are homeless.</p>
+                    <div className={styles.fullycenter} style={{ top: "initial", bottom: "0px", width: "100%", zIndex: "10" }}>
+                      <h3 className={styles.header}><a style={{ backgroundColor: "#fbac29ff", color: "black" }}>8,944</a></h3>
+                      <h4 style={{ margin: "0px", color: "rgba(0, 0, 0, 0.504)" }}>total homeless count</h4>
+                    </div>
+                  </div>
+                  <div className={styles.card} style={{ margin: "auto", textAlign: "center" }}>
+                    <h1 className={styles.header} style={{ color: "rgba(0, 0, 0, 0.504)" }}>Maryland</h1>
+                    <p className={styles.description}>According to 2020/2021 Report on Homelessness - The Maryland Interagency Council on Homelessness: 6,337 people are experiencing homelessness across the state of Maryland.</p>
+                    <div className={styles.fullycenter} style={{ top: "initial", bottom: "0px", width: "100%", zIndex: "10" }}>
+                      <h3 className={styles.header}><a style={{ backgroundColor: "#fbac29ff", color: "black" }}>6,337</a></h3>
+                      <h4 style={{ margin: "0px", color: "rgba(0, 0, 0, 0.504)" }}>total homeless count</h4>
+                    </div>
+                  </div>
+
+                  <div className={styles.card} style={{ margin: "auto", textAlign: "center" }}>
+                    <h1 className={styles.header} style={{ color: "rgba(0, 0, 0, 0.504)" }}>Virginia</h1>
+                    <p className={styles.description}>According to The Center Square | Virginia: 6,527 people in the state of Virginia are currently experiencing homelessness (September 25th, 2023)</p>
+                    <div className={styles.fullycenter} style={{ top: "initial", bottom: "0px", width: "100%", zIndex: "10" }}>
+                      <h3 className={styles.header}><a style={{ backgroundColor: "#fbac29ff", color: "black" }}>6,527</a></h3>
+                      <h4 style={{ margin: "0px", color: "rgba(0, 0, 0, 0.504)" }}>total homeless count</h4>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.divider} style={{marginTop: "100px"}}></div>
+                <div className={styles.blurredCircle} style={{position: "absolute", bottom: "-5%", right: "0", backgroundColor: "#fbe85dff", zIndex: "-1"}}></div>
+              </div>
               <div className={styles.doublegrid} style={{ gridTemplateColumns: "1.2fr 0.8fr" }}>
                 <div>
-                  <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Why Us?</h3>
+                  <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>How we help</h3>
                   <p className={styles.description} style={{ fontSize: "25px", padding: "0px 20px" }}>
                     Our mission is to save lives and create a thriving community by ensuring that everyone in the DMV has food and shelter. We believe in the power of addressing these basic needs comprehensively, as not only a means of survival but also as a building block to create healthier, happier lives. Join us to become a vital part of our movement and directly impact the community.
                   </p>
@@ -77,6 +110,14 @@ export default function Home() {
                 <div style={{ position: "relative" }}>
                   <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="shelterinside.jpg" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px" }}></img>
                   <img alt="people laying on beds in a homeless shelter" src="shelterinside.jpg" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
+                </div>
+              </div>
+              <div className={styles.divider}></div>
+              <h3 className={styles.header} style={{ color: "black", marginLeft: "20px" }}>See what we've been up to</h3>
+              <h4 className={styles.subheader} style={{ marginLeft: "20px", marginBottom: "20px" }}>Our blog</h4>
+              <div>
+                <div className={styles.card}>
+
                 </div>
               </div>
               <div className={styles.divider}></div>

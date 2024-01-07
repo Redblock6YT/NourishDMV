@@ -80,6 +80,7 @@
     background-color: #ffd180ff;
     color: white;
     height: 100px;
+    height: 100px;
     width: 450px;
     border-radius: 25px;
     padding: 15px;
@@ -93,6 +94,37 @@
     padding: 20px;
     height: 110px;
     width: 460px;
+}
+
+.card {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    background-color: #ffd180ff;
+    color: white;
+    height: 400px;
+    width: 320px;
+    border-radius: 25px;
+    padding: 20px 40px;
+    display: inline-block;
+    transition: all .5s ease;
+    position: relative;
+}
+
+.card:hover {
+    background-color: rgb(227, 171, 74);
+    height: 450px;
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 400px; /* Adjust the height as desired */
+    z-index: 1;
+    border-radius: 25px;
+    background: linear-gradient(to top, rgb(227, 171, 74), transparent 50%);
 }
 
 .splashScreen {
@@ -110,8 +142,8 @@
     border-top: 1px solid rgba(0, 0, 0, 0.104);
     border-bottom: 1px solid rgba(0, 0, 0, 0.104);
     margin: auto;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    margin-top: 70px;
+    margin-bottom: 70px;
     width: 95%;
 }
 
@@ -139,11 +171,27 @@
     font-size: 40px;
 }
 
+.subheader {
+    font-family: 'Outfit', sans-serif;
+    margin: 0px;
+    font-size: 30px;
+    font-weight: normal;
+    color: rgba(0, 0, 0, 0.594);
+}
+
 .fullycenter {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.blurredCircle {
+    filter: blur(80px);
+    border-radius: 50%;
+    height: 200px;
+    width: 200px;
+    background-color: gray;
 }
 
 @media (max-width: 800px) {
