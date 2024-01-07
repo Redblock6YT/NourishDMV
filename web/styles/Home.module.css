@@ -19,7 +19,7 @@
 
 .doublegrid {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-columns: 1fr 1fr;
     grid-gap: 15px;
     overflow: visible;
 }
@@ -61,6 +61,14 @@
     transform: translateX(-5px)
 }
 
+.footer {
+    background-color: #ce8400ff;
+    margin: 10px;
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid rgb(126, 80, 0);
+}
+
 .button:hover {
     box-shadow: 10px 10px 20px #08080844, -9px -9px 20px #0000002d;
     transform: translateY(-2px)
@@ -74,8 +82,17 @@
     height: 100px;
     width: 450px;
     border-radius: 25px;
+    padding: 15px;
     display: inline-block;
+    transition: all .5s ease;
     position: relative;
+}
+
+.item:hover {
+    background-color: rgb(227, 171, 74);
+    padding: 20px;
+    height: 110px;
+    width: 460px;
 }
 
 .splashScreen {
@@ -93,8 +110,8 @@
     border-top: 1px solid rgba(0, 0, 0, 0.104);
     border-bottom: 1px solid rgba(0, 0, 0, 0.104);
     margin: auto;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 50px;
+    margin-bottom: 50px;
     width: 95%;
 }
 
@@ -127,4 +144,10 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+@media (max-width: 800px) {
+    .doublegrid {
+        display: block;
+    }
 }
