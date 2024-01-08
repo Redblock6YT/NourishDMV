@@ -17,6 +17,13 @@
     font-family: 'Outfit', sans-serif;
 }
 
+.iconCircle {
+    font-size: 50px;
+    margin: auto;
+    position: relative;
+    z-index: 5;
+}
+
 .doublegrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -66,6 +73,7 @@
     margin: 10px;
     border-radius: 20px;
     padding: 20px;
+    margin-top: 70px;
     border: 1px solid rgb(126, 80, 0);
 }
 
@@ -78,7 +86,8 @@
     font-family: 'Outfit', sans-serif;
     font-size: 20px;
     background-color: #ffd180ff;
-    color: white;
+    color: rgba(0, 0, 0, 0.504);
+    font-weight: bold;
     height: 100px;
     height: 100px;
     width: 450px;
@@ -87,6 +96,7 @@
     display: inline-block;
     transition: all .5s ease;
     position: relative;
+    cursor:pointer;
 }
 
 .item:hover {
@@ -108,6 +118,7 @@
     display: inline-block;
     transition: all .5s ease;
     position: relative;
+    cursor: pointer;
 }
 
 .card:hover {

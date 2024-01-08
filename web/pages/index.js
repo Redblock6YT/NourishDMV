@@ -42,6 +42,7 @@ export default function Home() {
         <meta name="description" content="Copyright (c) 2024 Marcus Mauricio" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
       </Head>
       <main>
         <div id="content" style={{ opacity: "0" }}>
@@ -61,13 +62,13 @@ export default function Home() {
               <div id="currentEvents" style={{ marginTop: "15px" }}>
                 <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Current Events</h3>
                 <div id="currentEventsList">
-                  <div className={styles.item}>
+                  <div className={styles.item} style={{ cursor: "unset" }}>
                     <p style={{ color: "rgba(0, 0, 0, 0.300)", margin: "0", width: "100%", textAlign: "center" }} className={styles.fullycenter}>No current events to show</p>
                   </div>
                 </div>
               </div>
-              <div style={{position: "relative"}}>
-                <div className={styles.blurredCircle} style={{position: "absolute", top: "-5%", backgroundColor: "#f66d4bff"}}></div>
+              <div style={{ position: "relative" }}>
+                <div className={styles.blurredCircle} style={{ position: "absolute", top: "-5%", backgroundColor: "#f66d4bff" }}></div>
                 <div className={styles.divider}></div>
                 <h3 className={styles.header} style={{ color: "black", textAlign: "center", marginBottom: "40px" }}><a style={{ backgroundColor: "#fbac29ff" }}>21,808</a> people need your help</h3>
                 <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto auto auto" }}>
@@ -97,8 +98,8 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className={styles.divider} style={{marginTop: "100px"}}></div>
-                <div className={styles.blurredCircle} style={{position: "absolute", bottom: "-5%", right: "0", backgroundColor: "#fbe85dff", zIndex: "-1"}}></div>
+                <div className={styles.divider} style={{ marginTop: "100px" }}></div>
+                <div className={styles.blurredCircle} style={{ position: "absolute", bottom: "-5%", right: "0", backgroundColor: "#fbe85dff", zIndex: "-1" }}></div>
               </div>
               <div className={styles.doublegrid} style={{ gridTemplateColumns: "1.2fr 0.8fr" }}>
                 <div>
@@ -129,16 +130,65 @@ export default function Home() {
               <div className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Get in touch</h3>
               <div className={styles.doublegrid}>
-                <div className={styles.item} style={{ margin: "auto", marginRight: "0px" }}>
+                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
+                  <div style={{ position: "relative" }}>
+                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
+                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                        call
+                      </span>
+                    </div>
 
+                  </div>
+                  <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
+                    (410) 123-4567
+                  </div>
                 </div>
-                <div className={styles.item} style={{ margin: "auto", marginLeft: "0px" }}>
+                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginLeft: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "mailto:contact@nourishdmv.com"}>
+                  <div style={{ position: "relative" }}>
+                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
+                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                        email
+                      </span>
+                    </div>
 
+                  </div>
+                  <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "30px" }}>
+                    contact<br />@nourishdmv.com
+                  </div>
                 </div>
-                <div className={styles.item} style={{ margin: "auto", marginRight: "0px" }}>
-
+                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "https://www.google.com/maps/dir//16701+Melford+Blvd+%23421,+Bowie,+MD+20715/@38.9611344,-76.7158268,19z/data=!4m9!4m8!1m0!1m5!1m1!1s0x89b7ec1769408c5f:0x5e0035c97d3c3f24!2m2!1d-76.7146091!2d38.9611344!3e0?entry=ttu"}>
+                  <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "25px" }}>
+                    16701 Melford Blvd, Bowie, MD 20715
+                    <h2 className={styles.subheader} style={{ fontSize: "20px" }}>headquarters</h2>
+                  </div>
+                  <div style={{ position: "relative" }}>
+                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
+                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                        pin_drop
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.item} style={{ margin: "auto", marginLeft: '0px' }}>
+                <div className={styles.item} style={{ margin: "auto", marginLeft: "0px" }} onClick={() => window.location.href = "tel:4101234567"}>
+                  <div style={{ position: "relative", height: "100%", filter: "blur(20px)" }}>
+                    <div style={{ position: "absolute" }} className={styles.fullycenter}>
+                      <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateX(-50%) translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
+                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                        <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                          alternate_email
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.fullycenter} style={{width: "100%"}}>
+                    <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
+                      <h2 className={styles.subheader} style={{ fontSize: "20px" }}>Facebook, Instagram, and TikTok</h2>
+                      @nourishdmv
+                    </div>
+                  </div>
 
                 </div>
               </div>
@@ -148,6 +198,15 @@ export default function Home() {
             {
               name: "Image 1",
               citation: `DLR Group "Exterior view of a section the Triumph with window covered facade illuminated at night with interior rooms visible" DLR Group, 2020, https://www.dlrgroup.com/work/the-triumph-ward-8/`
+            }, {
+              name: "Homeless count for District of Columbia",
+              citation: `Metropolitan Washington Council of Governments "Homelessness in Metropolitan Washington: Results and Analysis from the Annual Point-in-Time (PIT) Count of Persons Experiencing Homelessness" Metropolitan Washington Council of Governments, May, 2023, https://www.mwcog.org/file.aspx?D=cNIoGencJPm463aX0VC4iezyhJddJ%2b0CHWJv0gBajVw%3d&A=krOIQIAuqaJwMnUiVaD2nsIwN67PN6dmrf2qwXkiNWc%3d`
+            }, {
+              name: "Homeless count for Maryland",
+              citation: `The Maryland Interagency Council on Homelessness "2020/2021 report on Homelessness" The Maryland Interagency Council on Homelessness, 2021, https://dhcd.maryland.gov/HomelessServices/Documents/2021AnnualReport.pdf`
+            }, {
+              name: "Homeless count for Virginia",
+              citation: ``
             }, {
               name: "Image 2",
               citation: `NC 211 "people laying on beds in a homeless shelter" NC 211, 4 October 2022, https://nc211.org/shelters/`

@@ -27,7 +27,7 @@ export default function Footer(props) {
                 </div>
                 {(props.citations != null) ? (
                     <div id="citationsdiv">
-                        <h1>Attributions</h1>
+                        <h1>Citations/Attributions</h1>
                         {elements}
                     </div>
                 ) : () => { }
