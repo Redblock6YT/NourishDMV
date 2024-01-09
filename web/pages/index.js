@@ -2,12 +2,14 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '@/styles/Home.module.css'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import anime from 'animejs';
-import Footer from '@/components/NDMVFooter.jsx'
+import Footer from '@/components/NDMVFooter.jsx';
+import Cookies from 'js-cookie';
 
 export default function Home() {
   const router = useRouter();
+  const [account, setAccount] = useState("");
 
   useEffect(() => {
     if (router.isReady) {
@@ -48,8 +50,16 @@ export default function Home() {
         <div id="content" style={{ opacity: "0" }}>
           <div id="navbar" className={styles.navbar}>
             <Image style={{ marginLeft: "14px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
+            <div className={styles.doublegrid} style={{ right: "5px", position: "absolute", top: 5, gridTemplateColumns: "" }}>
+              <button className={styles.button} style={{height: "35px", marginBottom: "0px"}}>Sign In</button>
+              <button className={styles.button} style={{height: "35px", marginBottom: "0px"}}>Sign Up</button>
+              <div style={{display: (account != "") ? "block" : "none"}}>
+                <span id="accountsCenter" style={{ fontSize: "40px", display: "inline-block", cursor: "pointer" }} onClick={() => accountsCenter()} className='material-symbols-rounded'>{(account != "") ? "account_circle" : "no_accounts"}</span>
+                <button className={styles.button}>Dashboard</button>
+              </div>
+            </div>
           </div>
-          <div id="bodyContent" style={{ marginTop: "00px", padding: "10px" }}>
+          <div id="bodyContent" style={{ marginTop: "00px", padding: "10px 5%" }}>
             <div id="herosContainer" style={{ position: "relative" }}>
               <img src="shelter.jpg" className={styles.blurredHero} />
               <div id="hero" className={styles.hero}>
@@ -60,10 +70,10 @@ export default function Home() {
 
             <div id="innerContent" style={{ padding: "15px 0px" }}>
               <div id="currentEvents" style={{ marginTop: "15px" }}>
-                <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Current Events</h3>
+                <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Happening Now</h3>
                 <div id="currentEventsList">
                   <div className={styles.item} style={{ cursor: "unset" }}>
-                    <p style={{ color: "rgba(0, 0, 0, 0.300)", margin: "0", width: "100%", textAlign: "center" }} className={styles.fullycenter}>No current events to show</p>
+                    <p style={{ color: "rgba(0, 0, 0, 0.300)", margin: "0", width: "100%", textAlign: "center" }} className={styles.fullycenter}>No events to show</p>
                   </div>
                 </div>
               </div>
@@ -183,7 +193,7 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <div className={styles.fullycenter} style={{width: "100%"}}>
+                  <div className={styles.fullycenter} style={{ width: "100%" }}>
                     <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
                       <h2 className={styles.subheader} style={{ fontSize: "20px" }}>Facebook, Instagram, and TikTok</h2>
                       @nourishdmv
