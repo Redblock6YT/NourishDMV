@@ -27,7 +27,7 @@
 .doublegrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-gap: 15px;
+    grid-gap: 25px;
     overflow: visible;
 }
 
@@ -101,6 +101,7 @@
     font-size: 1.2em;
     transform: translateX(-5px)
 }
+
 .navbutton:hover {
     box-shadow: 10px 10px 20px #08080844, -9px -9px 20px #0000002d;
     transform: translateY(-2px)
@@ -108,6 +109,7 @@
 
 .footer {
     background-color: #ce8400ff;
+    color: white;
     margin: 10px;
     border-radius: 20px;
     padding: 20px;
@@ -129,7 +131,7 @@
     display: inline-block;
     transition: all .5s ease;
     position: relative;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 .item:hover {
@@ -154,6 +156,45 @@
     cursor: pointer;
 }
 
+.cubebutton {
+    height: 130px;
+    width: 100%;
+    border-radius: 35px;
+    transition: all .2s linear;
+    cursor: pointer;
+    border: none;
+    color: white;
+    background-color: #00000047;
+    font-family: 'Outfit', sans-serif;
+    font-weight: normal;
+    padding: 10px;
+    font-size: 30px;
+}
+
+.cubebutton:hover {
+    box-shadow: 10px 10px 33px #08080854, -9px -9px 33px #00000046;
+    transform: translateY(-2px)
+}
+
+.cubebutton>svg {
+    margin-right: 5px;
+    margin-left: 5px;
+    font-size: 20px;
+    transition: all .4s ease-in
+}
+
+.cubebutton:hover>svg {
+    font-size: 1.2em;
+    transform: translateX(-5px)
+}
+
+.footeritem {
+    display: grid;
+    grid-template-columns: 45px auto;
+    color: #00000047;
+    grid-gap: 5px;
+}
+
 .card:hover {
     background-color: rgb(227, 171, 74);
     height: 450px;
@@ -165,7 +206,8 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 400px; /* Adjust the height as desired */
+    height: 400px;
+    /* Adjust the height as desired */
     z-index: 1;
     border-radius: 25px;
     background: linear-gradient(to top, rgb(227, 171, 74), transparent 50%);

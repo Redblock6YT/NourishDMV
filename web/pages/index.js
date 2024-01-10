@@ -51,8 +51,8 @@ export default function Home() {
           <div id="navbar" className={styles.navbar}>
             <Image style={{ marginLeft: "14px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
             <div className={styles.doublegrid} style={{ right: "5px", position: "absolute", top: 5, gridTemplateColumns: "" }}>
-              <button className={styles.button} style={{height: "35px", marginBottom: "0px"}}>Sign In</button>
-              <button className={styles.button} style={{height: "35px", marginBottom: "0px"}}>Sign Up</button>
+              <button className={styles.button} style={{height: "35px", marginBottom: "0px", width: "200px", backgroundColor: "#afafaf63"}}>Sign In</button>
+              <button className={styles.button} style={{height: "35px", marginBottom: "0px", width: "200px", backgroundColor: "#ffbe4ab5"}}>Sign Up</button>
               <div style={{display: (account != "") ? "block" : "none"}}>
                 <span id="accountsCenter" style={{ fontSize: "40px", display: "inline-block", cursor: "pointer" }} onClick={() => accountsCenter()} className='material-symbols-rounded'>{(account != "") ? "account_circle" : "no_accounts"}</span>
                 <button className={styles.button}>Dashboard</button>
