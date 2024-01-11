@@ -21,23 +21,24 @@ export default function Accounts() {
                     <div id="home" className={styles.buttonsgrid}>
                         <button className={styles.bigbutton}>
                             <div className={styles.blurredBehind}>
-                                <span style={{ fontSize: "500px", color: "#00000047" }} class="material-symbols-rounded">person</span>
+                                <span style={{ fontSize: "500px", color: "#0000002b" }} class="material-symbols-rounded">person</span>
                             </div>
 
                             Sign In
-                            <p style={{fontSize: "30px"}}>to your NourishDMV Account</p>
+                            <p style={{fontSize: "35px", fontWeight: "normal"}}>to your NourishDMV Account</p>
                         </button>
                         <button className={styles.bigbutton}>
                             <div className={styles.blurredBehind}>
-                                <span style={{ fontSize: "500px", color: "#00000047" }} class="material-symbols-rounded">person_add</span>
+                                <span style={{ fontSize: "500px", color: "#0000002b" }} class="material-symbols-rounded">person_add</span>
                             </div>
                             Sign Up
-                            <p style={{fontSize: "30px"}}>for a NourishDMV Account</p>
+                            <p style={{fontSize: "35px", fontWeight: "normal"}}>for a NourishDMV Account</p>
                         </button>
                     </div>
                 </div>
 
                 <div id="action">
+                    <video><source></source></video>
                     <div className={styles.modal} id="modal">
                         <div className="loading"></div>
                         <div id="content">
@@ -47,7 +48,7 @@ export default function Accounts() {
                 </div>
                 <div style={{ position: "absolute", bottom: "5px", left: "50%", transform: "translateX(-50%)", display: "grid", gridTemplateColumns: "200px auto" }}>
                     <Image src="logo.svg" alt="NourishDMV Logo" height={43} width={200} />
-                    <h3 className={styles.font} style={{ margin: "0px", fontSize: "30px", lineHeight: "normal", fontWeight: "lighter" }}> Accounts</h3>
+                    <h3 className={styles.font} style={{ margin: "0px", fontSize: "28px", lineHeight: "normal", fontWeight: "lighter" }}> Accounts</h3>
                 </div>
                 <p style={{ margin: "auto", fontSize: "20px", color: "#00000047", position: "absolute", bottom: "10px", left: "10px", fontWeight: "bold" }} className={styles.font}>Copyright © {new Date().getFullYear()} NourishDMV</p>
             </main>
