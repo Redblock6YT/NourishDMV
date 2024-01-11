@@ -11,6 +11,11 @@ export default function Home() {
   const router = useRouter();
   const [account, setAccount] = useState("");
 
+  //use this function instead of router.push() to play splashscreen
+  function push(path) {
+
+  }
+
   useEffect(() => {
     if (router.isReady) {
       //once the page is fully loaded, play the splashscreen outro
@@ -50,13 +55,9 @@ export default function Home() {
         <div id="content" style={{ opacity: "0" }}>
           <div id="navbar" className={styles.navbar}>
             <Image style={{ marginLeft: "14px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
-            <div className={styles.doublegrid} style={{ right: "5px", position: "absolute", top: 5, gridTemplateColumns: "" }}>
-              <button className={styles.button} style={{height: "35px", marginBottom: "0px", width: "200px", backgroundColor: "#afafaf63"}}>Sign In</button>
-              <button className={styles.button} style={{height: "35px", marginBottom: "0px", width: "200px", backgroundColor: "#ffbe4ab5"}}>Sign Up</button>
-              <div style={{display: (account != "") ? "block" : "none"}}>
-                <span id="accountsCenter" style={{ fontSize: "40px", display: "inline-block", cursor: "pointer" }} onClick={() => accountsCenter()} className='material-symbols-rounded'>{(account != "") ? "account_circle" : "no_accounts"}</span>
-                <button className={styles.button}>Dashboard</button>
-              </div>
+            <div style={{position: "absolute", right: "5px", top: "5px"}}>
+              <button className={styles.button} onClick={() => push("accounts")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "#ffbe4ab5", display: (account != "") ? "none" : "block" }}>Make a difference</button>
+              <button className={styles.button} style={{ display: (account != "") ? "block" : "none" }} onClick={() => push("dash")}>Your Dashboard</button>
             </div>
           </div>
           <div id="bodyContent" style={{ marginTop: "00px", padding: "10px 5%" }}>
@@ -77,11 +78,19 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+              <div className={styles.divider}></div>
+              <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
+              <div className={styles.doublegrid} style={{ margin: "auto" }}>
+                <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }}>Support our cause</button>
+                <button className={styles.button} style={{ margin: "auto", height: "300px", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }}>Join our cause</button>
+              </div>
               <div style={{ position: "relative" }}>
-                <div className={styles.blurredCircle} style={{ position: "absolute", top: "-5%", backgroundColor: "#f66d4bff" }}></div>
+
                 <div className={styles.divider}></div>
+                <div className={styles.blurredCircle} style={{ position: "absolute", top: "-5%", backgroundColor: "#f66d4bff" }}></div>
+
                 <h3 className={styles.header} style={{ color: "black", textAlign: "center", marginBottom: "40px" }}><a style={{ backgroundColor: "#fbac29ff" }}>21,808</a> people need your help</h3>
-                <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto auto auto" }}>
+                <div className={styles.tripplegrid}>
                   <div className={styles.card} style={{ margin: "auto", textAlign: "center" }}>
                     <h1 className={styles.header} style={{ color: "rgba(0, 0, 0, 0.504)" }}>District of Columbia</h1>
                     <p className={styles.description}>According to Homelessness in Metropolitan: Results and Analysis from the Annual Point-in-Time (PIT) Count of Persons Experiencing Homelessness, 8,944 total people in the District of Columbia (DC) are homeless.</p>
@@ -113,9 +122,9 @@ export default function Home() {
               </div>
               <div className={styles.doublegrid} style={{ gridTemplateColumns: "1.2fr 0.8fr" }}>
                 <div>
-                  <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>How we help</h3>
+                  <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Our goal</h3>
                   <p className={styles.description} style={{ fontSize: "25px", padding: "0px 20px" }}>
-                    Our mission is to save lives and create a thriving community by ensuring that everyone in the DMV has food and shelter. We believe in the power of addressing these basic needs comprehensively, as not only a means of survival but also as a building block to create healthier, happier lives. Join us to become a vital part of our movement and directly impact the community.
+                    Save lives and create a thriving community by ensuring that everyone in the DMV has food and shelter. We believe in the power of addressing these basic needs comprehensively, as not only a means of survival but also as a building block to create healthier, happier lives. Join us to become a vital part of our movement and directly impact the community.
                   </p>
                 </div>
                 <div style={{ position: "relative" }}>
@@ -132,14 +141,8 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.divider}></div>
-              <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
-              <div className={styles.doublegrid} style={{ margin: "auto" }}>
-                <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }}>Support our cause</button>
-                <button className={styles.button} style={{ margin: "auto", height: "300px", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }}>Join our cause</button>
-              </div>
-              <div className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Get in touch</h3>
-              <div className={styles.doublegrid}>
+              <div className={styles.contactgrid}>
                 <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
                   <div style={{ position: "relative" }}>
                     <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
@@ -195,7 +198,7 @@ export default function Home() {
                   </div>
                   <div className={styles.fullycenter} style={{ width: "100%" }}>
                     <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
-                      <h2 className={styles.subheader} style={{ fontSize: "20px" }}>Facebook, Instagram, and TikTok</h2>
+                      <h2 className={styles.subheader} style={{ fontSize: "20px" }}>Social Media</h2>
                       @nourishdmv
                     </div>
                   </div>
