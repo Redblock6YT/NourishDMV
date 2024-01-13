@@ -1,0 +1,16 @@
+{
+  "name": "ndmv-api",
+  "version": "1.0.0",
+  "description": "API for NourishDMV FBLA 2024",
+  "main": "api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Marcus Mauricio",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.4",
+    "uuid": "^9.0.1"
+  }
+}

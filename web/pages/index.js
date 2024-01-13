@@ -13,7 +13,33 @@ export default function Home() {
 
   //use this function instead of router.push() to play splashscreen
   function push(path) {
-
+    if (router.isReady) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById("splashscreenIntro").style.display = "block";
+      document.body.style.overflowY = "hidden"
+      setTimeout(() => {
+        document.getElementById("splashscreenIntro").playbackRate = 0.5;
+        document.getElementById("splashscreenIntro").play();
+        anime({
+          targets: '#splashscreenIntro',
+          opacity: 1,
+          duration: 500,
+          easing: 'easeInOutQuad',
+          complete: function (anim) {
+            setTimeout(() => {
+              router.push(path);
+            }, 1000);
+          }
+        })
+      }, 100)
+      anime({
+        targets: '#content',
+        opacity: 0,
+        filter: "blur(20px)",
+        duration: 1000,
+        easing: 'easeInOutQuad'
+      })
+    }
   }
 
   useEffect(() => {
@@ -25,21 +51,20 @@ export default function Home() {
         anime({
           targets: '#splashscreenOutro',
           opacity: 0,
-          duration: 600,
-          delay: 100,
+          duration: 500,
           easing: 'easeInOutQuad',
           complete: function (anim) {
             document.getElementById("splashscreenOutro").style.display = "none";
+            document.body.style.overflowY = "auto"
           }
         })
         anime({
           targets: '#content',
           opacity: 1,
-          duration: 600,
-          delay: 100,
+          duration: 500,
           easing: 'easeInOutQuad'
         })
-      }, 500)
+      }, 300)
     }
   }, [router.isReady])
   return (
@@ -55,7 +80,7 @@ export default function Home() {
         <div id="content" style={{ opacity: "0" }}>
           <div id="navbar" className={styles.navbar}>
             <Image style={{ marginLeft: "14px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
-            <div style={{position: "absolute", right: "5px", top: "5px"}}>
+            <div style={{ position: "absolute", right: "5px", top: "5px" }}>
               <button className={styles.button} onClick={() => push("accounts")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "#ffbe4ab5", display: (account != "") ? "none" : "block" }}>Make a difference</button>
               <button className={styles.button} style={{ display: (account != "") ? "block" : "none" }} onClick={() => push("dash")}>Your Dashboard</button>
             </div>
@@ -226,7 +251,8 @@ export default function Home() {
             }
           ]} />
         </div>
-        <video id="splashscreenOutro" muted className={styles.splashScreen}><source src="helpsoutro.mp4" type="video/mp4" /></video>
+        <video id="splashscreenOutro" muted className={styles.splashScreen}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
+        <video id="splashscreenIntro" muted className={styles.splashScreen} style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
       </main>
     </>
   )
