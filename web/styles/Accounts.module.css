@@ -17,6 +17,7 @@
     color: white;
     /* bring your own prefixes */
     opacity: 0;
+    transition: all 0.5s ease;
 }
 
 .input {
@@ -38,6 +39,13 @@
 
 .input::placeholder {
     color: rgb(230, 230, 230);
+}
+
+.divider {
+    border-top: 1px solid rgba(0, 0, 0, 0.104);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.104);
+    margin: 10px;
+    width: 95%;
 }
 
 .bkgrndvideo {

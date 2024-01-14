@@ -1,88 +1,94 @@
 require("dotenv").config();
 const mongoose = require('mongoose');
 const express = require('express');
+const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
+const cors = require('cors');
+
 const app = express();
+var jsonParser = bodyParser.json();
+const corsOptions = {
+    origin: process.env.FRONTEND_HOST,
+    optionsSuccessStatus: 200
+}
+app.use(cors(corsOptions));
 
 main().catch(err => console.log(err));
 
 async function main() {
-  await mongoose.connect(process.env.MONGO_URI, function(err) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("Connected to mongo.");
+    try {
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log("Connected to mongo.");
+    } catch (err) {
+        console.log(err);
     }
-  });
 }
 
 //events attended array will be filled with event ids
 const Account = mongoose.model("Account", {
-    uuid: {type: String, default: ""},
-    email: {type: String, default: ""},
-    role: {type: String, default: "Supporter"},
-    password: {type: String, default: ""},
-    phone: {type: Number, default: 1234567890},
-    dateJoined: {type: Date, default: Date.now},
-    lastLogin: {type: Date, default: Date.now},
-    eventsAttended: {type: Array, default: []},
-    donations: {type: Array, default: []},
+    uuid: { type: String, default: "" },
+    email: { type: String, default: "" },
+    role: { type: String, default: "Supporter" },
+    password: { type: String, default: "" },
+    phone: { type: Number, default: 1234567890 },
+    dateJoined: { type: Date, default: Date.now },
+    lastLogin: { type: Date, default: Date.now },
+    eventsAttended: { type: Array, default: [] },
+    donations: { type: Array, default: [] },
 })
 
 const Event = mongoose.model("Event", {
-    title: {type: String, default: ""},
-    description: {type: String, default: ""},
-    visible: {type: Boolean, default: true},
-    status: {type: String, default: "pending"},
-    registrationOpen: {type: Boolean, default: false},
-    registrationStartDateTime: {type: Date, default: Date.now},
-    registrationEndDateTime: {type: Date, default: Date.now},
-    startDateTime: {type: Date, default: Date.now},
-    endDateTime: {type: Date, default: Date.now},
-    cost: {type: Number, default: 0},
+    title: { type: String, default: "" },
+    description: { type: String, default: "" },
+    visible: { type: Boolean, default: true },
+    status: { type: String, default: "pending" },
+    registrationOpen: { type: Boolean, default: false },
+    registrationStartDateTime: { type: Date, default: Date.now },
+    registrationEndDateTime: { type: Date, default: Date.now },
+    startDateTime: { type: Date, default: Date.now },
+    endDateTime: { type: Date, default: Date.now },
+    cost: { type: Number, default: 0 },
 })
 
 const BlogPost = mongoose.model("BlogPost", {
-    title: {type: String, default: ""},
-    content: {type: String, default: ""},
-    visible: {type: Boolean, default: true},
-    date: {type: Date, default: Date.now},
+    title: { type: String, default: "" },
+    content: { type: String, default: "" },
+    visible: { type: Boolean, default: true },
+    date: { type: Date, default: Date.now },
 })
 
-app.post("/signIn", async (req, res) => {
-    Account.findOneAndUpdate({uuid: req.body.uuid}, { lastLogin: Date.now() }, function(err, account) {
-        if (err) {
-            res.status(400).send(err);
+app.post("/signIn", jsonParser, async (req, res) => {
+    Account.findOneAndUpdate({ uuid: req.body.uuid }, { lastLogin: Date.now() }).then((account) => {
+        if (account) {
+            res.status(200).send({ uuid: account.uuid, status: "Logged Sign In" });
         } else {
-            if (account) {
-                res.status(200).send({uuid: account.uuid, status: "Logged Sign In"});
-            } else {
-                res.status(400).send("Account not found.");
-            }
+            res.status(400).send("Account not found.");
         }
+    }).catch((err) => {
+        console.log(err)
+        res.status(400).send(err);
     })
 })
 
-app.post("/requestSignIn", async (req, res) => {
-    Account.findOne({email: req.body.email}, function(err, account) {
-        if (err) {
-            res.status(400).send(err);
-        } else {
-            if (account) {
-                //account with that email exists now check if the password matches
-                if (account.password == req.body.password) {
-                    res.status(200).send({uuid: account.uuid, status: "Sign In approved."});
-                } else {
-                    res.status(400).send("Incorrect password.");
-                }
+app.get("/requestSignIn", async (req, res) => {
+    Account.findOne({ email: req.query.email }).then((account) => {
+        if (account) {
+            //account with that email exists now check if the password matches
+            if (account.password == req.query.password) {
+                res.status(200).send({ uuid: account.uuid, status: "Sign In approved." });
             } else {
-                res.status(400).send("Account not found.");
+                res.status(400).send("Incorrect password.");
             }
+        } else {
+            res.status(400).send("Account not found.");
         }
+    }).catch((err) => {
+        console.log(err)
+        res.status(400).send(err);
     })
 })
 
-app.post("/newPost", async (req, res) => {
+app.post("/newPost", jsonParser, async (req, res) => {
     try {
         const post = new BlogPost({
             title: req.body.title,
@@ -92,11 +98,12 @@ app.post("/newPost", async (req, res) => {
         await post.save();
         res.status(200).send(post);
     } catch (err) {
+        console.log(err)
         res.status(400).send(err);
     }
 })
 
-app.post("/createEvent", async (req, res) => {
+app.post("/createEvent", jsonParser, async (req, res) => {
     try {
         const event = new Event({
             title: req.body.title,
@@ -113,25 +120,37 @@ app.post("/createEvent", async (req, res) => {
         await event.save();
         res.status(200).send(event);
     } catch (err) {
+        console.log(err)
         res.status(400).send(err);
     }
 })
 
-app.post("/createAccount", async (req, res) => {
-    //password is hashed by frontend
+app.post("/createAccount", jsonParser, async (req, res) => {
+    //password has already been hashed by frontend
     try {
-        const uuid = uuidv4();
-        const account = new Account({
-            uuid: uuid,
-            email: req.body.email,
-            password: req.body.password,
-            phone: req.body.phone,
-            dateJoined: Date.now(),
-            lastLogin: Date.now(),
+        Account.findOne({ email: req.body.email }).then(async (account) => {
+            if (account) {
+                res.status(400).send("Account with that email already exists.");
+            } else {
+                const uuid = uuidv4();
+                const account = new Account({
+                    uuid: uuid,
+                    email: req.body.email,
+                    password: req.body.password,
+                    phone: req.body.phone,
+                    dateJoined: Date.now(),
+                    lastLogin: Date.now(),
+                })
+                await account.save();
+                res.status(200).send(uuid);
+            }
         })
-        await account.save();
-        res.status(200).send(uuid);
     } catch (err) {
+        console.log(err)
         res.status(400).send(err);
     }
 });
+
+app.listen(8443, () => {
+    console.log("Server is running on port 8443.");
+})
