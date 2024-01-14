@@ -25,9 +25,7 @@ export default function Accounts() {
                     duration: 500,
                     easing: 'easeInOutQuad',
                     complete: function (anim) {
-                        setTimeout(() => {
-                            router.push(path);
-                        }, 1000);
+                        router.push(path);
                     }
                 })
             }, 100)
@@ -43,6 +41,8 @@ export default function Accounts() {
 
     function animateBackground(type) {
         if (type == "in") {
+            document.getElementById("smallervidintro").play();
+            document.getElementById("smallervidintro").pause();
             document.getElementById("smallervidoutro").style.display = "none"
             document.getElementById("smallervidintro").style.display = "block"
             document.getElementById("smallervidintro").style.height = "250vh";
@@ -55,6 +55,8 @@ export default function Accounts() {
                 duration: 500,
             })
         } else if (type == "out") {
+            document.getElementById("smallervidoutro").play();
+            document.getElementById("smallervidoutro").pause();
             document.getElementById("smallervidintro").style.display = "none"
             document.getElementById("smallervidoutro").style.display = "block"
             document.getElementById("smallervidoutro").style.height = "90vh";
@@ -331,6 +333,8 @@ export default function Accounts() {
                 router.push("/dash")
             } else {
                 window.scrollTo(0, 0);
+                document.getElementById("splashscreenOutro").play();
+                document.getElementById("splashscreenOutro").pause();
                 setTimeout(() => {
                     document.getElementById("splashscreenOutro").play();
                     anime({
@@ -348,7 +352,7 @@ export default function Accounts() {
                         duration: 500,
                         easing: 'easeInOutQuad'
                     })
-                }, 1000)
+                }, 500)
             }
         }
     }, [router.isReady]);
@@ -360,7 +364,7 @@ export default function Accounts() {
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
             </Head>
             <main>
-                <video id="splashscreenOutro" muted className={styles.splashScreen}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
+                <video id="splashscreenOutro" preload="auto" muted className={styles.splashScreen}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
                 <video id="splashscreenIntro" muted className={styles.splashScreen} style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
                 <div id="maincontent" style={{ opacity: 0 }}>
                     <div onClick={() => push("/")} className={styles.doublegrid} style={{ color: "#a46900", fontSize: "25px", width: "210px", marginTop: "20px", marginLeft: "20px", cursor: "pointer", gridTemplateColumns: "50px auto", gridGap: "0px" }}>

@@ -10,6 +10,7 @@ import Cookies from 'js-cookie';
 export default function Home() {
   const router = useRouter();
   const [account, setAccount] = useState("");
+  const [mobile, setMobile] = useState(false);
 
   //use this function instead of router.push() to play splashscreen
   function push(path) {
@@ -26,9 +27,7 @@ export default function Home() {
           duration: 500,
           easing: 'easeInOutQuad',
           complete: function (anim) {
-            setTimeout(() => {
-              router.push(path);
-            }, 1000);
+            router.push(path);
           }
         })
       }, 100)
@@ -45,7 +44,15 @@ export default function Home() {
   useEffect(() => {
     if (router.isReady) {
       //once the page is fully loaded, play the splashscreen outro
+      if (window.innerWidth <= 600) {
+        setMobile(true);
+        document.getElementById("makeadifferencebtn").innerHTML = "Sign Up"
+        document.getElementById("makeadifferencebtn").style.width = "150px";
+        document.getElementById("goalgrid").style.gridTemplateColumns = "auto";
+      }
       window.scrollTo(0, 0);
+      document.getElementById("splashscreenOutro").play();
+      document.getElementById("splashscreenOutro").pause();
       setTimeout(() => {
         document.getElementById("splashscreenOutro").play();
         anime({
@@ -64,7 +71,7 @@ export default function Home() {
           duration: 500,
           easing: 'easeInOutQuad'
         })
-      }, 300)
+      }, 500)
     }
   }, [router.isReady])
   return (
@@ -81,7 +88,7 @@ export default function Home() {
           <div id="navbar" className={styles.navbar}>
             <Image style={{ marginLeft: "14px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
             <div style={{ position: "absolute", right: "5px", top: "5px" }}>
-              <button className={styles.button} onClick={() => push("accounts")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "#ffbe4ab5", display: (account != "") ? "none" : "block" }}>Make a difference</button>
+              <button id="makeadifferencebtn" className={styles.button} onClick={() => push("accounts")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "#ffbe4ab5", display: (account != "") ? "none" : "block" }}>Make a difference</button>
               <button className={styles.button} style={{ display: (account != "") ? "block" : "none" }} onClick={() => push("dash")}>Your Dashboard</button>
             </div>
           </div>
@@ -97,13 +104,13 @@ export default function Home() {
             <div id="innerContent" style={{ padding: "15px 0px" }}>
               <div id="currentEvents" style={{ marginTop: "15px" }}>
                 <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Happening Now</h3>
-                <div id="currentEventsList">
+                <div id="currentEventsList" style={{overflowX: "auto"}}>
                   <div className={styles.item} style={{ cursor: "unset" }}>
                     <p style={{ color: "rgba(0, 0, 0, 0.300)", margin: "0", width: "100%", textAlign: "center" }} className={styles.fullycenter}>No events to show</p>
                   </div>
                 </div>
               </div>
-              <div className={styles.divider}></div>
+              <div id="makeDifference" className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto" }}>
                 <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }}>Support our cause</button>
@@ -145,7 +152,7 @@ export default function Home() {
                 <div className={styles.divider} style={{ marginTop: "100px" }}></div>
                 <div className={styles.blurredCircle} style={{ position: "absolute", bottom: "-5%", right: "0", backgroundColor: "#fbe85dff", zIndex: "-1" }}></div>
               </div>
-              <div className={styles.doublegrid} style={{ gridTemplateColumns: "1.2fr 0.8fr" }}>
+              <div id="goalgrid" className={styles.doublegrid} style={{ gridTemplateColumns: "1.2fr 0.8fr" }}>
                 <div>
                   <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Our goal</h3>
                   <p className={styles.description} style={{ fontSize: "25px", padding: "0px 20px" }}>
@@ -161,8 +168,8 @@ export default function Home() {
               <h3 className={styles.header} style={{ color: "black", marginLeft: "20px" }}>See what we've been up to</h3>
               <h4 className={styles.subheader} style={{ marginLeft: "20px", marginBottom: "20px" }}>Our blog</h4>
               <div>
-                <div className={styles.card}>
-
+                <div className={styles.redirectcard}>
+                  <p style={{margin: "auto"}}>See All</p>
                 </div>
               </div>
               <div className={styles.divider}></div>
@@ -251,8 +258,8 @@ export default function Home() {
             }
           ]} />
         </div>
-        <video id="splashscreenOutro" muted className={styles.splashScreen}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
-        <video id="splashscreenIntro" muted className={styles.splashScreen} style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
+        <video id="splashscreenOutro" muted playsInline className={styles.splashScreen} preload="auto"><source src="anim_ss_ndmv_outro.mp4"  type="video/mp4" /></video>
+        <video id="splashscreenIntro" muted playsInline className={styles.splashScreen} style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
       </main>
     </>
   )

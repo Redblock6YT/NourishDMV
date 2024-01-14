@@ -1,9 +1,12 @@
 import styles from '@/styles/Home.module.css'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import anime from 'animejs';
 
 export default function Footer(props) {
     const [elements, setElements] = useState([]);
+    const router = useRouter();
     console.log(props.citations)
 
     useEffect(() => {
@@ -18,44 +21,77 @@ export default function Footer(props) {
         }
     }, [props.citations]);
 
+    function push(path) {
+        if (router.isReady) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          document.getElementById("splashscreenIntro").style.display = "block";
+          setTimeout(() => {
+            document.getElementById("splashscreenIntro").playbackRate = 0.5;
+            document.getElementById("splashscreenIntro").play();
+            anime({
+              targets: '#splashscreenIntro',
+              opacity: 1,
+              duration: 500,
+              easing: 'easeInOutQuad',
+              complete: function (anim) {
+                router.push(path);
+              }
+            })
+          }, 100)
+        }
+      }
+
 
     return (
         <>
             <div className={[styles.footer, styles.font].join(" ")}>
                 <div>
-                    <Image src="logo.svg" alt="NourishDMV Logo" height={60} width={300} />
-                    <div style={{ color: "#00000047", paddingLeft: "75px" }}>
-                        <div>
-                            <p style={{ fontSize: "25px", margin: "0px", fontWeight: "normal", display: "inline-block" }}>16701 Melford Blvd, Bowie, MD 20715</p>
-                            <div style={{ display: "inline-block" }}>
-                                <div className={styles.verticaldividerInline}></div>
-                                <p style={{ fontSize: "25px", margin: "0px", fontWeight: "normal", display: "inline-block" }}>(410) 123-4567</p>
+                    
+                    <div style={{ color: "#00000047" }}>
+                        <div className={styles.doublegrid}>
+                            <div style={{ textAlign: "center", fontWeight: "normal",fontSize: "25px" }}>
+                                <Image src="logo.svg" alt="NourishDMV Logo" height={60} width={300} style={{ margin: "auto", marginRight: "auto", display: "block" }} />
+                                <p style={{ margin: "0px" }}>16701 Melford Blvd, Bowie, MD 20715</p>
+                                <p style={{ margin: "0px" }}>(410) 123-4567</p>
+                                <p style={{ margin: "0px" }}>contact@nourishdmv.com</p>
+                                <p style={{ margin: "0px" }}>Social Media: @nourishdmv</p>
                             </div>
-
-                            <div style={{ display: "inline-block" }}>
-                                <div className={styles.verticaldividerInline}></div>
-                                <p style={{ fontSize: "25px", margin: "0px", fontWeight: "normal", display: "inline-block" }}>contact@nourishdmv.com</p>
+                            <div className={styles.footergrid}>
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }} onClick={() => router.push("/#makeDifference")}>
+                                    <button className={styles.cubebutton}><span style={{ fontSize: "50px", margin: "auto" }} class="material-symbols-rounded">food_bank</span></button>
+                                    <p style={{ margin: "0px", fontSize: "20px", textAlign: "center" }}>Make a difference</p>
+                                </div>
+                                
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }} onClick={() => push("/accounts")}>
+                                    <button className={styles.cubebutton}><span style={{fontSize: "50px"}} class="material-symbols-rounded">account_circle</span></button>
+                                    <p style={{ margin: "0px", fontSize: "20px", textAlign: "center" }}>Accounts</p>
+                                </div>
+                                
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }} onClick={() => push("/events")}>
+                                    <button className={styles.cubebutton}><span style={{fontSize: "50px"}} class="material-symbols-rounded">local_activity</span></button>
+                                    <p style={{ margin: "0px", fontSize: "20px", textAlign: "center" }}>Events</p>
+                                </div>
+                                
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}  onClick={() => push("/blog")}>
+                                    <button className={styles.cubebutton}><span style={{fontSize: "50px"}} class="material-symbols-rounded">hub</span></button>
+                                    <p style={{ margin: "0px", fontSize: "20px", textAlign: "center" }}>Blog</p>
+                                </div>
+                                
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }} onClick={() => push("/privacy")}>
+                                    <button className={styles.cubebutton}><span style={{fontSize: "50px"}} class="material-symbols-rounded">policy</span></button>
+                                    <p style={{ margin: "0px", fontSize: "20px", textAlign: "center" }}>Privacy Policy</p>
+                                </div>
+                                
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }} onClick={() => push("/terms")}>
+                                    <button className={styles.cubebutton}><span style={{fontSize: "50px"}} class="material-symbols-rounded">gavel</span></button>
+                                    <p style={{ margin: "0px", fontSize: "20px", textAlign: "center" }}>Terms</p>
+                                </div>
                             </div>
-
-                            <div style={{ display: "inline-block" }}>
-                                <div className={styles.verticaldividerInline}></div>
-                                <p style={{ fontSize: "25px", margin: "0px", fontWeight: "normal", display: "inline-block" }}>Social Media: @nourishdmv</p>
-                            </div>
-                        </div>
-                        <div className={styles.divider} style={{ marginTop: "15px", marginBottom: "15px" }}></div>
-                        <div className={styles.footergrid}>
-                            <button className={styles.cubebutton}>Make a difference</button>
-                            <button className={styles.cubebutton}>Accounts</button>
-                            <button className={styles.cubebutton}>Events</button>
-                            <button className={styles.cubebutton}>Blog</button>
-                            <button className={styles.cubebutton}>About</button>
-                            <button className={styles.cubebutton}>Privacy Policy</button>
-                            <button className={styles.cubebutton}>Terms</button>
                         </div>
 
 
                         {(props.citations != null) ? (
-                            <div id="citationsdiv">
+                            <div id="citationsdiv" style={{textAlign: "center"}}>
                                 <div className={styles.divider} style={{ marginTop: "15px", marginBottom: "15px" }}></div>
                                 <h1>Citations/Attributions</h1>
                                 <div>

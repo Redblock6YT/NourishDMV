@@ -150,18 +150,42 @@
     width: 460px;
 }
 
+.redirectcard {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    background-color: #ffd180ff;
+    color: white;
+    height: 400px;
+    max-width: 310px;
+    border-radius: 25px;
+    padding: 20px 40px;
+    display: inline-block;
+    border: dashed 2px rgb(227, 171, 74);
+    transition: all .5s ease;
+    position: relative;
+    width: 230px;
+    cursor: pointer;
+}
+
+.redirectcard:hover {
+    background-color: rgb(227, 171, 74);
+    height: 430px;
+    width: 260px;
+}
+
 .card {
     font-family: 'Outfit', sans-serif;
     font-size: 20px;
     background-color: #ffd180ff;
     color: white;
     height: 400px;
-    width: 310px;
+    max-width: 310px;
     border-radius: 25px;
     padding: 20px 40px;
     display: inline-block;
     transition: all .5s ease;
     position: relative;
+    min-width: 230px;
     cursor: pointer;
 }
 
@@ -176,9 +200,9 @@
 }
 
 .cubebutton {
-    height: 80px;
-    width: 100%;
-    border-radius: 35px;
+    height: 70px;
+    width: 70px;
+    border-radius: 25px;
     transition: all .2s linear;
     cursor: pointer;
     border: none;
@@ -191,20 +215,7 @@
 }
 
 .cubebutton:hover {
-    box-shadow: 10px 10px 33px #08080854, -9px -9px 33px #00000046;
-    transform: translateY(-2px)
-}
-
-.cubebutton>svg {
-    margin-right: 5px;
-    margin-left: 5px;
-    font-size: 20px;
-    transition: all .4s ease-in
-}
-
-.cubebutton:hover>svg {
-    font-size: 1.2em;
-    transform: translateX(-5px)
+    transform: scale(1.05);
 }
 
 .footeritem {
@@ -308,26 +319,15 @@
 
 .footergrid {
     display: grid;
-    grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 15px;
+    width: 90%;
+    margin: auto;
 }
 
 @media(max-width: 1330px) {
     .tripplegrid {
         grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 1510px) {
-    .footergrid {
-        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    }
-}
-
-
-@media (max-width: 1300px) {
-    .footergrid {
-        grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 }
 
@@ -364,11 +364,5 @@
     .tripplegrid {
         display: grid;
         grid-template-columns: auto;
-    }
-}
-
-@media (max-width: 600px) {
-    .footergrid {
-        grid-template-columns: 1fr;
     }
 }
