@@ -53,7 +53,7 @@
     justify-content: center;
     border-radius: 20px;
     letter-spacing: 1px;
-    transition: all .2s linear;
+    transition: all .5s ease;
     cursor: pointer;
     border: none;
     color: white;
@@ -63,22 +63,8 @@
     margin-bottom: 10px;
     font-size: 20px;
 }
-
-.button>svg {
-    margin-right: 5px;
-    margin-left: 5px;
-    font-size: 20px;
-    transition: all .4s ease-in
-}
-
-.button:hover>svg {
-    font-size: 1.2em;
-    transform: translateX(-5px)
-}
-
 .button:hover {
-    box-shadow: 10px 10px 20px #08080844, -9px -9px 20px #0000002d;
-    transform: translateY(-2px)
+    transform: scale(1.05);
 }
 
 .navbutton {
@@ -243,17 +229,6 @@
     background: linear-gradient(to top, rgb(227, 171, 74), transparent 50%);
 }
 
-.splashScreen {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100;
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-}
-
 .divider {
     border-top: 1px solid rgba(0, 0, 0, 0.104);
     border-bottom: 1px solid rgba(0, 0, 0, 0.104);
@@ -287,19 +262,19 @@
     font-size: 40px;
 }
 
+.fullycenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .subheader {
     font-family: 'Outfit', sans-serif;
     margin: 0px;
     font-size: 30px;
     font-weight: normal;
     color: rgba(0, 0, 0, 0.594);
-}
-
-.fullycenter {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
 }
 
 .blurredCircle {

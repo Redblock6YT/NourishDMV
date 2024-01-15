@@ -28,6 +28,7 @@ async function main() {
 const Account = mongoose.model("Account", {
     uuid: { type: String, default: "" },
     email: { type: String, default: "" },
+    name: { type: String, default: "" },
     role: { type: String, default: "Supporter" },
     password: { type: String, default: "" },
     phone: { type: Number, default: 1234567890 },
@@ -136,13 +137,14 @@ app.post("/createAccount", jsonParser, async (req, res) => {
                 const account = new Account({
                     uuid: uuid,
                     email: req.body.email,
+                    name: req.body.name,
                     password: req.body.password,
                     phone: req.body.phone,
                     dateJoined: Date.now(),
                     lastLogin: Date.now(),
                 })
                 await account.save();
-                res.status(200).send(uuid);
+                res.status(200).send({uuid: uuid, status: "Account created."});
             }
         })
     } catch (err) {
@@ -150,6 +152,21 @@ app.post("/createAccount", jsonParser, async (req, res) => {
         res.status(400).send(err);
     }
 });
+
+app.get("/getAccount", async (req, res) => {
+    try {
+        Account.findOne({ uuid: req.query.uuid }).then((account) => {
+            if (account) {
+                res.status(200).send(account);
+            } else {
+                res.status(400).send("Account not found.");
+            }
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(400).send(err);
+    }
+})
 
 app.listen(8443, () => {
     console.log("Server is running on port 8443.");

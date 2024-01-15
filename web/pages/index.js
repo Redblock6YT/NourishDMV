@@ -50,6 +50,11 @@ export default function Home() {
         document.getElementById("makeadifferencebtn").style.width = "150px";
         document.getElementById("goalgrid").style.gridTemplateColumns = "auto";
       }
+
+      if (Cookies.get("account") != undefined) {
+        setAccount(Cookies.get("account"));
+      }
+
       window.scrollTo(0, 0);
       document.getElementById("splashscreenOutro").play();
       document.getElementById("splashscreenOutro").pause();
@@ -88,8 +93,8 @@ export default function Home() {
           <div id="navbar" className={styles.navbar}>
             <Image style={{ marginLeft: "14px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
             <div style={{ position: "absolute", right: "5px", top: "5px" }}>
-              <button id="makeadifferencebtn" className={styles.button} onClick={() => push("accounts")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "#ffbe4ab5", display: (account != "") ? "none" : "block" }}>Make a difference</button>
-              <button className={styles.button} style={{ display: (account != "") ? "block" : "none" }} onClick={() => push("dash")}>Your Dashboard</button>
+              <button id="makeadifferencebtn" className={styles.button} onClick={() => push("/accounts?view=Sign+Up")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "#ffbe4ab5", display: (account != "") ? "none" : "block" }}>Make a difference</button>
+              <button className={styles.button} style={{ display: (account != "") ? "block" : "none",  height: "35px", marginBottom: "0px", width: "250px", }} onClick={() => push("dash")}>Your Dashboard</button>
             </div>
           </div>
           <div id="bodyContent" style={{ marginTop: "00px", padding: "10px 5%" }}>
@@ -113,11 +118,10 @@ export default function Home() {
               <div id="makeDifference" className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto" }}>
-                <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }}>Support our cause</button>
-                <button className={styles.button} style={{ margin: "auto", height: "300px", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }}>Join our cause</button>
+                <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Support our cause</button>
+                <button className={styles.button} style={{ margin: "auto", height: "300px", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
               </div>
               <div style={{ position: "relative" }}>
-
                 <div className={styles.divider}></div>
                 <div className={styles.blurredCircle} style={{ position: "absolute", top: "-5%", backgroundColor: "#f66d4bff" }}></div>
 
@@ -183,7 +187,6 @@ export default function Home() {
                         call
                       </span>
                     </div>
-
                   </div>
                   <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
                     (410) 123-4567
@@ -258,8 +261,8 @@ export default function Home() {
             }
           ]} />
         </div>
-        <video id="splashscreenOutro" muted playsInline className={styles.splashScreen} preload="auto"><source src="anim_ss_ndmv_outro.mp4"  type="video/mp4" /></video>
-        <video id="splashscreenIntro" muted playsInline className={styles.splashScreen} style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
+        <video id="splashscreenOutro" muted playsInline className="splashScreen" preload="auto"><source src="anim_ss_ndmv_outro.mp4"  type="video/mp4" /></video>
+        <video id="splashscreenIntro" muted playsInline className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
       </main>
     </>
   )

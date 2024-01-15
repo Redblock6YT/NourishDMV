@@ -168,68 +168,82 @@ export default function Accounts() {
                                 }
                             }).catch((err) => {
                                 console.log(err)
-                                document.getElementById("error").style.display = "block";
-                                document.getElementById("errorVerbage").innerHTML = err.response.data;
-                                anime({
-                                    targets: "#error",
-                                    opacity: 1,
-                                    marginTop: "0px",
-                                    easing: "easeOutQuad"
-                                })
-                                if (err.response.data == "Account not found.") {
-                                    animateBackground("in");
-                                    //highlight email field
-                                    showContent(function () {
-                                        anime({
-                                            targets: "#email",
-                                            scale: 1.1,
-                                            backgroundColor: "rgb(239 54 0 / 73%)",
-                                            complete: function (anim) {
-                                                anime({
-                                                    targets: "#email",
-                                                    scale: 1,
-                                                    backgroundColor: "rgb(239 54 0 / 73%)",
-                                                })
-                                            }
-                                        })
+                                if (err.response != undefined) {
+                                    document.getElementById("error").style.display = "block";
+                                    document.getElementById("errorVerbage").innerHTML = err.response.data;
+                                    anime({
+                                        targets: "#error",
+                                        opacity: 1,
+                                        marginTop: "0px",
+                                        easing: "easeOutQuad"
                                     })
-                                } else if (err.response.data == "Incorrect password.") {
-                                    animateBackground("in");
-                                    //highlight password field
-                                    showContent(function () {
-                                        anime({
-                                            targets: "#password",
-                                            scale: 1.1,
-                                            backgroundColor: "rgb(239 54 0 / 73%)",
-                                            complete: function (anim) {
-                                                anime({
-                                                    targets: "#password",
-                                                    scale: 1,
-                                                    backgroundColor: "rgb(239 54 0 / 73%)",
-                                                })
-                                            }
+                                    if (err.response.data == "Account not found.") {
+                                        animateBackground("in");
+                                        //highlight email field
+                                        showContent(function () {
+                                            anime({
+                                                targets: "#email",
+                                                scale: 1.1,
+                                                backgroundColor: "rgb(239 54 0 / 73%)",
+                                                complete: function (anim) {
+                                                    anime({
+                                                        targets: "#email",
+                                                        scale: 1,
+                                                        backgroundColor: "rgb(239 54 0 / 73%)",
+                                                    })
+                                                }
+                                            })
                                         })
-                                    })
-                                } else {
-                                    //other error
-                                    animateBackground("in");
-                                    //highlight both fields
+                                    } else if (err.response.data == "Incorrect password.") {
+                                        animateBackground("in");
+                                        //highlight password field
+                                        showContent(function () {
+                                            anime({
+                                                targets: "#password",
+                                                scale: 1.1,
+                                                backgroundColor: "rgb(239 54 0 / 73%)",
+                                                complete: function (anim) {
+                                                    anime({
+                                                        targets: "#password",
+                                                        scale: 1,
+                                                        backgroundColor: "rgb(239 54 0 / 73%)",
+                                                    })
+                                                }
+                                            })
+                                        })
+                                    } else {
+                                        //other error
+                                        animateBackground("in");
+                                        //highlight both fields
 
-                                    showContent(function () {
-                                        anime({
-                                            targets: ["#email", "#password"],
-                                            scale: 1.1,
-                                            backgroundColor: "rgb(239 54 0 / 73%)",
-                                            complete: function (anim) {
-                                                anime({
-                                                    targets: ["#email", "#password"],
-                                                    scale: 1,
-                                                    backgroundColor: "rgb(239 54 0 / 73%)",
-                                                })
-                                            }
+                                        showContent(function () {
+                                            anime({
+                                                targets: ["#email", "#password"],
+                                                scale: 1.1,
+                                                backgroundColor: "rgb(239 54 0 / 73%)",
+                                                complete: function (anim) {
+                                                    anime({
+                                                        targets: ["#email", "#password"],
+                                                        scale: 1,
+                                                        backgroundColor: "rgb(239 54 0 / 73%)",
+                                                    })
+                                                }
+                                            })
                                         })
+                                    }
+                                } else {
+                                    document.getElementById("error").style.display = "block";
+                                    document.getElementById("errorVerbage").innerHTML = err.message;
+                                    anime({
+                                        targets: "#error",
+                                        opacity: 1,
+                                        marginTop: "0px",
+                                        easing: "easeOutQuad"
                                     })
+                                    animateBackground("in");
+                                    showContent(function () { })
                                 }
+
                             });
                         } else if (actionType == "Sign Up") {
                             axios({
@@ -237,11 +251,15 @@ export default function Accounts() {
                                 method: 'post',
                                 data: {
                                     email: document.getElementById("email").value,
+                                    name: document.getElementById("name").value,
                                     password: document.getElementById("password").value,
                                     phone: document.getElementById("phone").value,
                                 }
                             }).then((res) => {
-                                push("/dash");
+                                if (res.data.status == "Account created.") {
+                                    Cookies.set("account", res.data.uuid);
+                                    push("/dash");
+                                }
                             }).catch((err) => {
                                 animateBackground("in");
                                 console.log(err)
@@ -278,6 +296,7 @@ export default function Accounts() {
     }
 
     function switchView(type, arg) {
+        clearErrors();
         if (type == "norm") {
             animateBackground("out");
             anime({
@@ -301,8 +320,10 @@ export default function Accounts() {
             setActionType(arg);
             if (arg == "Sign In") {
                 document.getElementById("phone").style.display = "none"
+                document.getElementById("name").style.display = "none"
             } else if (arg == "Sign Up") {
                 document.getElementById("phone").style.display = "block"
+                document.getElementById("name").style.display = "block"
             }
             animateBackground("in");
             document.getElementById("smallervidoutro").style.display = "none"
@@ -337,6 +358,9 @@ export default function Accounts() {
                 document.getElementById("splashscreenOutro").pause();
                 setTimeout(() => {
                     document.getElementById("splashscreenOutro").play();
+                    if (router.query.view != undefined) {
+                        switchView("action", router.query.view);
+                    }
                     anime({
                         targets: '#splashscreenOutro',
                         opacity: 0,
@@ -399,6 +423,7 @@ export default function Accounts() {
                             <div id="content">
                                 <button className={styles.chipbutton} onClick={() => switchView("norm")}>Back</button>
                                 <h1 id="modaltext" className={styles.text} style={{ margin: "auto", marginBottom: "10px" }}>{actionType}</h1>
+                                <input required style={{ display: "none" }} className={styles.input} type="text" id="name" placeholder="Full Name"></input>
                                 <input required className={styles.input} onInput={() => clearErrors("email")} type="email" id="email" placeholder="Email" />
                                 <input required style={{ display: "none" }} className={styles.input} type="tel" id="phone" placeholder="Phone Number"></input>
                                 <input required className={styles.input} onInput={() => clearErrors("password")} type="password" id="password" placeholder="Password" />
