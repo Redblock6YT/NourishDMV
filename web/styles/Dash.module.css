@@ -144,7 +144,7 @@
     cursor: pointer;
 }
 
-.hover:hover {
+.hover:hover, .managebutton:hover {
     transform: scale(1.1);
 }
 
@@ -160,6 +160,26 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 25px;
+}
+
+.managebutton {
+    height: 45px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    transition: all .5s ease;
+    cursor: pointer;
+    border: none;
+    color: white;
+    background-color: #ffbe4aff;
+    font-family: 'Outfit', sans-serif;
+    font-weight: normal;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    display: block;
+    font-size: 20px;
 }
 
 .input {
@@ -178,6 +198,28 @@
     font-family: 'Outfit', sans-serif;
     font-weight: bold;
     font-size: 16px;
+}
+
+.slickttt {
+    width: 100%;
+    /* width: 95%; */
+    height: 50px;
+    padding: 12px 20px;
+    border-radius: 20px;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0);
+    border: none;
+    margin-top: 10px;
+    color: rgb(0, 0, 0);
+    font-family: 'Outfit', sans-serif;
+    font-weight: bold;
+    font-size: 40px;
+    transition: all 0.5s ease;
+}
+
+.slickttt:hover, .slickttt:focus {
+    border: 1px dashed rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.11);
 }
 
 .textarea {
@@ -235,6 +277,19 @@
 .sidebarItem:hover {
     transform: scale(1.05);
     background-color: rgb(209, 156, 64);
+}
+
+.closebutton {
+    width: 80px;
+    height: 80px;
+    border-radius: 25px;
+    background-color: rgba(0, 0, 0, 0.37);
+    border: 1px solid rgba(0, 0, 0, 0.281);
+    display: block;
+    color: white;
+    margin: auto;
+    margin-right:0px;
+    margin-bottom: 10px;
 }
 
 .divider {

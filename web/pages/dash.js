@@ -18,6 +18,61 @@ export default function Dash() {
 
     function switchView(view) {
         document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
+        router.push("/dash", "/dash?view=" + view, { shallow: true });
+    }
+
+    function openEventOverlay() {
+        const eventsoverlay = document.getElementById("eventsoverlay");
+        anime({
+            targets: ["#eheader", "#ediv", "#adminview", "#non-adminview"],
+            scale: 0.8,
+            opacity: 0.5,
+            filter: "blur(10px)",
+            easing: 'easeInOutQuad'
+        })
+        document.getElementById("eventsoverlay").style.display = "block";
+        anime({
+            targets: eventsoverlay,
+            scale: 1,
+            opacity: 1,
+            filter: "blur(0px)",
+            easing: 'easeInOutQuad'
+        })
+    }
+
+    function closeEventOverlay(type) {
+        anime({
+            targets: ["#eheader", "#ediv", "#adminview", "#non-adminview"],
+            scale: 1,
+            opacity: 1,
+            filter: "blur(0px)",
+            easing: 'easeInOutQuad'
+        })
+        if (type == "add") {
+            document.getElementById("eventsoverlay").style.display = "block";
+            anime({
+                targets: "#eventsoverlay",
+                height: "10%",
+                scale: 0.5,
+                opacity: 0,
+                filter: "blur(10px)",
+                easing: 'easeInOutQuad',
+                complete: function (anim) {
+                    document.getElementById("eventsoverlay").style.display = "none";
+                }
+            })
+        } else {
+            anime({
+                targets: "#eventsoverlay",
+                scale: 1.2,
+                opacity: 0,
+                filter: "blur(10px)",
+                easing: 'easeInOutQuad',
+                complete: function (anim) {
+                    document.getElementById("eventsoverlay").style.display = "none";
+                }
+            })
+        }
     }
 
     useEffect(() => {
@@ -233,12 +288,12 @@ export default function Dash() {
                     <div style={{ padding: "15px", width: "100%" }}>
                         <div className={styles.sidebar}>
                             <div style={{ padding: "15px" }}>
-                                <button className={styles.sidebarItem} onClick={() => document.getElementById("screens").scrollTo({ top: 0, behavior: 'smooth' })}>At a glance</button>
-                                <button className={styles.sidebarItem} style={{ display: (adminView) ? "block" : "none" }}>Accounts</button>
+                                <button className={styles.sidebarItem} onClick={() => switchView("aag")}>At a glance</button>
+                                <button className={styles.sidebarItem} onClick={() => switchView("accounts")} style={{ display: (adminView) ? "block" : "none" }}>Accounts</button>
                                 <button className={styles.sidebarItem} onClick={() => switchView("blog")}>Blog</button>
                                 <button className={styles.sidebarItem} onClick={() => switchView("events")}>Events</button>
-                                <button className={styles.sidebarItem}>Donations</button>
-                                <button className={styles.sidebarItem} style={{ display: (account == "") ? "none" : "block" }}>My Account</button>
+                                <button className={styles.sidebarItem} onClick={() => switchView("donations")}>Donations</button>
+                                <button className={styles.sidebarItem} onClick={() => switchView("myacc")} style={{ display: (account == "") ? "none" : "block" }}>My Account</button>
 
                                 <button className={styles.sidebarItem} onClick={() => push("/accounts?view=Sign+In")} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: "280px", display: (account == "") ? "block" : "none" }}>Sign In</button>
                                 <div className={styles.sidebarItem} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: "280px", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
@@ -305,31 +360,169 @@ export default function Dash() {
                                     <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference: <a style={{ backgroundColor: "#fbac29ff" }}>Hands On</a></h3>
                                     <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block" }} onClick={() => openOverlay("v")}>Join our team</button>
                                     <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading}>Your Upcoming Events</h4>
-                                    <div id="upcomingeventsl" style={{ margin: "20px" }}>
-                                        <div className={styles.card}>
-                                            <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                <p className={styles.font} style={{ fontSize: "25px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>You aren't apart of any events</p>
-                                                <button className={[styles.minibutton, styles.hover].join(" ")} onClick={() => switchView("events")}>View Events</button>
+                                    <div style={{ display: (account == "") ? "none" : "block" }}>
+                                        <h4 className={styles.screensubheading}>Your Upcoming Events</h4>
+                                        <div id="upcomingeventsl" style={{ margin: "20px" }}>
+                                            <div className={styles.card}>
+                                                <div className={styles.fullycenter} style={{ width: "100%" }}>
+                                                    <p className={styles.font} style={{ fontSize: "25px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>You aren't apart of any events</p>
+                                                    <button className={[styles.minibutton, styles.hover].join(" ")} onClick={() => switchView("events")}>View Events</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <h4 className={styles.screensubheading}>Other Events</h4>
-                                    <div id="othereventsl" style={{ margin: "20px" }}>
-                                        <div className={styles.card}>
-                                            <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>
+
+                                    <div>
+                                        <h4 className={styles.screensubheading}>{(account == "") ? "Events Happening Now" : "Other Events"}</h4>
+                                        <div id="othereventsl" style={{ margin: "20px" }}>
+                                            <div className={styles.card}>
+                                                <div className={styles.fullycenter} style={{ width: "100%" }}>
+                                                    <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
-                        <div id="blog" className={styles.screen}>
-
+                        <div id="accounts" className={styles.screen} style={{ display: (adminView) ? "block" : "none" }}>
+                            <div style={{ padding: "20px" }}>
+                                <h3 className={styles.screenheading}>Accounts</h3>
+                                <div className={styles.divider}></div>
+                            </div>
                         </div>
-                        <div id="events" className={styles.screen}>
+                        <div id="blog" className={styles.screen}>
+                            <div style={{ padding: "20px" }}>
+                                <h3 className={styles.screenheading}>Blog</h3>
+                                <div className={styles.divider}></div>
+                            </div>
+                        </div>
+                        <div id="events" className={styles.screen} style={{ position: "relative" }}>
+                            <div style={{ padding: "20px" }}>
+                                <h3 id="eheader" className={styles.screenheading}>Events</h3>
+                                <div id="ediv" className={styles.divider}></div>
+                                <div id="adminview" style={{ display: (adminView) ? "block" : "none", width: "80%", margin: "auto" }}>
+                                    <div id="eventsnavbar" style={{ gridTemplateColumns: "80% auto" }} className={styles.doublegrid}>
+                                        <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="eventssearch" placeholder="Search with name"></input>
+                                        <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openEventOverlay()}>New Event</button>
+                                    </div>
+                                    <div id="eventslist"></div>
+                                </div>
+                                <div id="non-adminview" style={{ display: (adminView) ? "none" : "block" }}></div>
+                                <div id="eventsoverlay" style={{ overflowY: "auto", overflowX: "visible", display: "none", width: "70%", padding: "10%", height: "65%", transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={styles.fullycenter}>
+                                    <button className={styles.closebutton} onClick={() => closeEventOverlay()}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
+                                    <div style={{ backgroundColor: "rgb(227, 171, 74)", height: "300px", width: "100%", borderRadius: "25px" }}></div>
+                                    <div>
+                                        <input id="ename" className={styles.slickttt} style={{ marginTop: "20px" }} placeholder="Event Name"></input>
+                                        <textarea id="edesc" onInput={() => {
+                                            document.getElementById("edesc").style.height = "auto";
+                                            document.getElementById("edesc").style.height = (document.getElementById("edesc").scrollHeight) + "px";
+                                        }} className={styles.slickttt} style={{ fontSize: "30px", fontWeight: "normal" }} placeholder="Event Description"></textarea>
+                                    </div>
+                                    <div className={styles.divider}></div>
+                                    <div id="ecdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto" }}>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Location</h3>
+                                        <input placeholder="Location" className={styles.input}></input>
+                                    </div>
+                                    <div className={styles.divider}></div>
+                                    <div id="evdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "150px auto" }}>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Visibility</h3>
+                                        <select id="evselect" className={styles.input}>
+                                            <option>Visible</option>
+                                            <option>Hidden</option>
+                                        </select>
+                                    </div>
+                                    <div id="ecdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "200px auto" }}>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Cost</h3>
+                                        <select id="ecselect" className={styles.input} onInput={() => {
+                                            if (document.getElementById("ecselect").value == "Custom") {
+                                                document.getElementById("eusdamount").style.display = "block";
+                                                document.getElementById("ecdoublegrid").style.gridTemplateColumns = "200px auto 200px";
+                                            } else {
+                                                document.getElementById("eusdamount").style.display = "none";
+                                                document.getElementById("ecdoublegrid").style.gridTemplateColumns = "200px auto";
+                                            }
+                                        }}>
+                                            <option>Free</option>
+                                            <option>Custom</option>
+                                        </select>
+                                        <input id="eusdamount" className={styles.input} style={{ display: "none" }} placeholder="USD Amount"></input>
+                                    </div>
+                                    <div id="erdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto" }}>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Time</h3>
+                                        <select id="erselect" className={styles.input} onInput={() => {
+                                            if (document.getElementById("erselect").value == "Scheduled") {
+                                                document.getElementById("erdtdoublegrid").style.display = "grid";
+                                            } else {
+                                                document.getElementById("erdtdoublegrid").style.display = "none";
+                                            }
+                                        }}>
+                                            <option>Open</option>
+                                            <option>Scheduled</option>
+                                            <option>Closed</option>
+                                        </select>
+                                    </div>
+                                    <div id="erdtdoublegrid" className={styles.doublegrid} style={{ display: "none" }}>
+                                        <div>
+                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Start</h3>
+                                            <input id="erst" type="datetime-local" className={styles.input}></input>
+                                        </div>
+                                        <div>
+                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration End</h3>
+                                            <input id="eret" type="datetime-local" className={styles.input}></input>
+                                        </div>
+                                    </div>
+                                    <div id="etdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "200px auto" }}>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Time</h3>
+                                        <select id="etselect" className={styles.input} onInput={() => {
+                                            if (document.getElementById("etselect").value == "Scheduled") {
+                                                document.getElementById("etdtdoublegrid").style.display = "grid";
+                                            } else {
+                                                document.getElementById("etdtdoublegrid").style.display = "none";
+                                            }
+                                        }}>
+                                            <option>Scheduled</option>
+                                            <option>Pending</option>
+                                            <option>On-Going</option>
+                                            <option>Ended</option>
+                                        </select>
+                                    </div>
+                                    <div id="etdtdoublegrid" className={styles.doublegrid}>
+                                        <div>
+                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Start</h3>
+                                            <input id="est" type="datetime-local" className={styles.input}></input>
+                                        </div>
+                                        <div>
+                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event End</h3>
+                                            <input id="eet" type="datetime-local" className={styles.input}></input>
+                                        </div>
+                                    </div>
+                                    <button className={styles.managebutton} onClick={() => {
+                                        axios({
+                                            method: "post",
+                                            url: "http://localhost:8443/createEvent",
+                                            data: {
+                                                title: document.getElementById("ename").value,
+                                                description: document.getElementById("edesc").value,
+                                                visible: document.getElementById("evselect").value,
+                                                status: document.getElementById("etselect").value,
+                                                registrationOpen: document.getElementById("erselect").value,
+                                                registrationStartDateTime: document.getElementById("erst").value,
+                                                registrationEndDateTime: document.getElementById("eret").value,
+                                                startDateTime: document.getElementById("est").value,
+                                                endDateTime: document.getElementById("eet").value,
+                                                cost: (document.getElementById("eusdamount").value == "") ? "Free" : parseFloat(document.getElementById("eusdamount").value).toFixed(2),
+                                            }
+                                        }).then((res) => {
+                                            closeEventOverlay("add");
+                                        }).catch((err) => {
+                                            console.log(err)
+                                        })
+                                    }}>Add Event</button>
+                                </div>
 
+                            </div>
                         </div>
                     </div>
 
@@ -414,7 +607,7 @@ export default function Dash() {
                                     <input className={styles.input} type="text" placeholder="Email"></input>
                                 </div>
 
-                                <div className={styles.doublegrid} style={{gridTemplateColumns: "150px auto 150px", gridGap: "15px"}}>
+                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "150px auto 150px", gridGap: "15px" }}>
                                     <select className={styles.input} placeholder="Name">
                                         <option>Area</option>
                                         <option>D.C.</option>

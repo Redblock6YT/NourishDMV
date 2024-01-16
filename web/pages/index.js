@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import anime from 'animejs';
 import Footer from '@/components/NDMVFooter.jsx';
 import Cookies from 'js-cookie';
+import axios from 'axios'
 
 export default function Home() {
   const router = useRouter();
@@ -55,6 +56,20 @@ export default function Home() {
         setAccount(Cookies.get("account"));
       }
 
+      axios({
+        method: "get",
+        url: "http://localhost:3000/getEvents"
+      }).then((res) => {
+        if (res.status == 200) {
+          const events = res.data;
+          for (var i = 0; i < events.length; i++) {
+
+          }
+        }
+      }).catch((err) => {
+        
+      });
+
       window.scrollTo(0, 0);
       document.getElementById("splashscreenOutro").play();
       document.getElementById("splashscreenOutro").pause();
@@ -94,7 +109,7 @@ export default function Home() {
             <Image style={{ marginLeft: "14px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
             <div style={{ position: "absolute", right: "5px", top: "5px" }}>
               <button id="makeadifferencebtn" className={styles.button} onClick={() => push("/accounts?view=Sign+Up")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "#ffbe4ab5", display: (account != "") ? "none" : "block" }}>Make a difference</button>
-              <button className={styles.button} style={{ display: (account != "") ? "block" : "none",  height: "35px", marginBottom: "0px", width: "250px", }} onClick={() => push("dash")}>Your Dashboard</button>
+              <button className={styles.button} style={{ display: (account != "") ? "block" : "none",  height: "35px", marginBottom: "0px", width: "150px", }} onClick={() => push("dash")}>Dashboard</button>
             </div>
           </div>
           <div id="bodyContent" style={{ marginTop: "00px", padding: "10px 5%" }}>

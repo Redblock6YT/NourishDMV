@@ -41,14 +41,14 @@ const Account = mongoose.model("Account", {
 const Event = mongoose.model("Event", {
     title: { type: String, default: "" },
     description: { type: String, default: "" },
-    visible: { type: Boolean, default: true },
+    visible: { type: String, default: "Visible" },
     status: { type: String, default: "pending" },
-    registrationOpen: { type: Boolean, default: false },
+    registrationOpen: { type:  String, default: "Open" },
     registrationStartDateTime: { type: Date, default: Date.now },
     registrationEndDateTime: { type: Date, default: Date.now },
     startDateTime: { type: Date, default: Date.now },
     endDateTime: { type: Date, default: Date.now },
-    cost: { type: Number, default: 0 },
+    cost: { type: String, default: "Free" },
 })
 
 const BlogPost = mongoose.model("BlogPost", {
@@ -120,6 +120,21 @@ app.post("/createEvent", jsonParser, async (req, res) => {
         })
         await event.save();
         res.status(200).send(event);
+    } catch (err) {
+        console.log(err)
+        res.status(400).send(err);
+    }
+})
+
+app.get("/getEvents", async (req, res) => {
+    try {
+        Event.find({}).then((events) => {
+            if (events) {
+                res.status(200).send(events);
+            } else {
+                res.status(400).send("No events found.");
+            }
+        })
     } catch (err) {
         console.log(err)
         res.status(400).send(err);
