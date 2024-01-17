@@ -13,6 +13,12 @@
     z-index: 10000;
 }
 
+.infingrid {
+    display: grid;
+    grid-gap: 15px;
+    grid-template-columns: 280px 160px 130px 170px;
+}
+
 .font {
     font-family: 'Outfit', sans-serif;
 }
@@ -140,7 +146,7 @@
     font-family: 'Outfit', sans-serif;
     font-size: 20px;
     background-color: #ffd180ff;
-    color: white;
+    color: rgba(0, 0, 0, 0.504);
     height: 400px;
     max-width: 310px;
     border-radius: 25px;

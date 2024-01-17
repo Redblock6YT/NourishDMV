@@ -47,6 +47,8 @@ export default function Home() {
       //once the page is fully loaded, play the splashscreen outro
       if (window.innerWidth <= 600) {
         setMobile(true);
+        document.getElementById("menuicon").style.display = "block";
+        document.getElementById("menulogogrid").style.display = "grid"
         document.getElementById("makeadifferencebtn").innerHTML = "Sign Up"
         document.getElementById("makeadifferencebtn").style.width = "150px";
         document.getElementById("goalgrid").style.gridTemplateColumns = "auto";
@@ -67,7 +69,7 @@ export default function Home() {
           }
         }
       }).catch((err) => {
-        
+
       });
 
       window.scrollTo(0, 0);
@@ -106,10 +108,31 @@ export default function Home() {
       <main>
         <div id="content" style={{ opacity: "0" }}>
           <div id="navbar" className={styles.navbar}>
-            <Image style={{ marginLeft: "14px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
+            <div id="menulogogrid" className={styles.doublegrid} style={{ width: "210px", gridTemplateColumns: "10px auto", marginLeft: "14px", display: "block" }}>
+              <span id="menuicon" class="material-symbols-rounded" style={{ fontSize: "30px", margin: "auto", cursor: "pointer", display: "none" }} onClick={() => openSidebar()}>menu</span>
+              <Image style={{ marginLeft: "5px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
+            </div>
+            <div id="buttons" className={[styles.fullycenter, styles.infingrid].join(" ")}>
+              <div onClick={() => router.push("/#makeDifference")} style={{ margin: "auto", height: "35px", width: "280px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+                <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">food_bank</span>
+                <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Make a difference</p>
+              </div>
+              <div onClick={() => push("/dash?view=events")} style={{ margin: "auto", height: "35px", width: "160px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+                <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">local_activity</span>
+                <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Events</p>
+              </div>
+              <div onClick={() => push("/dash?view=blog")} style={{ margin: "auto", height: "35px", width: "130px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+                <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">hub</span>
+                <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Blog</p>
+              </div>
+              <div onClick={() => push("/accounts")} style={{ margin: "auto", height: "35px", width: "170px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+                <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">account_circle</span>
+                <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Accounts</p>
+              </div>
+            </div>
             <div style={{ position: "absolute", right: "5px", top: "5px" }}>
-              <button id="makeadifferencebtn" className={styles.button} onClick={() => push("/accounts?view=Sign+Up")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "#ffbe4ab5", display: (account != "") ? "none" : "block" }}>Make a difference</button>
-              <button className={styles.button} style={{ display: (account != "") ? "block" : "none",  height: "35px", marginBottom: "0px", width: "150px", }} onClick={() => push("dash")}>Dashboard</button>
+              <button id="makeadifferencebtn" className={styles.button} onClick={() => push("/accounts?view=Sign+Up")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "rgb(251 172 41 / 58%)", display: (account != "") ? "none" : "block" }}>Sign Up</button>
+              <button className={styles.button} style={{ display: (account != "") ? "block" : "none", height: "35px", marginBottom: "0px", width: "150px", backgroundColor: "rgb(251 172 41 / 58%)" }} onClick={() => push("dash")}>Dashboard</button>
             </div>
           </div>
           <div id="bodyContent" style={{ marginTop: "00px", padding: "10px 5%" }}>
@@ -124,7 +147,7 @@ export default function Home() {
             <div id="innerContent" style={{ padding: "15px 0px" }}>
               <div id="currentEvents" style={{ marginTop: "15px" }}>
                 <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Happening Now</h3>
-                <div id="currentEventsList" style={{overflowX: "auto"}}>
+                <div id="currentEventsList" style={{ overflowX: "auto" }}>
                   <div className={styles.item} style={{ cursor: "unset" }}>
                     <p style={{ color: "rgba(0, 0, 0, 0.300)", margin: "0", width: "100%", textAlign: "center" }} className={styles.fullycenter}>No events to show</p>
                   </div>
@@ -171,7 +194,7 @@ export default function Home() {
                 <div className={styles.divider} style={{ marginTop: "100px" }}></div>
                 <div className={styles.blurredCircle} style={{ position: "absolute", bottom: "-5%", right: "0", backgroundColor: "#fbe85dff", zIndex: "-1" }}></div>
               </div>
-              <div id="goalgrid" className={styles.doublegrid} style={{ gridTemplateColumns: "1.2fr 0.8fr" }}>
+              <div id="goalgrid" className={styles.doublegrid} style={{ gridTemplateColumns: "1.2fr 0.8fr", gridGap: "100px" }}>
                 <div>
                   <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Our goal</h3>
                   <p className={styles.description} style={{ fontSize: "25px", padding: "0px 20px" }}>
@@ -184,17 +207,31 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.divider}></div>
-              <h3 className={styles.header} style={{ color: "black", marginLeft: "20px" }}>See what we've been up to</h3>
+              <h3 className={styles.header} style={{ color: "black", marginLeft: "20px" }}>See how we've been <a style={{ backgroundColor: "rgb(251, 172, 41)" }}>impacting our community</a></h3>
               <h4 className={styles.subheader} style={{ marginLeft: "20px", marginBottom: "20px" }}>Our blog</h4>
               <div>
-                <div className={styles.redirectcard}>
-                  <p style={{margin: "auto"}}>See All</p>
+                <div className={styles.redirectcard} onClick={() => push("/dash?view=blog")}>
+                  <div className={styles.fullycenter}>
+                    <div style={{ position: "relative" }}>
+                      <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "140px", height: "140px", filter: "blur(20px)", transform: "translateY(-50%) translateX(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
+                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                        <span style={{fontSize: "50px"}} className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                          open_in_new
+                        </span>
+                      </div>
+                    </div>
+                    <p style={{ margin: "auto", fontSize: "50px", width: "100%", textAlign: "center", marginTop: "50px" }}>See All</p>
+                  </div>
+
                 </div>
               </div>
               <div className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Get in touch</h3>
               <div className={styles.contactgrid}>
-                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
+                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
+                  <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
+                    (410) 123-4567
+                  </div>
                   <div style={{ position: "relative" }}>
                     <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
                     <div style={{ zIndex: "5" }} className={styles.fullycenter}>
@@ -202,9 +239,6 @@ export default function Home() {
                         call
                       </span>
                     </div>
-                  </div>
-                  <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
-                    (410) 123-4567
                   </div>
                 </div>
                 <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginLeft: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "mailto:contact@nourishdmv.com"}>
@@ -235,7 +269,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className={styles.item} style={{ margin: "auto", marginLeft: "0px" }} onClick={() => window.location.href = "tel:4101234567"}>
+                <div className={styles.item} style={{ margin: "auto", marginLeft: "0px", cursor: "default" }}>
                   <div style={{ position: "relative", height: "100%", filter: "blur(20px)" }}>
                     <div style={{ position: "absolute" }} className={styles.fullycenter}>
                       <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateX(-50%) translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
@@ -276,7 +310,7 @@ export default function Home() {
             }
           ]} />
         </div>
-        <video id="splashscreenOutro" muted playsInline className="splashScreen" preload="auto"><source src="anim_ss_ndmv_outro.mp4"  type="video/mp4" /></video>
+        <video id="splashscreenOutro" muted playsInline className="splashScreen" preload="auto"><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
         <video id="splashscreenIntro" muted playsInline className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
       </main>
     </>

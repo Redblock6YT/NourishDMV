@@ -17,6 +17,13 @@ export default function Dash() {
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
 
     function switchView(view) {
+        const navbtns = document.getElementById("navbtns");
+        for (var i = 0; i < navbtns.children.length; i++) {
+            navbtns.children[i].style.backgroundColor = "#e3ab4a"
+            navbtns.children[i].style.marginLeft = "0px"
+        }
+        document.getElementById(view + "btn").style.backgroundColor = "rgb(209, 156, 64)";
+        document.getElementById(view + "btn").style.marginLeft = "10px";
         document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
         router.push("/dash", "/dash?view=" + view, { shallow: true });
     }
@@ -288,13 +295,14 @@ export default function Dash() {
                     <div style={{ padding: "15px", width: "100%" }}>
                         <div className={styles.sidebar}>
                             <div style={{ padding: "15px" }}>
-                                <button className={styles.sidebarItem} onClick={() => switchView("aag")}>At a glance</button>
-                                <button className={styles.sidebarItem} onClick={() => switchView("accounts")} style={{ display: (adminView) ? "block" : "none" }}>Accounts</button>
-                                <button className={styles.sidebarItem} onClick={() => switchView("blog")}>Blog</button>
-                                <button className={styles.sidebarItem} onClick={() => switchView("events")}>Events</button>
-                                <button className={styles.sidebarItem} onClick={() => switchView("donations")}>Donations</button>
-                                <button className={styles.sidebarItem} onClick={() => switchView("myacc")} style={{ display: (account == "") ? "none" : "block" }}>My Account</button>
-
+                                <div id="navbtns">
+                                    <button id="aagbtn" className={styles.sidebarItem} onClick={() => switchView("aag")}>At a glance</button>
+                                    <button id="accountsbtn" className={styles.sidebarItem} onClick={() => switchView("accounts")} style={{ display: (adminView) ? "block" : "none" }}>Accounts</button>
+                                    <button id="blogbtn" className={styles.sidebarItem} onClick={() => switchView("blog")}>Blog</button>
+                                    <button id="eventsbtn" className={styles.sidebarItem} onClick={() => switchView("events")}>Events</button>
+                                    <button id="donationsbtn" className={styles.sidebarItem} onClick={() => switchView("donations")}>Donations</button>
+                                    <button id="mebtn" className={styles.sidebarItem} onClick={() => switchView("me")} style={{ display: (account == "") ? "none" : "block" }}>Me</button>
+                                </div>
                                 <button className={styles.sidebarItem} onClick={() => push("/accounts?view=Sign+In")} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: "280px", display: (account == "") ? "block" : "none" }}>Sign In</button>
                                 <div className={styles.sidebarItem} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: "280px", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
                                     <div style={{ display: "grid", gridTemplateColumns: "60px auto 50px", padding: "10px", height: "50px" }}>
