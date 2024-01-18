@@ -191,7 +191,7 @@ export default function Home() {
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">food_bank</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Make a difference</p>
               </div>
-              <div id="eventsbtn" onClick={() => push("/dash?view=events")} style={{ margin: "auto", height: "35px", width: "160px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+              <div id="eventsbtn" onClick={( ) => push("/dash?view=events")} style={{ margin: "auto", height: "35px", width: "160px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">local_activity</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Events</p>
               </div>
@@ -209,7 +209,7 @@ export default function Home() {
               <button className={styles.button} style={{ display: (account != "") ? "block" : "none", height: "35px", marginBottom: "0px", width: "150px", backgroundColor: "rgb(251 172 41 / 58%)" }} onClick={() => push("dash")}>Dashboard</button>
             </div>
           </div>
-          <div id="bodyContent" style={{ marginTop: "00px", padding: "10px 5%" }}>
+          <div id="bodyContent" style={{ marginTop: "47px", padding: "10px 5%" }}>
             <div id="herosContainer" style={{ position: "relative" }}>
               <img src="shelter.jpg" className={styles.blurredHero} />
               <div id="hero" className={styles.hero}>

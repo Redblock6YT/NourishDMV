@@ -5,8 +5,10 @@
     border: solid 1px rgb(161 161 161 / 13%);
     backdrop-filter: blur(10px);
     width: 99%;
-    position: sticky;
+    position: fixed;
     top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
     height: 45px;
     border-radius: 25px;
     margin: auto;
