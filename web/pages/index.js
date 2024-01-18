@@ -13,15 +13,40 @@ export default function Home() {
   const [account, setAccount] = useState("");
   const [mobile, setMobile] = useState(false);
 
+  function openSidebar() {
+    document.getElementById("mainelem").style.overflowY = "hidden"
+    document.body.style.overflowY = "hidden"
+    anime({
+      targets: "#sidebar",
+      left: "50%",
+      duration: 500,
+      easing: 'easeInOutQuad',
+    })
+  }
+
+  function closeSidebar() {
+    document.getElementById("mainelem").style.overflowY = "auto"
+    document.body.style.overflowY = "hidden"
+    anime({
+      targets: "#sidebar",
+      left: "-50%",
+      duration: 500,
+      easing: 'easeInOutQuad',
+    })
+  }
+
   //use this function instead of router.push() to play splashscreen
   function push(path) {
     if (router.isReady) {
+      closeSidebar();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       document.getElementById("splashscreenIntro").style.display = "block";
       document.body.style.overflowY = "hidden"
       setTimeout(() => {
         document.getElementById("splashscreenIntro").playbackRate = 0.5;
-        document.getElementById("splashscreenIntro").play();
+        document.getElementById("splashscreenIntro").play().catch((e) => {
+          console.log(e)
+        });
         anime({
           targets: '#splashscreenIntro',
           opacity: 1,
@@ -47,11 +72,32 @@ export default function Home() {
       //once the page is fully loaded, play the splashscreen outro
       if (window.innerWidth <= 600) {
         setMobile(true);
+        document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_mobile.mp4";
+        document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_mobile.mp4";
         document.getElementById("menuicon").style.display = "block";
         document.getElementById("menulogogrid").style.display = "grid"
-        document.getElementById("makeadifferencebtn").innerHTML = "Sign Up"
-        document.getElementById("makeadifferencebtn").style.width = "150px";
+        document.getElementById("makeadifferencebtn").style.display = "none"
         document.getElementById("goalgrid").style.gridTemplateColumns = "auto";
+      }
+
+      if (window.innerWidth <= 1300) {
+        document.getElementById("acctsbtn").style.display = "none";
+        document.getElementById("buttons").style.gridTemplateColumns = "280px 160px 130px"
+      }
+
+      if (window.innerWidth <= 1122) {
+        document.getElementById("blogbtn").style.display = "none"
+        document.getElementById("buttons").style.gridTemplateColumns = "280px 160px"
+      }
+
+      if (window.innerWidth <= 900) {
+        document.getElementById("eventsbtn").style.display = "none"
+        document.getElementById("buttons").style.gridTemplateColumns = "280px"
+      }
+
+      if (window.innerWidth <= 800) {
+        document.getElementById("makediffbtn").style.display = "none"
+        document.getElementById("buttons").style.display = "none"
       }
 
       if (Cookies.get("account") != undefined) {
@@ -73,10 +119,17 @@ export default function Home() {
       });
 
       window.scrollTo(0, 0);
-      document.getElementById("splashscreenOutro").play();
+      //playing the splashscreen is not essential, if it errors, just fade
+
+      document.getElementById("splashscreenOutro").play().catch((e) => {
+        console.log(e)
+      });
       document.getElementById("splashscreenOutro").pause();
       setTimeout(() => {
-        document.getElementById("splashscreenOutro").play();
+        document.getElementById("splashscreenOutro").play().catch((e) => {
+          console.log(e)
+        });
+
         anime({
           targets: '#splashscreenOutro',
           opacity: 0,
@@ -94,6 +147,7 @@ export default function Home() {
           easing: 'easeInOutQuad'
         })
       }, 500)
+
     }
   }, [router.isReady])
   return (
@@ -105,27 +159,47 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
       </Head>
-      <main>
+      <main id="mainelem" style={{ overflowX: "hidden" }}>
+        <div id="sidebar" className={styles.sidenavbar}>
+          <Image style={{ marginLeft: "5px", position: "absolute" }} src="logo_white.svg" alt="NourishDMV Logo" height={80} width={250} />
+          <button className={styles.closebutton} onClick={() => closeSidebar()}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
+          <div onClick={() => router.push("/#makeDifference")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+            <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">food_bank</span>
+            <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Make a difference</p>
+          </div>
+          <div onClick={() => push("/dash?view=events")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+            <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">local_activity</span>
+            <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Events</p>
+          </div>
+          <div onClick={() => push("/dash?view=blog")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+            <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">hub</span>
+            <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Blog</p>
+          </div>
+          <div onClick={() => push("/accounts")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+            <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">account_circle</span>
+            <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Accounts</p>
+          </div>
+        </div>
         <div id="content" style={{ opacity: "0" }}>
           <div id="navbar" className={styles.navbar}>
             <div id="menulogogrid" className={styles.doublegrid} style={{ width: "210px", gridTemplateColumns: "10px auto", marginLeft: "14px", display: "block" }}>
               <span id="menuicon" class="material-symbols-rounded" style={{ fontSize: "30px", margin: "auto", cursor: "pointer", display: "none" }} onClick={() => openSidebar()}>menu</span>
               <Image style={{ marginLeft: "5px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
             </div>
-            <div id="buttons" className={[styles.fullycenter, styles.infingrid].join(" ")}>
-              <div onClick={() => router.push("/#makeDifference")} style={{ margin: "auto", height: "35px", width: "280px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+            <div id="buttons" className={[styles.fullycenter, styles.navbtngrid].join(" ")}>
+              <div id="makediffbtn" onClick={() => router.push("/#makeDifference")} style={{ margin: "auto", height: "35px", width: "280px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">food_bank</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Make a difference</p>
               </div>
-              <div onClick={() => push("/dash?view=events")} style={{ margin: "auto", height: "35px", width: "160px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+              <div id="eventsbtn" onClick={() => push("/dash?view=events")} style={{ margin: "auto", height: "35px", width: "160px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">local_activity</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Events</p>
               </div>
-              <div onClick={() => push("/dash?view=blog")} style={{ margin: "auto", height: "35px", width: "130px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+              <div id="blogbtn" onClick={() => push("/dash?view=blog")} style={{ margin: "auto", height: "35px", width: "130px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">hub</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Blog</p>
               </div>
-              <div onClick={() => push("/accounts")} style={{ margin: "auto", height: "35px", width: "170px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+              <div id="acctsbtn" onClick={() => push("/accounts")} style={{ margin: "auto", height: "35px", width: "170px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">account_circle</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Accounts</p>
               </div>
@@ -139,8 +213,8 @@ export default function Home() {
             <div id="herosContainer" style={{ position: "relative" }}>
               <img src="shelter.jpg" className={styles.blurredHero} />
               <div id="hero" className={styles.hero}>
-                <img className={styles.fullycenter} src="shelter.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "25px" }} />
-                <h1 style={{ width: "80%", textAlign: "center", fontSize: "60px", textShadow: "0 0 20px BLACK", color: "white" }} className={[styles.header, styles.fullycenter].join(" ")}>Food and shelter for all in the DMV</h1>
+                <img className={styles.fullycenter} src="shelter.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.8)", borderRadius: "25px" }} />
+                <h1 style={{ width: "80%", textAlign: "center", fontSize: (mobile) ? "50px" : "60px", textShadow: "0 0 20px BLACK", color: "white" }} className={[styles.header, styles.fullycenter].join(" ")}>Food and shelter for all in the DMV</h1>
               </div>
             </div>
 
@@ -215,7 +289,7 @@ export default function Home() {
                     <div style={{ position: "relative" }}>
                       <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "140px", height: "140px", filter: "blur(20px)", transform: "translateY(-50%) translateX(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
                       <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                        <span style={{fontSize: "50px"}} className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                        <span style={{ fontSize: "50px" }} className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
                           open_in_new
                         </span>
                       </div>

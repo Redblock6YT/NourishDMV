@@ -10,15 +10,23 @@ import axios from 'axios';
 export default function Accounts() {
     const router = useRouter();
     const [view, setView] = useState('norm');
+    const [mobile, setMobile] = useState(false);
     const [actionType, setActionType] = useState("Sign In");
 
     function push(path) {
         if (router.isReady) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            //window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById("splashscreenIntro").play().catch((err) => {
+                console.log(err)
+            });
+            document.getElementById("splashscreenIntro").pause();
             document.getElementById("splashscreenIntro").style.display = "block";
             setTimeout(() => {
                 document.getElementById("splashscreenIntro").playbackRate = 0.5;
-                document.getElementById("splashscreenIntro").play();
+                document.getElementById("splashscreenIntro").play().catch((err) => {
+                    document.getElementById("splashscreenIntro").style.display = "none";
+                    console.log(err)
+                });
                 anime({
                     targets: '#splashscreenIntro',
                     opacity: 1,
@@ -30,9 +38,8 @@ export default function Accounts() {
                 })
             }, 100)
             anime({
-                targets: '#content',
+                targets: "#maincontent",
                 opacity: 0,
-                filter: "blur(20px)",
                 duration: 1000,
                 easing: 'easeInOutQuad'
             })
@@ -50,7 +57,7 @@ export default function Accounts() {
             document.getElementById("smallervidintro").playbackRate = 0.8;
             anime({
                 targets: "#smallervidintro",
-                height: "90vh",
+                height: (mobile) ? "80vh" : "90vh",
                 easing: "easeInOutQuad",
                 duration: 500,
             })
@@ -96,7 +103,7 @@ export default function Accounts() {
         if (!arg) {
             anime({
                 targets: ["#email", "#password", "#phone"],
-                backgroundColor: "rgba(88, 88, 88, 0.034)"
+                backgroundColor: "rgb(88 88 88 / 12%)"
             })
             anime({
                 targets: "#error",
@@ -110,7 +117,7 @@ export default function Accounts() {
         } else if (arg == "email") {
             anime({
                 targets: "#email",
-                backgroundColor: "rgba(88, 88, 88, 0.034)"
+                backgroundColor: "rgb(88 88 88 / 12%)"
             })
             if (document.getElementById("errorVerbage").innerHTML == "Account not found." || document.getElementById("errorVerbage").innerHTML == "Account with that email already exists.") {
                 anime({
@@ -126,7 +133,7 @@ export default function Accounts() {
         } else if (arg == "password") {
             anime({
                 targets: "#password",
-                backgroundColor: "rgba(88, 88, 88, 0.034)"
+                backgroundColor: "rgb(88 88 88 / 12%)"
             })
             if (document.getElementById("errorVerbage").innerHTML == "Incorrect password.") {
                 anime({
@@ -354,10 +361,22 @@ export default function Accounts() {
                 router.push("/dash")
             } else {
                 window.scrollTo(0, 0);
-                document.getElementById("splashscreenOutro").play();
+                if (window.innerWidth <= 600) {
+                    setMobile(true);
+                    document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_mobile.mp4";
+                    document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_mobile.mp4";
+                    document.getElementById("smallervidintro").src = "accounts_animatedbackground_intro_mobile.mp4";
+                    document.getElementById("smallervidoutro").src = "accounts_animatedbackground_outro_mobile.mp4";
+                }
+
+                document.getElementById("splashscreenOutro").play().catch((err) => {
+                    console.log(err)
+                });
                 document.getElementById("splashscreenOutro").pause();
                 setTimeout(() => {
-                    document.getElementById("splashscreenOutro").play();
+                    document.getElementById("splashscreenOutro").play().catch((err) => {
+                        console.log(err)
+                    });
                     if (router.query.view != undefined) {
                         switchView("action", router.query.view);
                     }
@@ -387,37 +406,37 @@ export default function Accounts() {
                 <title>Accounts | NourishDMV</title>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
             </Head>
-            <main>
-                <video id="splashscreenOutro" preload="auto" muted className={styles.splashScreen}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
-                <video id="splashscreenIntro" muted className={styles.splashScreen} style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
+            <main style={{ overflow: "hidden" }}>
+                <video id="splashscreenOutro" playsInline preload="auto" muted="true" className={styles.splashScreen}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
+                <video id="splashscreenIntro" playsInline muted="true" className={styles.splashScreen} style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
                 <div id="maincontent" style={{ opacity: 0 }}>
-                    <div onClick={() => push("/")} className={styles.doublegrid} style={{ color: "#a46900", fontSize: "25px", width: "210px", marginTop: "20px", marginLeft: "20px", cursor: "pointer", gridTemplateColumns: "50px auto", gridGap: "0px" }}>
+                    <div onClick={() => push("/")} className={styles.doublegrid} style={{ color: "#a46900", fontSize: "25px", width: "210px", marginTop: "20px", marginLeft: "20px", cursor: "pointer", gridTemplateColumns: "50px auto", gridGap: "0px", position: "relative", zIndex: "100" }}>
                         <span class="material-symbols-rounded" style={{ fontSize: "40px" }}>arrow_circle_left</span>
                         <p className={styles.font} style={{ margin: "auto" }}>Back to Home</p>
                     </div>
-                    <div className={styles.fullycenter} style={{ width: "90%", height: "85%" }}>
+                    <div className={styles.fullycenter} style={{ width: "90%", height: (mobile) ? "75%" : "83%" }}>
                         <div id="home" className={styles.buttonsgrid}>
                             <button className={styles.bigbutton} onClick={() => switchView("action", "Sign In")}>
                                 <div className={styles.blurredBehind}>
-                                    <span style={{ fontSize: "500px", color: "#00000017" }} class="material-symbols-rounded">person</span>
+                                    <span style={{ fontSize: (mobile) ? "350px" : "500px", color: "#00000017" }} class="material-symbols-rounded">person</span>
                                 </div>
 
                                 Sign In
-                                <p style={{ fontSize: "35px", fontWeight: "normal" }}>to your NourishDMV Account</p>
+                                <p style={{ fontSize: "35px", fontWeight: "normal", display: (mobile) ? "none" : "block" }}>to your NourishDMV Account</p>
                             </button>
                             <button className={styles.bigbutton} onClick={() => switchView("action", "Sign Up")}>
                                 <div className={styles.blurredBehind}>
-                                    <span style={{ fontSize: "500px", color: "#00000017" }} class="material-symbols-rounded">person_add</span>
+                                    <span style={{ fontSize: (mobile) ? "350px" : "500px", color: "#00000017" }} class="material-symbols-rounded">person_add</span>
                                 </div>
                                 Sign Up
-                                <p style={{ fontSize: "35px", fontWeight: "normal" }}>for a NourishDMV Account</p>
+                                <p style={{ fontSize: "35px", fontWeight: "normal", display: (mobile) ? "none" : "block" }}>for a NourishDMV Account</p>
                             </button>
                         </div>
                     </div>
 
                     <div id="action" style={{ display: "none" }}>
-                        <video muted className={styles.bkgrndvideo} id="smallervidintro"><source src="accounts_animatedbackground_intro.mp4" type="video/mp4"></source></video>
-                        <video muted className={styles.bkgrndvideo} style={{ display: "none" }} id="smallervidoutro"><source src="accounts_animatedbackground_outro.mp4" type="video/mp4"></source></video>
+                        <video playsInline muted className={styles.bkgrndvideo} id="smallervidintro"><source src="accounts_animatedbackground_intro.mp4" type="video/mp4"></source></video>
+                        <video playsInline muted className={styles.bkgrndvideo} style={{ display: "none" }} id="smallervidoutro"><source src="accounts_animatedbackground_outro.mp4" type="video/mp4"></source></video>
                         <div className={styles.modal} id="modal">
                             <div id="loading" className="loading"></div>
                             <div id="content">
@@ -440,7 +459,7 @@ export default function Accounts() {
                         <Image src="logo.svg" alt="NourishDMV Logo" height={43} width={200} />
                         <h3 className={styles.font} style={{ margin: "0px", fontSize: "28px", lineHeight: "normal", fontWeight: "lighter" }}> Accounts</h3>
                     </div>
-                    <p style={{ margin: "auto", fontSize: "20px", color: "#00000047", position: "absolute", bottom: "10px", left: "10px", fontWeight: "bold" }} className={styles.font}>Copyright © {new Date().getFullYear()} NourishDMV</p>
+                    <p style={{ margin: "auto", display: (mobile) ? "none" : "block", width: "100%", fontSize: "20px", color: "#00000047", position: "absolute", bottom: "10px", left: "10px", fontWeight: "bold" }} className={styles.font}>Copyright © {new Date().getFullYear()} NourishDMV</p>
                 </div>
             </main>
         </>

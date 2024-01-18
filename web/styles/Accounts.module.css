@@ -2,7 +2,7 @@
     border-radius: 30px;
     background-color: rgba(153, 153, 153, 0.23);
     border: solid 1px rgb(161 161 161 / 13%);
-    backdrop-filter: saturate(180%) blur(10px);
+    backdrop-filter: blur(10px);
     background-size: cover;
     padding: 20px;
     position: absolute;
@@ -27,9 +27,8 @@
     padding: 12px 20px;
     border-radius: 20px;
     box-sizing: border-box;
-    background-color: rgba(88, 88, 88, 0.034);
+    background-color: rgb(88 88 88 / 12%);
     border: solid 1px rgb(161 161 161 / 13%);
-    backdrop-filter: saturate(180%) blur(10px);
     margin-bottom: 10px;
     color: rgb(255, 255, 255);
     font-family: 'Outfit', sans-serif;
@@ -193,5 +192,9 @@
 @media (max-width: 600px) {
     .buttonsgrid {
         grid-template-columns: auto;
+    }
+
+    .bigbutton {
+        font-size: 60px;
     }
 }

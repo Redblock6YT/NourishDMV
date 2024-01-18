@@ -13,7 +13,7 @@
     z-index: 10000;
 }
 
-.infingrid {
+.navbtngrid {
     display: grid;
     grid-gap: 15px;
     grid-template-columns: 280px 160px 130px 170px;
@@ -306,6 +306,33 @@
     margin: auto;
 }
 
+.sidenavbar {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.678);
+    backdrop-filter: blur(20px);
+    left: -50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 30px;
+    height: 94vh;
+    width: 87vw;
+    z-index: 10001;
+    padding: 20px;
+}
+
+.closebutton {
+    width: 80px;
+    height: 80px;
+    border-radius: 25px;
+    background-color: rgba(0, 0, 0, 0.37);
+    border: 1px solid rgba(0, 0, 0, 0.281);
+    display: block;
+    color: white;
+    margin: auto;
+    margin-right:0px;
+    margin-bottom: 10px;
+}
+
 @media(max-width: 1330px) {
     .tripplegrid {
         grid-template-columns: 1fr 1fr;
@@ -345,5 +372,14 @@
     .tripplegrid {
         display: grid;
         grid-template-columns: auto;
+    }
+
+    .card {
+        height: 300px;
+    }
+
+    .card::after {
+        height: 300px;
+        background: linear-gradient(to top, rgb(227, 171, 74), transparent 100%)
     }
 }

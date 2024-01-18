@@ -14,6 +14,7 @@ export default function Dash() {
     const [accountData, setAccountData] = useState({});
     const [adminView, setAdminView] = useState(false);
     const [step, setStep] = useState(0);
+    const [mobile, setMobile] = useState(false);
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
 
     function switchView(view) {
@@ -197,7 +198,9 @@ export default function Dash() {
             document.body.style.overflowY = "hidden"
             setTimeout(() => {
                 document.getElementById("splashscreenIntro").playbackRate = 0.5;
-                document.getElementById("splashscreenIntro").play();
+                document.getElementById("splashscreenIntro").play().catch((err) => {
+                    console.log(err)
+                });
                 anime({
                     targets: '#splashscreenIntro',
                     opacity: 1,
@@ -251,10 +254,14 @@ export default function Dash() {
             }
 
             window.scrollTo(0, 0);
-            document.getElementById("splashscreenOutro").play();
+            document.getElementById("splashscreenOutro").play().catch((err) => {
+                console.log(err)
+            });
             document.getElementById("splashscreenOutro").pause();
             setTimeout(() => {
-                document.getElementById("splashscreenOutro").play();
+                document.getElementById("splashscreenOutro").play().catch((err) => {
+                    console.log(err)
+                });
                 anime({
                     targets: '#splashscreenOutro',
                     opacity: 0,
