@@ -166,7 +166,7 @@ export default function Accounts() {
                     complete: function (anim) {
                         if (actionType == "Sign In") {
                             axios({
-                                url: 'http://localhost:8443/requestSignIn?email=' + document.getElementById("email").value + '&password=' + document.getElementById("password").value + '',
+                                url: process.env.api_host + 'requestSignIn?email=' + document.getElementById("email").value + '&password=' + document.getElementById("password").value + '',
                                 method: 'get',
                             }).then((result) => {
                                 if (result.data.status == "Sign In approved.") {
