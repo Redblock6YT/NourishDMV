@@ -168,6 +168,21 @@ app.post("/createAccount", jsonParser, async (req, res) => {
     }
 });
 
+app.get("/getAccounts", async(req, res) => {
+    try {
+        Account.find({}).then((accounts) => {
+            if (accounts) {
+                res.status(200).send(accounts);
+            } else {
+                res.status(400).send("No accounts found.");
+            }
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(400).send(err);
+    }
+})
+
 app.get("/getAccount", async (req, res) => {
     try {
         Account.findOne({ uuid: req.query.uuid }).then((account) => {
@@ -184,5 +199,5 @@ app.get("/getAccount", async (req, res) => {
 })
 
 app.listen(8445, () => {
-    console.log("Server is running on port 8443.");
+    console.log("Server listening");
 })

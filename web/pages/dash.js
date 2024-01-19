@@ -14,6 +14,7 @@ export default function Dash() {
     const [adminView, setAdminView] = useState(false);
     const [step, setStep] = useState(0);
     const [mobile, setMobile] = useState(false);
+    const [accounts, setAccounts] = useState([]);
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
 
     function switchView(view) {
@@ -26,6 +27,32 @@ export default function Dash() {
         document.getElementById(view + "btn").style.marginLeft = "10px";
         document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
         router.push("/dash", "/dash?view=" + view, { shallow: true });
+        refresh(view);
+    }
+
+    function refresh(view) {
+        if (view == "accounts") {
+            axios({
+                method: "get",
+                url: "http://localhost:8445/getAccounts",
+            }).then((res) => {
+                const accounts = res.data;
+                setAccounts(accounts);
+                for (var i = 0; i < accounts.length; i++) {
+                    const account = accounts[i];
+                    var accountItem = document.createElement("div");
+                    var accountName = document.createElement("p");
+                    accountName.innerHTML = account.name;
+                    accountName.style.margin = "0px";
+                    accountName.className = styles.font;
+                    accountItem.className = styles.item;
+                    accountItem.appendChild(accountName);
+                    document.getElementById("accountslist").appendChild(accountItem);
+                }
+            }).catch((err) => {
+                apiError(err);
+            })
+        }
     }
 
     function openEventOverlay() {
@@ -220,11 +247,33 @@ export default function Dash() {
         }
     }
 
+    function apiError(err) {
+        var message = "Network Error"
+        if (err.response) {
+            message = err.response.data
+        }
+        document.getElementById("errorMessage").innerHTML = message;
+        anime({
+            targets: "#errorCard",
+            bottom: "10px",
+            easing: 'easeInOutQuad',
+            complete: function (anim) {
+                anime({
+                    targets: "#errorCard",
+                    bottom: "-50%",
+                    easing: 'easeInOutQuad',
+                    delay: 5000,
+                })
+            }
+        })
+    }
+
+
     useEffect(() => {
         if (account != "") {
             axios({
                 method: "get",
-                url: "http://localhost:8443/getAccount?uuid=" + account
+                url: "http://localhost:8445/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -232,11 +281,17 @@ export default function Dash() {
                     setAdminView(true);
                 }
             }).catch((err) => {
-                if (err.response.data == "Account not found.") {
-                    Cookies.remove("account");
-                    setAccount("");
-                    push("/accounts?view=Sign+In")
+                console.log(err);
+                if (err.response) {
+                    if (err.response.data == "Account not found.") {
+                        Cookies.remove("account");
+                        setAccount("");
+                        push("/accounts?view=Sign+In")
+                    }
+                } else {
+                    apiError(err.message)
                 }
+
             })
         }
     }, [account])
@@ -257,10 +312,7 @@ export default function Dash() {
                 console.log(err)
             });
             document.getElementById("splashscreenOutro").pause();
-            axios({
-                method: "get",
-                url: "http://api.rygb.tech:8445/getAccounts",
-            })
+
             setTimeout(() => {
                 document.getElementById("splashscreenOutro").play().catch((err) => {
                     console.log(err)
@@ -272,7 +324,7 @@ export default function Dash() {
                     easing: 'easeInOutQuad',
                     complete: function (anim) {
                         document.getElementById("splashscreenOutro").style.display = "none";
-                        document.body.style.overflowY = "auto"
+                        document.body.style.overflowY = "hidden"
                         if (router.query.view != undefined) {
                             if (router.query.view == "volunteer") {
                                 openOverlay("v");
@@ -298,7 +350,7 @@ export default function Dash() {
                 <title>Dashboard | NourishDMV</title>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
             </Head>
-            <main>
+            <main style={{ overflow: 'hidden' }}>
                 <video id="splashscreenOutro" preload="auto" muted className="splashScreen"><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
                 <video id="splashscreenIntro" muted className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
                 <div id="content" style={{ opacity: 0, overflow: "hidden" }} className={styles.sidebarContent}>
@@ -350,7 +402,7 @@ export default function Dash() {
                                         </div>
                                         <div className={styles.bentobox}>
                                             <p style={{ position: "absolute", top: 15, left: 15, margin: "0px", fontWeight: "normal", fontSize: "35px", }}>accounts registered</p>
-                                            <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px" }}>582</p>
+                                            <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px" }}>{accounts.length}</p>
                                         </div>
                                         <div className={styles.bentobox}>
                                             <p style={{ position: "absolute", top: 15, left: 15, margin: "0px" }}>5K</p>
@@ -406,8 +458,40 @@ export default function Dash() {
                         </div>
                         <div id="accounts" className={styles.screen} style={{ display: (adminView) ? "block" : "none" }}>
                             <div style={{ padding: "20px" }}>
-                                <h3 className={styles.screenheading}>Accounts</h3>
+                                <div className={styles.doublegrid} style={{width: "200px"}}>
+                                    <h3 className={styles.screenheading}>Accounts</h3>
+                                    <div className={styles.loading} style={{ opacity: 0 }}></div>
+                                </div>
+                                <div style={{ margin: "20px", display: "flex", justifyContent: "center" }}>
+                                    <div className={styles.bentobox}>
+                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px", fontWeight: "normal", fontSize: "35px" }}>accounts registered</p>
+                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px" }}>{accounts.length}</p>
+                                    </div>
+                                    <div className={styles.bentobox}>
+                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px" }}>0</p>
+                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px", fontWeight: "normal", fontSize: "35px", textAlign: "right" }}>volunteers</p>
+                                    </div>
+                                    <div className={styles.bentobox}>
+                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px", fontWeight: "normal", fontSize: "35px" }}>donators</p>
+                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px" }}>0</p>
+                                    </div>
+                                    <div className={styles.bentobox}>
+                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px" }}>0</p>
+                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px", fontWeight: "normal", fontSize: "35px", textAlign: "right" }}>from DC</p>
+                                    </div>
+                                    <div className={styles.bentobox}>
+                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px", fontWeight: "normal", fontSize: "35px" }}>from Maryland</p>
+                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px" }}>0</p>
+                                    </div>
+                                    <div className={styles.bentobox}>
+                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px" }}>0</p>
+                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px", fontWeight: "normal", fontSize: "35px", textAlign: "right" }}>from Virginia</p>
+                                    </div>
+                                </div>
                                 <div className={styles.divider}></div>
+                                <div id="accountslist" style={{ width: "70%", margin: "auto" }}>
+
+                                </div>
                             </div>
                         </div>
                         <div id="blog" className={styles.screen}>
@@ -647,6 +731,11 @@ export default function Dash() {
                             </div>
                         </div>
                     </div>
+
+                </div>
+                <div id="errorCard" className={styles.errorCard}>
+                    <h2>Error</h2>
+                    <p id="errorMessage">Error Message</p>
                 </div>
             </main>
         </>
