@@ -326,9 +326,20 @@
     margin-bottom: 10px;
 }
 
+.sidebarbutton {
+    width: 60px;
+    height: 60px;
+    border-radius: 25px;
+    background-color: rgba(255, 208, 128, 0.692);
+    border: 1px solid rgb(227, 171, 74);
+    display: block;
+    color: white;
+    margin: auto;
+}
+
 .divider {
-    border-top: 1px solid rgb(227, 171, 74);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.104);
+    border-top: 0.5px solid rgb(227, 171, 74);
+    border-bottom: 0.5px solid rgb(227, 171, 74);
     margin: auto;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -349,7 +360,7 @@
     border: 4px rgba(247, 183, 73, 0.418)solid;
     border-top: 4px rgb(247, 183, 73) solid;
     border-radius: 50%;
-    margin-top: 10px;
+    margin-top: 12px;
     opacity: 0;
     -webkit-animation: spin2 0.7s infinite linear;
     animation: spin2 0.7s infinite linear;
@@ -391,7 +402,8 @@
     left: 50%;
     transform: translate(-50%, -50%);
     display: grid;
-    grid-template-columns: 300px auto;
+    overflow: visible;
+    grid-template-columns: 20% auto;
     grid-gap: 25px;
 }
 
@@ -408,6 +420,24 @@
     margin-right: 20px;
     margin-bottom: 20px;
     color: #ffe5b9;
+    transition: ease 0.5s all;
+}
+
+.bentoboxShorter {
+    border-radius: 25px;
+    width: 250px;
+    height: 100px;
+    background-color: #e3ab4a;
+    position: relative;
+    font-family: 'Outfit', sans-serif;
+    font-size: 50px;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    padding: 20px;
+    color: #ffe5b9;
+    transition: ease 0.5s all;
 }
 
 .minilistitem {

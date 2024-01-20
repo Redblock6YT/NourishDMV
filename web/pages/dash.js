@@ -15,6 +15,7 @@ export default function Dash() {
     const [step, setStep] = useState(0);
     const [mobile, setMobile] = useState(false);
     const [accounts, setAccounts] = useState([]);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
 
     function switchView(view) {
@@ -31,28 +32,119 @@ export default function Dash() {
     }
 
     function refresh(view) {
-        if (view == "accounts") {
-            axios({
-                method: "get",
-                url: "http://localhost:8445/getAccounts",
-            }).then((res) => {
-                const accounts = res.data;
-                setAccounts(accounts);
-                for (var i = 0; i < accounts.length; i++) {
-                    const account = accounts[i];
-                    var accountItem = document.createElement("div");
-                    var accountName = document.createElement("p");
-                    accountName.innerHTML = account.name;
-                    accountName.style.margin = "0px";
-                    accountName.className = styles.font;
-                    accountItem.className = styles.item;
-                    accountItem.appendChild(accountName);
-                    document.getElementById("accountslist").appendChild(accountItem);
+        anime({
+            targets: '#' + view + 'loading',
+            opacity: 1,
+            easing: 'linear',
+            duration: 300,
+        })
+        anime({
+            targets: "#" + view + "content",
+            filter: "blur(40px)",
+            scale: 0.9,
+            duration: 500,
+            easing: 'easeInOutQuad',
+            complete: function (anim) {
+                if (view == "accounts") {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:8445/getAccounts",
+                    }).then((res) => {
+                        const accounts = res.data;
+                        var dc = 0;
+                        var md = 0;
+                        var va = 0;
+                        setAccounts(accounts);
+                        const accountslist = document.getElementById("accountslist");
+                        while (accountslist.firstChild) {
+                            accountslist.removeChild(accountslist.firstChild);
+                        }
+                        for (var i = 0; i < accounts.length; i++) {
+                            const account = accounts[i];
+                            var accountItem = document.createElement("div");
+                            var accountName = document.createElement("p");
+                            accountName.innerHTML = account.name;
+                            accountName.style.margin = "0px";
+                            accountName.className = styles.font;
+                            accountItem.className = styles.item;
+                            if (account.area == "D.C.") {
+                                dc++;
+                            } else if (account.area == "Maryland") {
+                                md++;
+                            } else if (account.area == "Virginia") {
+                                va++;
+                            }
+                            accountItem.appendChild(accountName);
+                            accountslist.appendChild(accountItem);
+                        }
+                        document.getElementById("dccount").innerHTML = dc;
+                        document.getElementById("mdcount").innerHTML = md;
+                        document.getElementById("vacount").innerHTML = va;
+                        anime({
+                            targets: accountsloading,
+                            opacity: 0,
+                            duration: 300,
+                            easing: 'linear',
+                        })
+                        anime({
+                            targets: "#accountscontent",
+                            filter: "blur(0px)",
+                            duration: 500,
+                            scale: 1,
+                            easing: 'easeInOutQuad',
+                        })
+                    }).catch((err) => {
+                        apiError(err);
+                        anime({
+                            targets: accountsloading,
+                            opacity: 0,
+                            duration: 300,
+                            easing: 'linear',
+                        })
+                    })
+                } else if (view == "blog") {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:8445/getBlogPosts"
+                    }).then((res) => {
+                        const posts = res.data;
+                        for (var i = 0; i < posts.length; i++) {
+                            const post = posts[i];
+                            var postItem = document.createElement("div");
+                            var postTitle = document.createElement("p");
+                            postTitle.innerHTML = post.title;
+                            postTitle.style.margin = "0px";
+                            postTitle.className = styles.font;
+                            postItem.className = styles.item;
+                            postItem.appendChild(postTitle);
+                            document.getElementById("bloglist").appendChild(postItem);
+                        }
+                        document.getElementById("blogpostsnum").innerHTML = posts.length;
+                        anime({
+                            targets: "#" + view + "loading",
+                            opacity: 0,
+                            duration: 300,
+                            easing: 'linear',
+                        })
+                        anime({
+                            targets: "#" + view + "content",
+                            filter: "blur(0px)",
+                            duration: 500,
+                            scale: 1,
+                            easing: 'easeInOutQuad',
+                        })
+                    }).catch((err) => {
+                        apiError(err);
+                        anime({
+                            targets: "#" + view + "loading",
+                            opacity: 0,
+                            duration: 300,
+                            easing: 'linear',
+                        })
+                    })
                 }
-            }).catch((err) => {
-                apiError(err);
-            })
-        }
+            }
+        })
     }
 
     function openEventOverlay() {
@@ -142,7 +234,26 @@ export default function Dash() {
             })
             setStep(step + 1);
         }
+    }
 
+    function toggleSidebar() {
+        if (sidebarOpen) {
+            hideSidebar();
+        } else {
+            showSidebar();
+        }
+    }
+
+    function showSidebar() {
+        document.getElementById("content").style.gridTemplateColumns = "20% auto";
+        document.getElementById("content").style.left = "50%";
+        setSidebarOpen(true);
+    }
+
+    function hideSidebar() {
+        document.getElementById("content").style.gridTemplateColumns = "20% 100%";
+        document.getElementById("content").style.left = "28%";
+        setSidebarOpen(false);
     }
 
     function openOverlay(type) {
@@ -351,9 +462,9 @@ export default function Dash() {
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
             </Head>
             <main style={{ overflow: 'hidden' }}>
-                <video id="splashscreenOutro" preload="auto" muted className="splashScreen"><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
-                <video id="splashscreenIntro" muted className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
-                <div id="content" style={{ opacity: 0, overflow: "hidden" }} className={styles.sidebarContent}>
+                <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen"><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
+                <video id="splashscreenIntro" playsInline muted className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
+                <div id="content" style={{ opacity: 0, overflow: "visible", transition: "all ease 0.5s" }} className={styles.sidebarContent}>
                     <div style={{ padding: "15px", width: "100%" }}>
                         <div className={styles.sidebar}>
                             <div style={{ padding: "15px" }}>
@@ -458,46 +569,70 @@ export default function Dash() {
                         </div>
                         <div id="accounts" className={styles.screen} style={{ display: (adminView) ? "block" : "none" }}>
                             <div style={{ padding: "20px" }}>
-                                <div className={styles.doublegrid} style={{width: "200px"}}>
+                                <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
+                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                     <h3 className={styles.screenheading}>Accounts</h3>
-                                    <div className={styles.loading} style={{ opacity: 0 }}></div>
+                                    <div className={styles.loading} id="accountsloading"></div>
                                 </div>
-                                <div style={{ margin: "20px", display: "flex", justifyContent: "center" }}>
-                                    <div className={styles.bentobox}>
-                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px", fontWeight: "normal", fontSize: "35px" }}>accounts registered</p>
-                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px" }}>{accounts.length}</p>
+                                <div id="accountscontent">
+                                    <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>{accounts.length}</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>accounts</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>volunteers</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donators</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p id="dccount" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from DC</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p id="mdcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p id="vacount" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Virginia</p>
+                                        </div>
                                     </div>
-                                    <div className={styles.bentobox}>
-                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px" }}>0</p>
-                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px", fontWeight: "normal", fontSize: "35px", textAlign: "right" }}>volunteers</p>
-                                    </div>
-                                    <div className={styles.bentobox}>
-                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px", fontWeight: "normal", fontSize: "35px" }}>donators</p>
-                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px" }}>0</p>
-                                    </div>
-                                    <div className={styles.bentobox}>
-                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px" }}>0</p>
-                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px", fontWeight: "normal", fontSize: "35px", textAlign: "right" }}>from DC</p>
-                                    </div>
-                                    <div className={styles.bentobox}>
-                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px", fontWeight: "normal", fontSize: "35px" }}>from Maryland</p>
-                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px" }}>0</p>
-                                    </div>
-                                    <div className={styles.bentobox}>
-                                        <p style={{ position: "absolute", top: 15, left: 15, margin: "0px" }}>0</p>
-                                        <p style={{ position: "absolute", bottom: 15, right: 15, margin: "0px", fontWeight: "normal", fontSize: "35px", textAlign: "right" }}>from Virginia</p>
-                                    </div>
-                                </div>
-                                <div className={styles.divider}></div>
-                                <div id="accountslist" style={{ width: "70%", margin: "auto" }}>
+                                    <div className={styles.divider}></div>
+                                    <div id="accountslist" style={{ width: "70%", margin: "auto" }}>
 
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
                         <div id="blog" className={styles.screen}>
                             <div style={{ padding: "20px" }}>
-                                <h3 className={styles.screenheading}>Blog</h3>
-                                <div className={styles.divider}></div>
+                                <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
+                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                    <h3 className={styles.screenheading}>Blog</h3>
+                                    <div className={styles.loading} id="blogloading"></div>
+                                </div>
+
+                                <div id="blogcontent">
+                                    <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p id="blogpostsnum" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>posts</p>
+                                        </div>
+                                    </div>
+                                    <div className={styles.divider}></div>
+                                    <div id="eventsnavbar" style={{ gridTemplateColumns: "75% auto" }} className={styles.doublegrid}>
+                                        <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="eventssearch" placeholder="Search with title"></input>
+                                        <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openEventOverlay()}>New Event</button>
+                                    </div>
+                                    <div id="bloglist">
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div id="events" className={styles.screen} style={{ position: "relative" }}>
@@ -642,7 +777,7 @@ export default function Dash() {
                     </div>
                     <div id="zigZag" className={styles.zigZag} style={{ '--lighterColor': "#ffe7bf", backgroundColor: "#ce8400ff", height: "100%", left: "100%" }}>
                         <div id="donate" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1d" className={styles.fullycenter} style={{ width: "80%", left: "150%", opacity: 0 }}>
+                            <div id="v1d" className={styles.fullycenter} style={{ width: "85%", left: "150%", opacity: 0 }}>
                                 <h1 className={styles.header}>Select donation amount</h1>
                                 <p className={styles.subheader}>Your donation contributes to our goal of ensuring everyone in the DMV has food and shelter.</p>
                                 <div className={styles.doublegrid} style={{ width: "250px", margin: "auto", marginTop: "100px", marginBottom: "100px", gridTemplateColumns: "50px auto", gridGap: "0px" }}>
@@ -700,7 +835,7 @@ export default function Dash() {
                             </div>
                         </div>
                         <div id="volunteer" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1v" className={styles.fullycenter} style={{ width: "60%", left: "150%", opacity: 0 }}>
+                            <div id="v1v" className={styles.fullycenter} style={{ width: "65%", left: "150%", opacity: 0 }}>
                                 <h1 className={styles.header}>NourishDMV Volunteer Application</h1>
                                 <p className={styles.subheader}>Thank you for your interest in being a NourishDMV Volunteer! Please fill out this application and we'll get back to you as soon as possible.</p>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px", gridTemplateColumns: "auto auto auto" }}>

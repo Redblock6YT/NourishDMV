@@ -106,7 +106,7 @@ export default function Home() {
 
       axios({
         method: "get",
-        url: "http://localhost:3000/getEvents"
+        url: "http://localhost:8445/getEvents"
       }).then((res) => {
         if (res.status == 200) {
           const events = res.data;

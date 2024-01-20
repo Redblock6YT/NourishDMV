@@ -31,6 +31,7 @@ const Account = mongoose.model("Account", {
     name: { type: String, default: "" },
     role: { type: String, default: "Supporter" },
     password: { type: String, default: "" },
+    area: { type: String, default: "D.C." },
     phone: { type: Number, default: 1234567890 },
     dateJoined: { type: Date, default: Date.now },
     lastLogin: { type: Date, default: Date.now },
@@ -87,6 +88,21 @@ app.get("/requestSignIn", async (req, res) => {
         console.log(err)
         res.status(400).send(err);
     })
+})
+
+app.get("/getBlogPosts", async (req, res) => {
+    try {
+        BlogPost.find({}).then((posts) => {
+            if (posts) {
+                res.status(200).send(posts);
+            } else {
+                res.status(400).send("No posts found.");
+            }
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(400).send(err);
+    }
 })
 
 app.post("/newPost", jsonParser, async (req, res) => {
@@ -155,6 +171,7 @@ app.post("/createAccount", jsonParser, async (req, res) => {
                     name: req.body.name,
                     password: req.body.password,
                     phone: req.body.phone,
+                    area: req.body.area,
                     dateJoined: Date.now(),
                     lastLogin: Date.now(),
                 })
