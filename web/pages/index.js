@@ -2,7 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '@/styles/Home.module.css'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import anime from 'animejs';
 import Footer from '@/components/NDMVFooter.jsx';
 import Cookies from 'js-cookie';
@@ -12,6 +12,8 @@ export default function Home() {
   const router = useRouter();
   const [account, setAccount] = useState("");
   const [mobile, setMobile] = useState(false);
+  const [loadContent, setLoadContent] = useState(false);
+  const [intervalIds, setIntervalIds] = useState([]);
 
   function openSidebar() {
     document.getElementById("mainelem").style.overflowY = "hidden"
@@ -67,6 +69,319 @@ export default function Home() {
     }
   }
 
+  function refreshEvents() {
+    console.log("refreshing events")
+    console.log("clear events")
+
+    for (var i = 0; i < intervalIds.length; i++) {
+      clearInterval(intervalIds[i]);
+      setIntervalIds([]);
+    }
+
+    axios({
+      method: "get",
+      url: "http://localhost:8445/getEvents"
+    }).then((res) => {
+      if (res.status == 200) {
+        console.log("got events")
+        const events = res.data;
+        const currentEventsList = document.getElementById("currentEventsList");
+        for (var i = 0; i < currentEventsList.children.length; i++) {
+          currentEventsList.children[i].remove();
+        }
+        for (var i = 0; i < 4; i++) {
+          if (events[i] == undefined) {
+            continue;
+          }
+          const event = events[i].event;
+          const eventid = events[i].id;
+          const eventcard = document.createElement("div");
+          const eventcontentcontainer = document.createElement("div");
+          eventcontentcontainer.style.display = "grid"
+          eventcontentcontainer.style.gridTemplateColumns = "auto 50px";
+          eventcontentcontainer.style.gridGap = "15px"
+          eventcontentcontainer.style.height = "100%"
+          eventcontentcontainer.style.width = "100%"
+          eventcard.className = styles.item;
+          eventcard.style.borderRadius = "30px"
+          eventcard.style.marginRight = "20px"
+          eventcard.style.marginBottom = "20px"
+          const eventcountdown = document.createElement("div");
+          eventcountdown.style.display = "none"
+          const countdownlabeltop = document.createElement("p");
+          const countdownlabelbottom = document.createElement("p");
+          const countdownnumbs = document.createElement("h2");
+          countdownlabeltop.style.margin = "0px"
+          countdownlabeltop.style.marginTop = "5px"
+          countdownlabeltop.style.textAlign = "center"
+          countdownlabelbottom.style.margin = "0px"
+          countdownlabelbottom.style.textAlign = "center"
+          countdownnumbs.className = styles.font;
+          countdownnumbs.style.textAlign = "center"
+          countdownnumbs.style.margin = "0px"
+          countdownnumbs.style.fontSize = "50px"
+          countdownnumbs.style.color = "white"
+
+          //Pending means that the event has not happened yet
+          var eventStatusCountdown = false;
+          var registrationStatusCountdown = false;
+
+          var eventStatus = "Pending";
+          eventcard.className = [styles.itemPending, styles.itemEvents].join(" ")
+          if (event.status == "On-Going") {
+            eventStatus = "On-Going";
+            eventcard.className = [styles.itemOnGoing, styles.itemEvents].join(" ")
+          } else if (event.status == "Ended") {
+            eventStatus = "Ended";
+            eventcard.className = [styles.itemEnded, styles.itemEvents].join(" ")
+          } else if (event.status == "Scheduled (Auto)") {
+            eventStatusCountdown = true;
+            eventcountdown.style.display = "block"
+            eventcontentcontainer.style.gridTemplateColumns = "150px auto 50px";
+            if (Date.parse(event.startDateTime) > Date.now()) {
+              eventStatus = "Pending"
+            } else if (Date.parse(event.startDateTime) < Date.now() && Date.parse(event.endDateTime) > Date.now()) {
+              eventStatus = "On-Going"
+            } else if (Date.parse(event.endDateTime) < Date.now()) {
+              eventStatus = "Ended"
+              eventcard.className = [styles.itemEnded, styles.itemEvents].join(" ")
+            }
+          }
+
+          var registrationStatus = "Pending";
+          if (event.registrationStatus == "Open") {
+            registrationStatus = "Open";
+          } else if (event.registrationStatus == "Closed") {
+            registrationStatus = "Closed";
+          } else if (event.registrationStatus == "Scheduled (Auto)") {
+            registrationStatusCountdown = true;
+            eventcountdown.style.display = "grid"
+            eventcontentcontainer.style.gridTemplateColumns = "150px auto 50px";
+            if (Date.parse(event.registrationStartDateTime) > Date.now()) {
+              registrationStatus = "Pending"
+            } else if (Date.parse(event.registrationStartDateTime) < Date.now() && Date.parse(event.registrationEndDateTime) > Date.now()) {
+              registrationStatus = "Open"
+            } else if (Date.parse(event.registrationEndDateTime) < Date.now()) {
+              registrationStatus = "Closed"
+            }
+          }
+
+          if (registrationStatus == "Pending" && registrationStatusCountdown) {
+            //show how many days left until registration opens, but if the time is less than 24 hours, show how many hours left. if the time is less than 1 hour, show how many minutes left
+            const interval = setInterval(() => {
+              var timeDifference = calculateTimeDifference(event.registrationStartDateTime);
+              countdownlabeltop.innerHTML = "Registration opens";
+              countdownnumbs.innerHTML = timeDifference.value;
+              countdownlabelbottom.innerHTML = timeDifference.unit;
+              if (timeDifference.value <= 0) {
+                clearInterval();
+                refreshEvents();
+
+              }
+            }, 1000)
+            setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+          } else if (registrationStatus == "Open" && registrationStatusCountdown) {
+            const interval = setInterval(() => {
+              var timeDifference = calculateTimeDifference(event.registrationEndDateTime);
+              countdownlabeltop.innerHTML = "Registration closes";
+              countdownnumbs.innerHTML = timeDifference.value;
+              countdownlabelbottom.innerHTML = timeDifference.unit;
+              if (timeDifference.value <= 0) {
+                clearInterval();
+                refreshEvents();
+              }
+            }, 1000)
+            setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+          } else if (registrationStatus == "Closed" && eventStatusCountdown == true) {
+            if (eventStatus == "Ended") {
+              eventcard.className = [styles.itemEnded, styles.itemEvents].join(" ")
+              //show how many days ago the event ended, but if the time is less than 24 hours, show how many hours ago. if the time is less than 1 hour, show how many minutes ago. if the time is less than 1 minute, show how many seconds ago
+              const interval = setInterval(() => {
+                var timeDifference = calculateTimeAgoDifference(event.endDateTime);
+                countdownlabeltop.innerHTML = "Ended";
+                countdownnumbs.innerHTML = timeDifference.value;
+                countdownlabelbottom.innerHTML = timeDifference.unit;
+                if (timeDifference.value <= 0) {
+                  clearInterval();
+                  refreshEvents();
+                }
+              }, 1000)
+              setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+            } else if (eventStatus == "On-Going") {
+              eventcard.className = [styles.itemOnGoing, styles.itemEvents].join(" ")
+              //show how many hours left in the event, but if the time is longer than 24 hours, show how many days left. if the time is less than 1 hour, show how many minutes left. if the time is less than 1 minute, show how many seconds left
+              const interval = setInterval(() => {
+                var timeDifference = calculateTimeDifference(event.endDateTime);
+                countdownlabeltop.innerHTML = "Ends in";
+                countdownnumbs.innerHTML = timeDifference.value;
+                countdownlabelbottom.innerHTML = timeDifference.unit;
+                if (timeDifference.value <= 0) {
+                  clearInterval();
+                  refreshEvents();
+                }
+              }, 1000)
+              setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+            } else if (eventStatus == "Pending") {
+              eventcard.className = [styles.itemPending, styles.itemEvents].join(" ")
+              //show how many days left until the event starts, but if the time is less than 24 hours, show how many hours left
+              //Pending means that the registration window has not begun yet
+              const interval = setInterval(() => {
+                var timeDifference = calculateTimeDifference(event.startDateTime);
+                countdownlabeltop.innerHTML = "Starts in";
+                countdownnumbs.innerHTML = timeDifference.value;
+                countdownlabelbottom.innerHTML = timeDifference.unit;
+                if (timeDifference.value <= 0) {
+                  clearInterval();
+                  refreshEvents();
+                }
+              }, 1000)
+              setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+            }
+          }
+
+
+          eventcountdown.style.backgroundColor = "#0000003b";
+          eventcountdown.style.borderRadius = "25px"
+          eventcountdown.style.zIndex = "10"
+          eventcountdown.appendChild(countdownlabeltop);
+          eventcountdown.appendChild(countdownnumbs);
+          eventcountdown.appendChild(countdownlabelbottom);
+
+          const eventcontent = document.createElement("div");
+          const eventtitle = document.createElement("h3");
+          eventtitle.innerHTML = event.title;
+          eventtitle.style.margin = "0px"
+          eventtitle.style.marginTop = "10px"
+          eventcontent.appendChild(eventtitle);
+
+          if (event.location != "") {
+            const eventlocationdiv = document.createElement("div");
+            const eventlocicon = document.createElement("span");
+            const eventlocation = document.createElement("p");
+            eventlocationdiv.className = styles.doublegrid;
+            eventlocationdiv.style.gridTemplateColumns = "20px auto"
+            eventlocationdiv.style.gridGap = "10px"
+            eventlocicon.innerHTML = "pin_drop"
+            eventlocicon.className = "material-symbols-rounded"
+            eventlocation.innerHTML = event.location;
+            eventlocation.style.margin = "0px"
+            eventlocationdiv.appendChild(eventlocicon);
+            eventlocationdiv.appendChild(eventlocation);
+            eventcontent.appendChild(eventlocationdiv);
+          }
+
+          const eventdates = document.createElement("div");
+          const eventdicon = document.createElement("span");
+          const eventdatestext = document.createElement("p");
+          eventdates.className = styles.doublegrid;
+          eventdates.style.gridTemplateColumns = "20px auto"
+          eventdates.style.gridGap = "10px"
+          eventdatestext.style.margin = "0px"
+          eventdicon.innerHTML = "schedule"
+          eventdicon.style.margin = "auto"
+          eventdicon.className = "material-symbols-rounded"
+
+          const eventdescription = document.createElement("p");
+          eventdescription.innerHTML = event.description;
+          eventdescription.style.margin = "0px"
+          eventdescription.style.fontWeight = "normal"
+
+          if (event.startDateTime == "" || event.endDateTime == "") {
+            eventdatestext.innerHTML = "Indefinite"
+          } else {
+            eventdatestext.innerHTML = new Date(event.endDateTime).toLocaleString()  + " - " + new Date(event.startDateTime).toLocaleString();
+          }
+          eventdates.appendChild(eventdicon);
+          eventdates.appendChild(eventdatestext);
+          eventcontent.appendChild(eventdates);
+          eventcontent.appendChild(eventdescription);
+
+          const icon = document.createElement("span");
+          icon.className = "material-symbols-rounded";
+          icon.innerHTML = "chevron_right"
+          icon.style.fontSize = "30px"
+          icon.style.margin = "auto"
+          icon.style.marginRight = "0px"
+
+          eventcontentcontainer.appendChild(eventcountdown)
+          eventcontentcontainer.appendChild(eventcontent);
+          eventcontentcontainer.appendChild(icon);
+          eventcard.appendChild(eventcontentcontainer);
+          currentEventsList.appendChild(eventcard);
+        }
+      }
+    }).catch((err) => {
+      console.log(err);
+    });
+  }
+
+  function calculateTimeAgoDifference(endDateTime) {
+    const timeDifference = Date.now() - Date.parse(endDateTime);
+    const seconds = Math.floor(timeDifference / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days >= 1) {
+      if (days == 1) {
+        return { value: days, unit: 'day ago' };
+      }
+      return { value: days, unit: 'days ago' };
+    } else if (hours >= 1) {
+      if (hours == 1) {
+        return { value: hours, unit: 'hour ago' };
+      }
+      return { value: hours, unit: 'hours ago' };
+    } else if (minutes >= 1) {
+      if (minutes == 1) {
+        return { value: minutes, unit: 'minute ago' };
+      }
+      return { value: minutes, unit: 'minutes ago' };
+    } else {
+      if (seconds == 1) {
+        return { value: seconds, unit: 'second ago' };
+      }
+      return { value: seconds, unit: 'seconds ago' };
+    }
+  }
+
+  function calculateTimeDifference(endDateTime) {
+    const timeDifference = Date.parse(endDateTime) - Date.now();
+    const seconds = Math.floor(timeDifference / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days >= 1) {
+      if (days == 1) {
+        return { value: days, unit: 'day' };
+      }
+      return { value: days, unit: 'days' };
+    } else if (hours >= 1) {
+      if (hours == 1) {
+        return { value: hours, unit: 'hour' };
+      }
+      return { value: hours, unit: 'hours' };
+    } else if (minutes >= 1) {
+      if (minutes == 1) {
+        return { value: minutes, unit: 'minute' };
+      }
+      return { value: minutes, unit: 'minutes' };
+    } else {
+      if (seconds == 1) {
+        return { value: seconds, unit: 'second' };
+      }
+      return { value: seconds, unit: 'seconds' };
+    }
+  }
+
+  useEffect(() => {
+    if (loadContent) {
+      setLoadContent(true);
+      refreshEvents();
+    }
+  }, [loadContent])
+
   useEffect(() => {
     if (router.isReady) {
       //once the page is fully loaded, play the splashscreen outro
@@ -104,20 +419,7 @@ export default function Home() {
         setAccount(Cookies.get("account"));
       }
 
-      axios({
-        method: "get",
-        url: "http://localhost:8445/getEvents"
-      }).then((res) => {
-        if (res.status == 200) {
-          const events = res.data;
-          for (var i = 0; i < events.length; i++) {
-
-          }
-        }
-      }).catch((err) => {
-
-      });
-
+      setLoadContent(true);
       window.scrollTo(0, 0);
       //playing the splashscreen is not essential, if it errors, just fade
 
@@ -191,7 +493,7 @@ export default function Home() {
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">food_bank</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Make a difference</p>
               </div>
-              <div id="eventsbtn" onClick={( ) => push("/dash?view=events")} style={{ margin: "auto", height: "35px", width: "160px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+              <div id="eventsbtn" onClick={() => push("/dash?view=events")} style={{ margin: "auto", height: "35px", width: "160px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">local_activity</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Events</p>
               </div>
@@ -221,8 +523,8 @@ export default function Home() {
             <div id="innerContent" style={{ padding: "15px 0px" }}>
               <div id="currentEvents" style={{ marginTop: "15px" }}>
                 <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Happening Now</h3>
-                <div id="currentEventsList" style={{ overflowX: "auto" }}>
-                  <div className={styles.item} style={{ cursor: "unset" }}>
+                <div id="currentEventsList">
+                  <div id="noevents" className={styles.item} style={{ cursor: "unset" }}>
                     <p style={{ color: "rgba(0, 0, 0, 0.300)", margin: "0", width: "100%", textAlign: "center" }} className={styles.fullycenter}>No events to show</p>
                   </div>
                 </div>

@@ -40,16 +40,8 @@ const Account = mongoose.model("Account", {
 })
 
 const Event = mongoose.model("Event", {
-    title: { type: String, default: "" },
-    description: { type: String, default: "" },
-    visible: { type: String, default: "Visible" },
-    status: { type: String, default: "pending" },
-    registrationOpen: { type:  String, default: "Open" },
-    registrationStartDateTime: { type: Date, default: Date.now },
-    registrationEndDateTime: { type: Date, default: Date.now },
-    startDateTime: { type: Date, default: Date.now },
-    endDateTime: { type: Date, default: Date.now },
-    cost: { type: String, default: "Free" },
+    id: { type: String, default: "" },
+    event: { type: Object, default: {} },
 })
 
 const BlogPost = mongoose.model("BlogPost", {
@@ -122,21 +114,47 @@ app.post("/newPost", jsonParser, async (req, res) => {
 
 app.post("/createEvent", jsonParser, async (req, res) => {
     try {
+        const eventobj = req.body.event;
         const event = new Event({
-            title: req.body.title,
-            description: req.body.description,
-            visible: req.body.visible,
-            status: req.body.status,
-            registrationOpen: req.body.registrationOpen,
-            registrationStartDateTime: req.body.registrationStartDateTime,
-            registrationEndDateTime: req.body.registrationEndDateTime,
-            startDateTime: req.body.startDateTime,
-            endDateTime: req.body.endDateTime,
-            cost: req.body.cost,
+            id: uuidv4(),
+            event: eventobj
         })
         await event.save();
         res.status(200).send(event);
     } catch (err) {
+        console.log(err)
+        res.status(400).send(err);
+    }
+})
+
+app.post("/updateEvent", jsonParser, async (req, res) => {
+    try {
+        const eventobj = req.body.event;
+        Event.findOne({ id: req.query.id }).then((event) => {
+            if (event) {
+                event.event = eventobj;
+                event.save();
+                res.status(200).send(event);
+            } else {
+                res.status(400).send("Event not found.");
+            }
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(400).send(err);
+    }
+})
+
+app.post("/deleteEvent", jsonParser, async (req, res) => {
+    try {
+        Event.findOneAndDelete({ id: req.query.id }).then((event) => {
+            if (event) {
+                res.status(200).send(event);
+            } else {
+                res.status(400).send("Event not found.");
+            }
+        })
+    } catch(err) {
         console.log(err)
         res.status(400).send(err);
     }
@@ -149,6 +167,21 @@ app.get("/getEvents", async (req, res) => {
                 res.status(200).send(events);
             } else {
                 res.status(400).send("No events found.");
+            }
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(400).send(err);
+    }
+})
+
+app.get("/getEvent", async (req, res) => {
+    try {
+        Event.findOne({ id: req.query.id }).then((event) => {
+            if (event) {
+                res.status(200).send(event);
+            } else {
+                res.status(400).send("Event not found.");
             }
         })
     } catch (err) {

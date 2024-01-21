@@ -16,6 +16,7 @@ export default function Dash() {
     const [mobile, setMobile] = useState(false);
     const [accounts, setAccounts] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [selectedEvent, setSelectedEvent] = useState("");
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
 
     function switchView(view) {
@@ -29,6 +30,54 @@ export default function Dash() {
         document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
         router.push("/dash", "/dash?view=" + view, { shallow: true });
         refresh(view);
+    }
+
+    function openBlogPostViewer() {
+        hideSidebar();
+        anime({
+            targets: "#v1b",
+            opacity: 0,
+            scale: 0.5,
+            filter: "blur(50px)",
+            duration: 500,
+            easing: 'easeInOutQuad',
+            complete: function (anim) {
+                document.getElementById("v1b").style.display = "none";
+                document.getElementById("v2b").style.display = "block";
+                anime({
+                    targets: "#v2b",
+                    opacity: 1,
+                    scale: 1,
+                    filter: "blur(0px)",
+                    duration: 500,
+                    easing: 'easeInOutQuad',
+                })
+            }
+        })
+    }
+
+    function closeBlogPostViewer() {
+        showSidebar();
+        anime({
+            targets: "#v2b",
+            opacity: 0,
+            scale: 0.5,
+            filter: "blur(50px)",
+            duration: 500,
+            easing: 'easeInOutQuad',
+            complete: function (anim) {
+                document.getElementById("v2b").style.display = "none";
+                document.getElementById("v1b").style.display = "block";
+                anime({
+                    targets: "#v1b",
+                    opacity: 1,
+                    scale: 1,
+                    filter: "blur(0px)",
+                    duration: 500,
+                    easing: 'easeInOutQuad',
+                })
+            }
+        })
     }
 
     function refresh(view) {
@@ -142,36 +191,177 @@ export default function Dash() {
                             easing: 'linear',
                         })
                     })
+                } else if (view == "events") {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:8445/getEvents"
+                    }).then((res) => {
+                        const events = res.data;
+                        const eventslist = document.getElementById("eventslist");
+                        while (eventslist.firstChild) {
+                            eventslist.removeChild(eventslist.firstChild);
+                        }
+
+                        var pending = 0;
+                        var inprog = 0;
+                        var ended = 0;
+                        for (var i = 0; i < events.length; i++) {
+                            const event = events[i].event;
+                            var eventItem = document.createElement("div");
+                            var eventName = document.createElement("p");
+                            eventName.innerHTML = event.title;
+                            eventName.style.margin = "0px";
+                            eventName.className = styles.font;
+                            var icon = document.createElement("span");
+                            icon.className = "material-symbols-rounded";
+                            icon.style.fontSize = "30px";
+                            icon.innerHTML = "chevron_right"
+                            icon.style.margin = "auto"
+                            icon.style.marginRight = "0px"
+                            eventItem.className = [styles.item, styles.doublegrid].join(" ");
+                            if (event.status == "Pending") {
+                                pending++;
+                            } else if (event.status == "On-Going") {
+                                inprog++;
+                            } else if (event.status == "Ended") {
+                                ended++;
+                            } else if (event.status == "Cancelled") {
+                                continue;
+                            } else if (event.status == "Scheduled (Auto)") {
+                                if (Date.parse(event.startDateTime) > Date.now()) {
+                                    pending++;
+                                } else if (Date.parse(event.startDateTime) < Date.now() && Date.parse(event.endDateTime) > Date.now()) {
+                                    inprog++;
+                                } else if (Date.parse(event.endDateTime) < Date.now()) {
+                                    ended++;
+                                }
+                            }
+
+                            (function (eventid) {
+                                eventItem.onclick = function () {
+                                    openEventOverlay(eventid);
+                                }
+                            })(events[i].id);
+
+                            eventItem.appendChild(eventName);
+                            eventItem.appendChild(icon);
+                            eventslist.appendChild(eventItem);
+                        }
+                        document.getElementById("pendingcount").innerHTML = pending;
+                        document.getElementById("inprogcount").innerHTML = inprog;
+                        document.getElementById("endedcount").innerHTML = ended;
+                        document.getElementById("eventsamt").innerHTML = events.length;
+                        anime({
+                            targets: "#eventsloading",
+                            opacity: 0,
+                            duration: 300,
+                            easing: 'linear',
+                        })
+                        anime({
+                            targets: "#eventscontent",
+                            filter: "blur(0px)",
+                            scale: 1,
+                            duration: 500,
+                            easing: 'easeInOutQuad',
+                        })
+                    }).catch((err) => {
+                        console.log(err);
+                        apiError(err);
+                        anime({
+                            targets: "#eventsloading",
+                            opacity: 0,
+                            duration: 300,
+                            easing: 'linear',
+                        })
+                    })
                 }
             }
         })
     }
 
-    function openEventOverlay() {
+    function openEventOverlay(id) {
         const eventsoverlay = document.getElementById("eventsoverlay");
         anime({
-            targets: ["#eheader", "#ediv", "#adminview", "#non-adminview"],
+            targets: "#affectbyeoverlay",
             scale: 0.8,
             opacity: 0.5,
+            duration: 500,
             filter: "blur(10px)",
             easing: 'easeInOutQuad'
         })
-        document.getElementById("eventsoverlay").style.display = "block";
+        eventsoverlay.style.display = "block";
+        eventsoverlay.style.height = "65%"
         anime({
             targets: eventsoverlay,
             scale: 1,
             opacity: 1,
+            duration: 500,
             filter: "blur(0px)",
             easing: 'easeInOutQuad'
         })
+
+        console.log(id)
+
+        if (id) {
+            document.getElementById("esubmitbtn").innerHTML == "Save Event"
+            setSelectedEvent(id);
+            axios({
+                method: "get",
+                url: "http://localhost:8445/getEvent?id=" + id
+            }).then((res) => {
+                const event = res.data.event;
+                document.getElementById("ename").value = event.title;
+                document.getElementById("edesc").value = event.description;
+                document.getElementById("eloc").value = event.location;
+                document.getElementById("evselect").value = event.visible;
+                if (event.cost == "Free") {
+                    document.getElementById("ecselect").value = "Free"
+                    document.getElementById("eusdamount").style.display = "none";
+                    document.getElementById("ecdoublegrid").style.gridTemplateColumns = "200px auto";
+                } else {
+                    document.getElementById("ecselect").value = "Paid"
+                    document.getElementById("eusdamount").value = event.cost;
+                    document.getElementById("eusdamount").style.display = "block";
+                    document.getElementById("ecdoublegrid").style.gridTemplateColumns = "200px auto 200px";
+                }
+                document.getElementById("erselect").value = event.registrationStatus;
+                document.getElementById("erst").value = event.registrationStartDateTime;
+                document.getElementById("eret").value = event.registrationEndDateTime;
+                document.getElementById("etselect").value = event.status;
+                document.getElementById("est").value = event.startDateTime;
+                document.getElementById("eet").value = event.endDateTime;
+            }).catch((err) => {
+                apiError(err);
+            })
+            document.getElementById("esubmitbtn").innerHTML = "Save Event"
+            document.getElementById("submitdelgrid").style.display = "grid"
+            document.getElementById("edelbtn").style.display = "block"
+        } else {
+            document.getElementById("ename").value = "";
+            document.getElementById("edesc").value = "";
+            document.getElementById("eloc").value = "";
+            document.getElementById("evselect").value = "Visible";
+            document.getElementById("ecselect").value = "Free";
+            document.getElementById("eusdamount").value = "";
+            document.getElementById("erselect").value = "Scheduled (Auto)";
+            document.getElementById("erst").value = "";
+            document.getElementById("eret").value = "";
+            document.getElementById("etselect").value = "Scheduled (Auto)";
+            document.getElementById("est").value = "";
+            document.getElementById("eet").value = "";
+            document.getElementById("esubmitbtn").innerHTML = "Add Event"
+            document.getElementById("submitdelgrid").style.display = "block"
+            document.getElementById("edelbtn").style.display = "none"
+        }
     }
 
     function closeEventOverlay(type) {
         anime({
-            targets: ["#eheader", "#ediv", "#adminview", "#non-adminview"],
+            targets: "#affectbyeoverlay",
             scale: 1,
             opacity: 1,
             filter: "blur(0px)",
+            duration: 500,
             easing: 'easeInOutQuad'
         })
         if (type == "add") {
@@ -193,6 +383,7 @@ export default function Dash() {
                 scale: 1.2,
                 opacity: 0,
                 filter: "blur(10px)",
+                duration: 500,
                 easing: 'easeInOutQuad',
                 complete: function (anim) {
                     document.getElementById("eventsoverlay").style.display = "none";
@@ -245,14 +436,16 @@ export default function Dash() {
     }
 
     function showSidebar() {
-        document.getElementById("content").style.gridTemplateColumns = "20% auto";
+        document.getElementById("content").style.gridTemplateColumns = "300px auto";
         document.getElementById("content").style.left = "50%";
         setSidebarOpen(true);
     }
 
     function hideSidebar() {
-        document.getElementById("content").style.gridTemplateColumns = "20% 100%";
-        document.getElementById("content").style.left = "28%";
+        document.getElementById("content").style.gridTemplateColumns = "300px 100%";
+        const parentWidth = document.getElementById("mainelem").clientWidth;
+        var left = (parentWidth / 2) - 325;
+        document.getElementById("content").style.left = left + "px";
         setSidebarOpen(false);
     }
 
@@ -359,6 +552,7 @@ export default function Dash() {
     }
 
     function apiError(err) {
+        console.log(err);
         var message = "Network Error"
         if (err.response) {
             message = err.response.data
@@ -367,11 +561,13 @@ export default function Dash() {
         anime({
             targets: "#errorCard",
             bottom: "10px",
+            duration: 500,
             easing: 'easeInOutQuad',
             complete: function (anim) {
                 anime({
                     targets: "#errorCard",
                     bottom: "-50%",
+                    duration: 500,
                     easing: 'easeInOutQuad',
                     delay: 5000,
                 })
@@ -423,7 +619,6 @@ export default function Dash() {
                 console.log(err)
             });
             document.getElementById("splashscreenOutro").pause();
-
             setTimeout(() => {
                 document.getElementById("splashscreenOutro").play().catch((err) => {
                     console.log(err)
@@ -431,8 +626,8 @@ export default function Dash() {
                 anime({
                     targets: '#splashscreenOutro',
                     opacity: 0,
-                    duration: 500,
-                    easing: 'easeInOutQuad',
+                    duration: 200,
+                    easing: 'linear',
                     complete: function (anim) {
                         document.getElementById("splashscreenOutro").style.display = "none";
                         document.body.style.overflowY = "hidden"
@@ -441,6 +636,8 @@ export default function Dash() {
                                 openOverlay("v");
                             } else if (router.query.view == "donate") {
                                 openOverlay("d");
+                            } else {
+                                switchView(router.query.view);
                             }
                         }
                     }
@@ -448,8 +645,8 @@ export default function Dash() {
                 anime({
                     targets: '#content',
                     opacity: 1,
-                    duration: 500,
-                    easing: 'easeInOutQuad'
+                    duration: 200,
+                    easing: 'linear'
                 })
             }, 500)
         }
@@ -461,7 +658,7 @@ export default function Dash() {
                 <title>Dashboard | NourishDMV</title>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
             </Head>
-            <main style={{ overflow: 'hidden' }}>
+            <main id="mainelem" style={{ overflow: 'hidden' }}>
                 <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen"><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
                 <video id="splashscreenIntro" playsInline muted className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
                 <div id="content" style={{ opacity: 0, overflow: "visible", transition: "all ease 0.5s" }} className={styles.sidebarContent}>
@@ -606,61 +803,104 @@ export default function Dash() {
 
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                         <div id="blog" className={styles.screen}>
                             <div style={{ padding: "20px" }}>
-                                <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
-                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                    <h3 className={styles.screenheading}>Blog</h3>
-                                    <div className={styles.loading} id="blogloading"></div>
-                                </div>
+                                <div id="v1b">
+                                    <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
+                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                        <h3 className={styles.screenheading}>Blog</h3>
+                                        <div className={styles.loading} id="blogloading"></div>
+                                    </div>
 
-                                <div id="blogcontent">
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="blogpostsnum" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>posts</p>
+                                    <div id="blogcontent">
+                                        <div style={{ margin: "20px" }}>
+                                            <div className={styles.bentoboxShorter}>
+                                                <p id="blogpostsnum" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>posts</p>
+                                            </div>
+                                        </div>
+                                        <div className={styles.divider}></div>
+                                        <div style={{ width: "80%", margin: "auto" }}>
+                                            <div id="eventsnavbar" style={{ gridTemplateColumns: "75% auto" }} className={styles.doublegrid}>
+                                                <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="eventssearch" placeholder="Search with title"></input>
+                                                <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openBlogPostViewer()}>New Post</button>
+                                            </div>
+                                            <div id="bloglist">
+
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className={styles.divider}></div>
-                                    <div id="eventsnavbar" style={{ gridTemplateColumns: "75% auto" }} className={styles.doublegrid}>
-                                        <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="eventssearch" placeholder="Search with title"></input>
-                                        <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openEventOverlay()}>New Event</button>
-                                    </div>
-                                    <div id="bloglist">
-
+                                </div>
+                                <div id="v2b" style={{ display: "none", transform: "scale(0.5)", opacity: 0, filter: "blur(50px)" }}>
+                                    <div className={styles.doublegrid} style={{ width: "600px", gridTemplateColumns: "70px auto 50px" }}>
+                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => closeBlogPostViewer()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">arrow_back</span></button>
+                                        <h3 className={styles.screenheading}>Blog Post Viewer</h3>
+                                        <div className={styles.loading} id="blogpostloading"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div id="events" className={styles.screen} style={{ position: "relative" }}>
                             <div style={{ padding: "20px" }}>
-                                <h3 id="eheader" className={styles.screenheading}>Events</h3>
-                                <div id="ediv" className={styles.divider}></div>
-                                <div id="adminview" style={{ display: (adminView) ? "block" : "none", width: "80%", margin: "auto" }}>
-                                    <div id="eventsnavbar" style={{ gridTemplateColumns: "80% auto" }} className={styles.doublegrid}>
-                                        <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="eventssearch" placeholder="Search with name"></input>
-                                        <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openEventOverlay()}>New Event</button>
+                                <div id="affectbyeoverlay">
+                                    <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
+                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                        <h3 className={styles.screenheading}>Events</h3>
+                                        <div className={styles.loading} id="eventsloading"></div>
                                     </div>
-                                    <div id="eventslist"></div>
+                                    <div id="eventscontent">
+                                        <div style={{ margin: "20px" }}>
+                                            <div className={styles.bentoboxShorter}>
+                                                <p id="attcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                                <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>total attendees</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter}>
+                                                <p id="eventsamt" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>events</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#ffff0072", color: "black" }}>
+                                                <p id="pendingcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>pending</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#fbac29ff" }}>
+                                                <p id="inprogcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>in progress</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#f66d4bff" }}>
+                                                <p id="endedcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>ended</p>
+                                            </div>
+                                        </div>
+                                        <div className={styles.divider}></div>
+                                        <div id="adminview" style={{ display: (adminView) ? "block" : "none", width: "80%", margin: "auto" }}>
+                                            <div id="eventsnavbar" style={{ gridTemplateColumns: "80% auto", gridGap: "15px" }} className={styles.doublegrid}>
+                                                <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="eventssearch" placeholder="Search with name"></input>
+                                                <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openEventOverlay()}>New Event</button>
+                                            </div>
+                                            <div id="eventslist"></div>
+                                        </div>
+                                        <div id="non-adminview" style={{ display: (adminView) ? "none" : "block" }}>
+                                            <div id="nonadmineventslist"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div id="non-adminview" style={{ display: (adminView) ? "none" : "block" }}></div>
+
                                 <div id="eventsoverlay" style={{ overflowY: "auto", overflowX: "visible", display: "none", width: "70%", padding: "10%", height: "65%", transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={styles.fullycenter}>
-                                    <button className={styles.closebutton} onClick={() => closeEventOverlay()}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
-                                    <div style={{ backgroundColor: "rgb(227, 171, 74)", height: "300px", width: "100%", borderRadius: "25px" }}></div>
+                                    <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay()}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
+                                    <div style={{ backgroundColor: "rgb(227, 171, 74)", height: "300px", width: "100%", borderRadius: "25px", display: "none" }}></div>
                                     <div>
-                                        <input id="ename" className={styles.slickttt} style={{ marginTop: "20px" }} placeholder="Event Name"></input>
+                                        <input id="ename" className={styles.slickttt} style={{ marginTop: "20px" }} placeholder="Event Title"></input>
                                         <textarea id="edesc" onInput={() => {
                                             document.getElementById("edesc").style.height = "auto";
                                             document.getElementById("edesc").style.height = (document.getElementById("edesc").scrollHeight) + "px";
-                                        }} className={styles.slickttt} style={{ fontSize: "30px", fontWeight: "normal" }} placeholder="Event Description"></textarea>
+                                        }} className={styles.slickttt} style={{ fontSize: "30px", fontWeight: "normal", height: "100px" }} placeholder="Event Description"></textarea>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <div id="ecdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto" }}>
+                                    <div id="eldoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto" }}>
                                         <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Location</h3>
-                                        <input placeholder="Location" className={styles.input}></input>
+                                        <input id="eloc" placeholder="Location" className={styles.input}></input>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div id="evdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "150px auto" }}>
@@ -673,7 +913,7 @@ export default function Dash() {
                                     <div id="ecdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "200px auto" }}>
                                         <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Cost</h3>
                                         <select id="ecselect" className={styles.input} onInput={() => {
-                                            if (document.getElementById("ecselect").value == "Custom") {
+                                            if (document.getElementById("ecselect").value == "Paid") {
                                                 document.getElementById("eusdamount").style.display = "block";
                                                 document.getElementById("ecdoublegrid").style.gridTemplateColumns = "200px auto 200px";
                                             } else {
@@ -682,25 +922,25 @@ export default function Dash() {
                                             }
                                         }}>
                                             <option>Free</option>
-                                            <option>Custom</option>
+                                            <option>Paid</option>
                                         </select>
                                         <input id="eusdamount" className={styles.input} style={{ display: "none" }} placeholder="USD Amount"></input>
                                     </div>
                                     <div id="erdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto" }}>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Time</h3>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Status</h3>
                                         <select id="erselect" className={styles.input} onInput={() => {
-                                            if (document.getElementById("erselect").value == "Scheduled") {
+                                            if (document.getElementById("erselect").value == "Scheduled (Auto)") {
                                                 document.getElementById("erdtdoublegrid").style.display = "grid";
                                             } else {
                                                 document.getElementById("erdtdoublegrid").style.display = "none";
                                             }
                                         }}>
+                                            <option>Scheduled (Auto)</option>
                                             <option>Open</option>
-                                            <option>Scheduled</option>
                                             <option>Closed</option>
                                         </select>
                                     </div>
-                                    <div id="erdtdoublegrid" className={styles.doublegrid} style={{ display: "none" }}>
+                                    <div id="erdtdoublegrid" className={styles.doublegrid} style={{ display: "grid", gridGap: "15px" }}>
                                         <div>
                                             <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Start</h3>
                                             <input id="erst" type="datetime-local" className={styles.input}></input>
@@ -711,21 +951,21 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <div id="etdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "200px auto" }}>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Time</h3>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Status</h3>
                                         <select id="etselect" className={styles.input} onInput={() => {
-                                            if (document.getElementById("etselect").value == "Scheduled") {
+                                            if (document.getElementById("etselect").value == "Scheduled (Auto)") {
                                                 document.getElementById("etdtdoublegrid").style.display = "grid";
                                             } else {
                                                 document.getElementById("etdtdoublegrid").style.display = "none";
                                             }
                                         }}>
-                                            <option>Scheduled</option>
+                                            <option>Scheduled (Auto)</option>
                                             <option>Pending</option>
                                             <option>On-Going</option>
                                             <option>Ended</option>
                                         </select>
                                     </div>
-                                    <div id="etdtdoublegrid" className={styles.doublegrid}>
+                                    <div id="etdtdoublegrid" className={styles.doublegrid} style={{ gridGap: "15px" }}>
                                         <div>
                                             <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Start</h3>
                                             <input id="est" type="datetime-local" className={styles.input}></input>
@@ -735,30 +975,77 @@ export default function Dash() {
                                             <input id="eet" type="datetime-local" className={styles.input}></input>
                                         </div>
                                     </div>
-                                    <button className={styles.managebutton} onClick={() => {
-                                        axios({
-                                            method: "post",
-                                            url: "http://localhost:8443/createEvent",
-                                            data: {
-                                                title: document.getElementById("ename").value,
-                                                description: document.getElementById("edesc").value,
-                                                visible: document.getElementById("evselect").value,
-                                                status: document.getElementById("etselect").value,
-                                                registrationOpen: document.getElementById("erselect").value,
-                                                registrationStartDateTime: document.getElementById("erst").value,
-                                                registrationEndDateTime: document.getElementById("eret").value,
-                                                startDateTime: document.getElementById("est").value,
-                                                endDateTime: document.getElementById("eet").value,
-                                                cost: (document.getElementById("eusdamount").value == "") ? "Free" : parseFloat(document.getElementById("eusdamount").value).toFixed(2),
-                                            }
-                                        }).then((res) => {
-                                            closeEventOverlay("add");
-                                        }).catch((err) => {
-                                            console.log(err)
-                                        })
-                                    }}>Add Event</button>
-                                </div>
+                                    <div id="submitdelgrid" className={styles.doublegrid} style={{ gridTemplateColumns: "70% auto", gridGap: "15px" }}>
+                                        <button id="esubmitbtn" className={styles.managebutton} onClick={() => {
+                                            if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
+                                                axios({
+                                                    method: "post",
+                                                    url: "http://localhost:8445/createEvent",
+                                                    data: {
+                                                        event: {
+                                                            title: document.getElementById("ename").value,
+                                                            description: document.getElementById("edesc").value,
+                                                            location: document.getElementById("eloc").value,
+                                                            visible: document.getElementById("evselect").value,
+                                                            status: document.getElementById("etselect").value,
+                                                            registrationStatus: document.getElementById("erselect").value,
+                                                            registrationStartDateTime: document.getElementById("erst").value,
+                                                            registrationEndDateTime: document.getElementById("eret").value,
+                                                            startDateTime: document.getElementById("est").value,
+                                                            endDateTime: document.getElementById("eet").value,
+                                                            cost: (document.getElementById("eusdamount").value == "") ? "Free" : parseFloat(document.getElementById("eusdamount").value).toFixed(2),
+                                                        }
+                                                    }
+                                                }).then((res) => {
+                                                    closeEventOverlay("add");
+                                                    refresh("events")
+                                                }).catch((err) => {
+                                                    apiError(err)
+                                                })
+                                            } else if (document.getElementById("esubmitbtn").innerHTML = "Save Event") {
+                                                console.log(selectedEvent)
+                                                axios({
+                                                    method: "post",
+                                                    url: "http://localhost:8445/updateEvent?id=" + selectedEvent,
+                                                    data: {
+                                                        event: {
+                                                            title: document.getElementById("ename").value,
+                                                            description: document.getElementById("edesc").value,
+                                                            location: document.getElementById("eloc").value,
+                                                            visible: document.getElementById("evselect").value,
+                                                            status: document.getElementById("etselect").value,
+                                                            registrationStatus: document.getElementById("erselect").value,
+                                                            registrationStartDateTime: document.getElementById("erst").value,
+                                                            registrationEndDateTime: document.getElementById("eret").value,
+                                                            startDateTime: document.getElementById("est").value,
+                                                            endDateTime: document.getElementById("eet").value,
+                                                            cost: (document.getElementById("eusdamount").value == "") ? "Free" : parseFloat(document.getElementById("eusdamount").value).toFixed(2),
 
+                                                        },
+                                                    }
+                                                }).then((res) => {
+                                                    closeEventOverlay("add");
+                                                    refresh("events")
+                                                }).catch((err) => {
+                                                    console.log(err)
+                                                    apiError(err)
+                                                })
+                                            }
+                                        }}>Add Event</button>
+                                        <button onClick={() => {
+                                            axios({
+                                                method: "post",
+                                                url: "http://localhost:8445/deleteEvent?id=" + selectedEvent,
+                                            }).then((res) => {
+                                                closeEventOverlay();
+                                                refresh("events")
+                                            }).catch((err) => {
+                                                apiError(err)
+                                                console.log(err)
+                                            })
+                                        }} style={{ backgroundColor: "#ef3600b9" }} id="edelbtn" className={styles.managebutton}>Delete Event</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
