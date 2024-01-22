@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import styles from '@/styles/Dash.module.css'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Image from 'next/image'
 import anime from 'animejs'
@@ -12,12 +12,17 @@ export default function Dash() {
     const [account, setAccount] = useState("");
     const [accountData, setAccountData] = useState({});
     const [adminView, setAdminView] = useState(false);
+    const adminViewRef = useRef(adminView);
     const [step, setStep] = useState(0);
     const [mobile, setMobile] = useState(false);
     const [accounts, setAccounts] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [selectedEvent, setSelectedEvent] = useState("");
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
+
+    useEffect(() => {
+        adminViewRef.current = adminView;
+    }, [adminView])
 
     function switchView(view) {
         const navbtns = document.getElementById("navbtns");
@@ -32,6 +37,47 @@ export default function Dash() {
         refresh(view);
     }
 
+    function calculateEventStatus(startDateTime, endDateTime) {
+        if (Date.parse(startDateTime) > Date.now()) {
+            return "Pending";
+        } else if (Date.parse(startDateTime) < Date.now() && Date.parse(endDateTime) > Date.now()) {
+            return "In Progress";
+        } else if (Date.parse(endDateTime) < Date.now()) {
+            return "Ended";
+        }
+    }
+
+    function calculateTimeDifference(dateTime) {
+        const timeDifference = Date.parse(dateTime) - Date.now();
+        const seconds = Math.floor(timeDifference / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+
+        if (days >= 1) {
+            if (days == 1) {
+                return { value: days, unit: 'day' };
+            }
+            return { value: days, unit: 'days' };
+        } else if (hours >= 1) {
+            if (hours == 1) {
+                return { value: hours, unit: 'hour' };
+            }
+            return { value: hours, unit: 'hours' };
+        } else if (minutes >= 1) {
+            if (minutes == 1) {
+                return { value: minutes, unit: 'minute' };
+            }
+            return { value: minutes, unit: 'minutes' };
+        } else {
+            if (seconds == 1) {
+                return { value: seconds, unit: 'second' };
+            }
+            return { value: seconds, unit: 'seconds' };
+        }
+    }
+
+    /*
     function openBlogPostViewer() {
         hideSidebar();
         anime({
@@ -79,6 +125,7 @@ export default function Dash() {
             }
         })
     }
+    */
 
     function refresh(view) {
         anime({
@@ -218,31 +265,39 @@ export default function Dash() {
                             icon.innerHTML = "chevron_right"
                             icon.style.margin = "auto"
                             icon.style.marginRight = "0px"
-                            eventItem.className = [styles.item, styles.doublegrid].join(" ");
-                            if (event.status == "Pending") {
+                            eventItem.className = [styles.itemEvents, styles.doublegrid].join(" ");
+
+                            var eventStatus = calculateEventStatus(event.startDateTime, event.endDateTime);
+                            if (eventStatus == "Pending") {
                                 pending++;
-                            } else if (event.status == "On-Going") {
+                                eventItem.style.color = "black"
+                                eventItem.style.backgroundColor = "#ffff0072"
+                            } else if (eventStatus == "In Progress") {
                                 inprog++;
-                            } else if (event.status == "Ended") {
+                                eventItem.style.backgroundColor = "#fbac29ff"
+                                eventItem.style.animation = styles.pulse + " 3s infinite linear"
+                            } else if (eventStatus == "Ended") {
                                 ended++;
-                            } else if (event.status == "Cancelled") {
-                                continue;
-                            } else if (event.status == "Scheduled (Auto)") {
-                                if (Date.parse(event.startDateTime) > Date.now()) {
-                                    pending++;
-                                } else if (Date.parse(event.startDateTime) < Date.now() && Date.parse(event.endDateTime) > Date.now()) {
-                                    inprog++;
-                                } else if (Date.parse(event.endDateTime) < Date.now()) {
-                                    ended++;
-                                }
+                                eventItem.style.backgroundColor = "#f66d4bff"
                             }
 
-                            (function (eventid) {
-                                eventItem.onclick = function () {
-                                    openEventOverlay(eventid);
-                                }
-                            })(events[i].id);
 
+                            if (adminViewRef.current) {
+                                console.log("admin");
+                                (function (eventid) {
+                                    eventItem.onclick = function () {
+                                        openEventOverlay("editeventsoverlay", eventid);
+                                    }
+
+                                })(events[i].id);
+                            } else {
+                                console.log("not admin");
+                                (function (eventid) {
+                                    eventItem.onclick = function () {
+                                        openEventOverlay("vieweventsoverlay", eventid);
+                                    }
+                                })(events[i].id);
+                            }
                             eventItem.appendChild(eventName);
                             eventItem.appendChild(icon);
                             eventslist.appendChild(eventItem);
@@ -279,14 +334,16 @@ export default function Dash() {
         })
     }
 
-    function openEventOverlay(id) {
-        const eventsoverlay = document.getElementById("eventsoverlay");
+    function openEventOverlay(overlayid, id) {
+        hideSidebar();
+        document.getElementById("events").style.overflowY = "hidden";
+        const eventsoverlay = document.getElementById(overlayid);
         anime({
             targets: "#affectbyeoverlay",
             scale: 0.8,
             opacity: 0.5,
             duration: 500,
-            filter: "blur(10px)",
+            filter: "blur(40px)",
             easing: 'easeInOutQuad'
         })
         eventsoverlay.style.display = "block";
@@ -303,39 +360,87 @@ export default function Dash() {
         console.log(id)
 
         if (id) {
-            document.getElementById("esubmitbtn").innerHTML == "Save Event"
             setSelectedEvent(id);
             axios({
                 method: "get",
                 url: "http://localhost:8445/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
-                document.getElementById("ename").value = event.title;
-                document.getElementById("edesc").value = event.description;
-                document.getElementById("eloc").value = event.location;
-                document.getElementById("evselect").value = event.visible;
-                if (event.cost == "Free") {
-                    document.getElementById("ecselect").value = "Free"
-                    document.getElementById("eusdamount").style.display = "none";
-                    document.getElementById("ecdoublegrid").style.gridTemplateColumns = "200px auto";
+                if (overlayid == "vieweventsoverlay") {
+                    document.getElementById("vename").innerHTML = event.title;
+                    document.getElementById("vedesc").innerHTML = event.description;
+                    document.getElementById("veloc").innerHTML = event.location;
+                    document.getElementById("regdef").style.display = "grid"
+                    document.getElementById("veregstart").innerHTML = new Date(event.registrationStartDateTime).toLocaleString();
+                    document.getElementById("veregend").innerHTML = new Date(event.registrationEndDateTime).toLocaleString();
+                    document.getElementById("vestart").innerHTML = new Date(event.startDateTime).toLocaleString();
+                    document.getElementById("veend").innerHTML = new Date(event.endDateTime).toLocaleString();
+                    if (event.cost == "Free") {
+                        document.getElementById("vecost").innerHTML = "Free Registration";
+                    } else {
+                        document.getElementById("vecost").innerHTML = "$" + event.cost + " Registration";
+                    }
+
+                    var registrationStatus = calculateEventStatus(event.registrationStartDateTime, event.registrationEndDateTime);
+                    if (registrationStatus == "Pending") {
+                        document.getElementById("eregistertbtn").style.display = "none"
+                    } else if (registrationStatus == "In Progress") {
+                        document.getElementById("eregistertbtn").style.display = "block"
+                    } else if (registrationStatus == "Ended") {
+                        document.getElementById("eregistertbtn").style.display = "none"
+                        var eventStatus = calculateEventStatus(event.startDateTime, event.endDateTime);
+                        if (eventStatus == "Pending") {
+                            document.getElementById("vestatusdiv").style.backgroundColor = "#ffff0072"
+                            document.getElementById("vestatusdiv").style.color = "black"
+                            document.getElementById("vestatus").innerHTML = "PENDING"
+                            var timeDifference = calculateTimeDifference(event.startDateTime);
+                            document.getElementById("vestatusverb").innerHTML = "It will start in " + timeDifference.value + " " + timeDifference.unit;
+                        } else if (eventStatus == "In Progress") {
+                            document.getElementById("vestatusdiv").style.backgroundColor = "#fbac29ff"
+                            document.getElementById("vestatusdiv").style.animation = styles.pulse + " 3s infinite linear"
+                            document.getElementById("vestatusdiv").style.color = "#ffe5b9"
+                            document.getElementById("vestatus").innerHTML = "IN PROGRESS"
+                            var timeDifference = calculateTimeDifference(event.endDateTime);
+                            document.getElementById("vestatusverb").innerHTML = "It will end in " + timeDifference.value + " " + timeDifference.unit;
+                        } else if (eventStatus == "Ended") {
+                            document.getElementById("vestatusdiv").style.backgroundColor = "#f66d4bff"
+                            document.getElementById("vestatusdiv").style.color = "#ffedf0"
+                            document.getElementById("vestatusverbtop").innerHTML = "Event has"
+                            document.getElementById("vestatus").innerHTML = "ENDED"
+                            document.getElementById("vestatusverb").innerHTML = "It ended " + new Date(event.endDateTime).toLocaleString();
+                        }
+                    }
+
+
                 } else {
-                    document.getElementById("ecselect").value = "Paid"
-                    document.getElementById("eusdamount").value = event.cost;
-                    document.getElementById("eusdamount").style.display = "block";
-                    document.getElementById("ecdoublegrid").style.gridTemplateColumns = "200px auto 200px";
+                    document.getElementById("esubmitbtn").innerHTML == "Save Event"
+                    document.getElementById("ename").value = event.title;
+                    document.getElementById("edesc").value = event.description;
+                    document.getElementById("edesc").style.height = "auto";
+                    document.getElementById("edesc").style.height = (document.getElementById("edesc").scrollHeight) + "px";
+                    document.getElementById("eloc").value = event.location;
+                    document.getElementById("evselect").value = event.visible;
+                    if (event.cost == "Free") {
+                        document.getElementById("ecselect").value = "Free"
+                        document.getElementById("eusdamount").style.display = "none";
+                        document.getElementById("ecdoublegrid").style.gridTemplateColumns = "200px auto";
+                    } else {
+                        document.getElementById("ecselect").value = "Paid"
+                        document.getElementById("eusdamount").value = event.cost;
+                        document.getElementById("eusdamount").style.display = "block";
+                        document.getElementById("ecdoublegrid").style.gridTemplateColumns = "200px auto 200px";
+                    }
+                    document.getElementById("erst").value = event.registrationStartDateTime;
+                    document.getElementById("eret").value = event.registrationEndDateTime;
+                    document.getElementById("est").value = event.startDateTime;
+                    document.getElementById("eet").value = event.endDateTime;
+                    document.getElementById("esubmitbtn").innerHTML = "Save Event"
+                    document.getElementById("submitdelgrid").style.display = "grid"
+                    document.getElementById("edelbtn").style.display = "block"
                 }
-                document.getElementById("erselect").value = event.registrationStatus;
-                document.getElementById("erst").value = event.registrationStartDateTime;
-                document.getElementById("eret").value = event.registrationEndDateTime;
-                document.getElementById("etselect").value = event.status;
-                document.getElementById("est").value = event.startDateTime;
-                document.getElementById("eet").value = event.endDateTime;
             }).catch((err) => {
                 apiError(err);
             })
-            document.getElementById("esubmitbtn").innerHTML = "Save Event"
-            document.getElementById("submitdelgrid").style.display = "grid"
-            document.getElementById("edelbtn").style.display = "block"
         } else {
             document.getElementById("ename").value = "";
             document.getElementById("edesc").value = "";
@@ -343,10 +448,8 @@ export default function Dash() {
             document.getElementById("evselect").value = "Visible";
             document.getElementById("ecselect").value = "Free";
             document.getElementById("eusdamount").value = "";
-            document.getElementById("erselect").value = "Scheduled (Auto)";
             document.getElementById("erst").value = "";
             document.getElementById("eret").value = "";
-            document.getElementById("etselect").value = "Scheduled (Auto)";
             document.getElementById("est").value = "";
             document.getElementById("eet").value = "";
             document.getElementById("esubmitbtn").innerHTML = "Add Event"
@@ -355,7 +458,8 @@ export default function Dash() {
         }
     }
 
-    function closeEventOverlay(type) {
+    function closeEventOverlay(overlayId, type) {
+
         anime({
             targets: "#affectbyeoverlay",
             scale: 1,
@@ -365,28 +469,32 @@ export default function Dash() {
             easing: 'easeInOutQuad'
         })
         if (type == "add") {
-            document.getElementById("eventsoverlay").style.display = "block";
+            document.getElementById(overlayId).style.display = "block";
             anime({
-                targets: "#eventsoverlay",
+                targets: "#" + overlayId,
                 height: "10%",
                 scale: 0.5,
                 opacity: 0,
                 filter: "blur(10px)",
                 easing: 'easeInOutQuad',
                 complete: function (anim) {
-                    document.getElementById("eventsoverlay").style.display = "none";
+                    document.getElementById(overlayId).style.display = "none";
+                    document.getElementById("events").style.overflowY = "auto";
+                    showSidebar();
                 }
             })
         } else {
             anime({
-                targets: "#eventsoverlay",
+                targets: "#" + overlayId,
                 scale: 1.2,
                 opacity: 0,
                 filter: "blur(10px)",
                 duration: 500,
                 easing: 'easeInOutQuad',
                 complete: function (anim) {
-                    document.getElementById("eventsoverlay").style.display = "none";
+                    document.getElementById(overlayId).style.display = "none";
+                    document.getElementById("events").style.overflowY = "auto";
+                    showSidebar();
                 }
             })
         }
@@ -537,7 +645,9 @@ export default function Dash() {
                     duration: 500,
                     easing: 'easeInOutQuad',
                     complete: function (anim) {
-                        router.push(path);
+                        if (path != "") {
+                            router.push(path);
+                        }
                     }
                 })
             }, 100)
@@ -668,7 +778,7 @@ export default function Dash() {
                                 <div id="navbtns">
                                     <button id="aagbtn" className={styles.sidebarItem} onClick={() => switchView("aag")}>At a glance</button>
                                     <button id="accountsbtn" className={styles.sidebarItem} onClick={() => switchView("accounts")} style={{ display: (adminView) ? "block" : "none" }}>Accounts</button>
-                                    <button id="blogbtn" className={styles.sidebarItem} onClick={() => switchView("blog")}>Blog</button>
+                                    <button id="blogbtn" className={styles.sidebarItem} style={{display: "none"}} onClick={() => switchView("blog")}>Blog</button>
                                     <button id="eventsbtn" className={styles.sidebarItem} onClick={() => switchView("events")}>Events</button>
                                     <button id="donationsbtn" className={styles.sidebarItem} onClick={() => switchView("donations")}>Donations</button>
                                     <button id="mebtn" className={styles.sidebarItem} onClick={() => switchView("me")} style={{ display: (account == "") ? "none" : "block" }}>Me</button>
@@ -805,7 +915,7 @@ export default function Dash() {
                                 </div>
                             </div>
                         </div>
-                        <div id="blog" className={styles.screen}>
+                        <div id="blog" className={styles.screen} style={{display: "none"}}>
                             <div style={{ padding: "20px" }}>
                                 <div id="v1b">
                                     <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
@@ -852,7 +962,7 @@ export default function Dash() {
                                     </div>
                                     <div id="eventscontent">
                                         <div style={{ margin: "20px" }}>
-                                            <div className={styles.bentoboxShorter}>
+                                            <div className={styles.bentoboxShorter} style={{ display: (adminView) ? "inline-block" : "none" }}>
                                                 <p id="attcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
                                                 <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>total attendees</p>
                                             </div>
@@ -864,7 +974,7 @@ export default function Dash() {
                                                 <p id="pendingcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
                                                 <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>pending</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#fbac29ff" }}>
+                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#fbac29ff", animation: styles.pulse + " 3s infinite linear" }}>
                                                 <p id="inprogcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
                                                 <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>in progress</p>
                                             </div>
@@ -874,10 +984,16 @@ export default function Dash() {
                                             </div>
                                         </div>
                                         <div className={styles.divider}></div>
-                                        <div id="adminview" style={{ display: (adminView) ? "block" : "none", width: "80%", margin: "auto" }}>
-                                            <div id="eventsnavbar" style={{ gridTemplateColumns: "80% auto", gridGap: "15px" }} className={styles.doublegrid}>
-                                                <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="eventssearch" placeholder="Search with name"></input>
-                                                <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openEventOverlay()}>New Event</button>
+                                        <div id="eventsattend">
+                                            <h3 className={styles.screenheading} style={{ fontSize: "40px", marginLeft: "5px" }}>Events you're attending</h3>
+                                            <div id="eventsattendlist"></div>
+                                            <div className={styles.divider}></div>
+                                        </div>
+
+                                        <div style={{ width: "80%", margin: "auto" }}>
+                                            <div id="eventsnavbar" style={{ gridTemplateColumns: "80% auto", gridGap: "15px", display: (adminView) ? "grid" : "block" }} className={styles.doublegrid}>
+                                                <input className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with name"></input>
+                                                <button style={{ width: "100%", display: (adminView) ? "block" : "none" }} className={styles.managebutton} onClick={() => openEventOverlay("editeventsoverlay")}>New Event</button>
                                             </div>
                                             <div id="eventslist"></div>
                                         </div>
@@ -887,9 +1003,72 @@ export default function Dash() {
                                     </div>
                                 </div>
 
-                                <div id="eventsoverlay" style={{ overflowY: "auto", overflowX: "visible", display: "none", width: "70%", padding: "10%", height: "65%", transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={styles.fullycenter}>
-                                    <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay()}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
-                                    <div style={{ backgroundColor: "rgb(227, 171, 74)", height: "300px", width: "100%", borderRadius: "25px", display: "none" }}></div>
+                                <div id="vieweventsoverlay" style={{ overflowY: "auto", overflowX: "visible", display: "none", width: "60%", padding: "20%", height: "65%", transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={styles.fullycenter}>
+                                    <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("vieweventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
+                                    <div id="vestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
+                                        <div className={styles.fullycenter} style={{ width: "100%" }}>
+                                            <p id="vestatusverbtop" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>Event is</p>
+                                            <h2 id="vestatus" style={{ margin: "0px", fontSize: "80px", textAlign: "center" }}>PENDING</h2>
+                                            <p id="vestatusverb" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>It will start in 0 days</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h1 id="vename" className={styles.screenheading} style={{ marginTop: "20px", marginLeft: "20px", marginBottom: "0px" }}>Event Title</h1>
+                                        <p id="vedesc" className={styles.font} style={{ fontSize: "30px", marginTop: "10px", fontWeight: "normal", marginLeft: "20px" }}>Event Description</p>
+                                    </div>
+                                    <div className={styles.divider}></div>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto", marginBottom: "10px" }}>
+                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto" }}>
+                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>pin_drop</span>
+                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "auto" }}>Event Location:</h3>
+                                        </div>
+                                        <p id="veloc" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Location</p>
+                                    </div>
+
+                                    <div id="regdef" className={styles.doublegrid}>
+                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto" }}>
+                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_available</span>
+                                            <div>
+                                                <h3 className={styles.font} style={{ fontSize: "25px", margin: "auto" }}>Registration Start:</h3>
+                                                <p id="veregstart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Date Time</p>
+                                            </div>
+                                        </div>
+                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
+                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_busy</span>
+                                            <div>
+                                                <h3 className={styles.font} style={{ fontSize: "25px", margin: "auto" }}>Registration End:</h3>
+                                                <p id="veregend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Date Time</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={styles.doublegrid}>
+                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto" }}>
+                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
+                                            <div>
+                                                <h3 className={styles.font} style={{ fontSize: "25px", margin: "auto" }}>Event Start:</h3>
+                                                <p id="vestart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Date Time</p>
+                                            </div>
+                                        </div>
+                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
+                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
+                                            <div>
+                                                <h3 className={styles.font} style={{ fontSize: "25px", margin: "auto" }}>Event End:</h3>
+                                                <p id="veend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Date Time</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.divider}></div>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
+                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>local_activity</span>
+                                        <h3 id="vecost" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>Free Registration</h3>
+                                    </div>
+                                    <button id="eregistertbtn" className={styles.managebutton} onClick={() => openOverlay("event")}>Register</button>
+                                </div>
+
+                                <div id="editeventsoverlay" style={{ overflowY: "auto", overflowX: "visible", display: "none", width: "60%", padding: "20%", height: "65%", transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={styles.fullycenter}>
+                                    <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("editeventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
+                                    <div style={{ backgroundColor: "rgb(227, 171, 74)", height: "300px", width: "100%", borderRadius: "25px" }}></div>
                                     <div>
                                         <input id="ename" className={styles.slickttt} style={{ marginTop: "20px" }} placeholder="Event Title"></input>
                                         <textarea id="edesc" onInput={() => {
@@ -926,20 +1105,6 @@ export default function Dash() {
                                         </select>
                                         <input id="eusdamount" className={styles.input} style={{ display: "none" }} placeholder="USD Amount"></input>
                                     </div>
-                                    <div id="erdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto" }}>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Status</h3>
-                                        <select id="erselect" className={styles.input} onInput={() => {
-                                            if (document.getElementById("erselect").value == "Scheduled (Auto)") {
-                                                document.getElementById("erdtdoublegrid").style.display = "grid";
-                                            } else {
-                                                document.getElementById("erdtdoublegrid").style.display = "none";
-                                            }
-                                        }}>
-                                            <option>Scheduled (Auto)</option>
-                                            <option>Open</option>
-                                            <option>Closed</option>
-                                        </select>
-                                    </div>
                                     <div id="erdtdoublegrid" className={styles.doublegrid} style={{ display: "grid", gridGap: "15px" }}>
                                         <div>
                                             <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Start</h3>
@@ -949,21 +1114,6 @@ export default function Dash() {
                                             <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration End</h3>
                                             <input id="eret" type="datetime-local" className={styles.input}></input>
                                         </div>
-                                    </div>
-                                    <div id="etdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "200px auto" }}>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Status</h3>
-                                        <select id="etselect" className={styles.input} onInput={() => {
-                                            if (document.getElementById("etselect").value == "Scheduled (Auto)") {
-                                                document.getElementById("etdtdoublegrid").style.display = "grid";
-                                            } else {
-                                                document.getElementById("etdtdoublegrid").style.display = "none";
-                                            }
-                                        }}>
-                                            <option>Scheduled (Auto)</option>
-                                            <option>Pending</option>
-                                            <option>On-Going</option>
-                                            <option>Ended</option>
-                                        </select>
                                     </div>
                                     <div id="etdtdoublegrid" className={styles.doublegrid} style={{ gridGap: "15px" }}>
                                         <div>
@@ -987,8 +1137,6 @@ export default function Dash() {
                                                             description: document.getElementById("edesc").value,
                                                             location: document.getElementById("eloc").value,
                                                             visible: document.getElementById("evselect").value,
-                                                            status: document.getElementById("etselect").value,
-                                                            registrationStatus: document.getElementById("erselect").value,
                                                             registrationStartDateTime: document.getElementById("erst").value,
                                                             registrationEndDateTime: document.getElementById("eret").value,
                                                             startDateTime: document.getElementById("est").value,
@@ -997,7 +1145,7 @@ export default function Dash() {
                                                         }
                                                     }
                                                 }).then((res) => {
-                                                    closeEventOverlay("add");
+                                                    closeEventOverlay("editeventsoverlay", "add");
                                                     refresh("events")
                                                 }).catch((err) => {
                                                     apiError(err)
@@ -1013,18 +1161,15 @@ export default function Dash() {
                                                             description: document.getElementById("edesc").value,
                                                             location: document.getElementById("eloc").value,
                                                             visible: document.getElementById("evselect").value,
-                                                            status: document.getElementById("etselect").value,
-                                                            registrationStatus: document.getElementById("erselect").value,
                                                             registrationStartDateTime: document.getElementById("erst").value,
                                                             registrationEndDateTime: document.getElementById("eret").value,
                                                             startDateTime: document.getElementById("est").value,
                                                             endDateTime: document.getElementById("eet").value,
                                                             cost: (document.getElementById("eusdamount").value == "") ? "Free" : parseFloat(document.getElementById("eusdamount").value).toFixed(2),
-
                                                         },
                                                     }
                                                 }).then((res) => {
-                                                    closeEventOverlay("add");
+                                                    closeEventOverlay("editeventsoverlay", "add");
                                                     refresh("events")
                                                 }).catch((err) => {
                                                     console.log(err)
@@ -1037,7 +1182,7 @@ export default function Dash() {
                                                 method: "post",
                                                 url: "http://localhost:8445/deleteEvent?id=" + selectedEvent,
                                             }).then((res) => {
-                                                closeEventOverlay();
+                                                closeEventOverlay("editeventsoverlay");
                                                 refresh("events")
                                             }).catch((err) => {
                                                 apiError(err)

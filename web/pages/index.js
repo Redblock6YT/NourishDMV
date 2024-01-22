@@ -89,6 +89,22 @@ export default function Home() {
         for (var i = 0; i < currentEventsList.children.length; i++) {
           currentEventsList.children[i].remove();
         }
+        if (events.length == 0) {
+          const noevents = document.createElement("div");
+          noevents.id = "noevents";
+          noevents.className = styles.item;
+          noevents.style.cursor = "unset"
+          const noeventstext = document.createElement("p");
+          noeventstext.style.color = "rgba(0, 0, 0, 0.300)"
+          noeventstext.style.margin = "0px"
+          noeventstext.style.width = "100%"
+          noeventstext.style.textAlign = "center"
+          noeventstext.className = styles.fullycenter;
+          noeventstext.innerHTML = "No events to show";
+          noevents.appendChild(noeventstext);
+          currentEventsList.appendChild(noevents);
+        }
+
         for (var i = 0; i < 4; i++) {
           if (events[i] == undefined) {
             continue;
@@ -100,9 +116,10 @@ export default function Home() {
           eventcontentcontainer.style.display = "grid"
           eventcontentcontainer.style.gridTemplateColumns = "auto 50px";
           eventcontentcontainer.style.gridGap = "15px"
-          eventcontentcontainer.style.height = "100%"
+          eventcontentcontainer.style.maxHeight = "500px"
           eventcontentcontainer.style.width = "100%"
           eventcard.className = styles.item;
+          eventcard.onclick = () => push("/dash?view=events&eventid=" + eventid);
           eventcard.style.borderRadius = "30px"
           eventcard.style.marginRight = "20px"
           eventcard.style.marginBottom = "20px"
@@ -113,13 +130,15 @@ export default function Home() {
           const countdownnumbs = document.createElement("h2");
           countdownlabeltop.style.margin = "0px"
           countdownlabeltop.style.marginTop = "5px"
+          countdownlabeltop.style.fontSize = "25px"
           countdownlabeltop.style.textAlign = "center"
           countdownlabelbottom.style.margin = "0px"
           countdownlabelbottom.style.textAlign = "center"
+          countdownlabelbottom.style.fontSize = "25px"
           countdownnumbs.className = styles.font;
           countdownnumbs.style.textAlign = "center"
           countdownnumbs.style.margin = "0px"
-          countdownnumbs.style.fontSize = "50px"
+          countdownnumbs.style.fontSize = "60px"
           countdownnumbs.style.color = "white"
 
           //Pending means that the event has not happened yet
@@ -284,12 +303,13 @@ export default function Home() {
           const eventdescription = document.createElement("p");
           eventdescription.innerHTML = event.description;
           eventdescription.style.margin = "0px"
+          eventdescription.style.maxHeight = "130px"
           eventdescription.style.fontWeight = "normal"
 
           if (event.startDateTime == "" || event.endDateTime == "") {
             eventdatestext.innerHTML = "Indefinite"
           } else {
-            eventdatestext.innerHTML = new Date(event.endDateTime).toLocaleString()  + " - " + new Date(event.startDateTime).toLocaleString();
+            eventdatestext.innerHTML = new Date(event.endDateTime).toLocaleString() + " - " + new Date(event.startDateTime).toLocaleString();
           }
           eventdates.appendChild(eventdicon);
           eventdates.appendChild(eventdatestext);
@@ -583,25 +603,28 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.divider}></div>
-              <h3 className={styles.header} style={{ color: "black", marginLeft: "20px" }}>See how we've been <a style={{ backgroundColor: "rgb(251, 172, 41)" }}>impacting our community</a></h3>
-              <h4 className={styles.subheader} style={{ marginLeft: "20px", marginBottom: "20px" }}>Our blog</h4>
-              <div>
-                <div className={styles.redirectcard} onClick={() => push("/dash?view=blog")}>
-                  <div className={styles.fullycenter}>
-                    <div style={{ position: "relative" }}>
-                      <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "140px", height: "140px", filter: "blur(20px)", transform: "translateY(-50%) translateX(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
-                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                        <span style={{ fontSize: "50px" }} className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                          open_in_new
-                        </span>
+              <div style={{ display: "none" }}>
+                <h3 className={styles.header} style={{ color: "black", marginLeft: "20px" }}>See how we've been <a style={{ backgroundColor: "rgb(251, 172, 41)" }}>impacting our community</a></h3>
+                <h4 className={styles.subheader} style={{ marginLeft: "20px", marginBottom: "20px" }}>Our blog</h4>
+                <div>
+                  <div className={styles.redirectcard} onClick={() => push("/dash?view=blog")}>
+                    <div className={styles.fullycenter}>
+                      <div style={{ position: "relative" }}>
+                        <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "140px", height: "140px", filter: "blur(20px)", transform: "translateY(-50%) translateX(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
+                        <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                          <span style={{ fontSize: "50px" }} className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                            open_in_new
+                          </span>
+                        </div>
                       </div>
+                      <p style={{ margin: "auto", fontSize: "50px", width: "100%", textAlign: "center", marginTop: "50px" }}>See All</p>
                     </div>
-                    <p style={{ margin: "auto", fontSize: "50px", width: "100%", textAlign: "center", marginTop: "50px" }}>See All</p>
-                  </div>
 
+                  </div>
                 </div>
+                <div className={styles.divider}></div>
               </div>
-              <div className={styles.divider}></div>
+
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Get in touch</h3>
               <div className={styles.contactgrid}>
                 <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
