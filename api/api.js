@@ -42,6 +42,13 @@ const Account = mongoose.model("Account", {
 const Event = mongoose.model("Event", {
     id: { type: String, default: "" },
     event: { type: Object, default: {} },
+    analytics: {
+        type: Object, default: {
+            views: 0,
+            attendees: [],
+            clicks: 0,
+        }
+    },
 })
 
 const BlogPost = mongoose.model("BlogPost", {
@@ -49,6 +56,42 @@ const BlogPost = mongoose.model("BlogPost", {
     content: { type: String, default: "" },
     visible: { type: Boolean, default: true },
     date: { type: Date, default: Date.now },
+})
+
+//A NourishDMV account is required to register for events
+app.post("/registerEvent", jsonParser, async (req, res) => {
+    Event.findOneAndUpdate(
+        { id: req.body.eventId },
+        { $push: { "analytics.attendees": req.body.uuid } }
+    ).then((event) => {
+        Account.findOneAndUpdate({ uuid: req.body.uuid }, { $push: { eventsAttended: req.body.eventId } }).then((account) => {
+            if (account) {
+                res.status(200).send({ uuid: account.uuid, status: "Account registered for event." });
+            } else {
+                res.status(400).send("Account not found.");
+            }
+        }).catch((err) => {
+            res.status(400).send(err);
+        })
+    }).catch((err) => {
+        res.status(400).send(err);
+    })
+})
+
+app.post("/unregisterEvent", jsonParser, async (req, res) => {
+    Event.findOneAndUpdate({ id: req.body.eventId }, { $pull: { "analytics.attendees": req.body.uuid } }).then((event) => {
+        Account.findOneAndUpdate({ uuid: req.body.uuid }, { $pull: { eventsAttended: req.body.eventId } }).then((account) => {
+            if (account) {
+                res.status(200).send({ uuid: account.uuid, status: "Account unregistered for event." });
+            } else {
+                res.status(400).send("Account not found.");
+            }
+        }).catch((err) => {
+            res.status(400).send(err);
+        })
+    }).catch((err) => {
+        res.status(400).send(err);
+    })
 })
 
 app.post("/signIn", jsonParser, async (req, res) => {
@@ -154,7 +197,7 @@ app.post("/deleteEvent", jsonParser, async (req, res) => {
                 res.status(400).send("Event not found.");
             }
         })
-    } catch(err) {
+    } catch (err) {
         console.log(err)
         res.status(400).send(err);
     }
@@ -209,7 +252,7 @@ app.post("/createAccount", jsonParser, async (req, res) => {
                     lastLogin: Date.now(),
                 })
                 await account.save();
-                res.status(200).send({uuid: uuid, status: "Account created."});
+                res.status(200).send({ uuid: uuid, status: "Account created." });
             }
         })
     } catch (err) {
@@ -218,7 +261,7 @@ app.post("/createAccount", jsonParser, async (req, res) => {
     }
 });
 
-app.get("/getAccounts", async(req, res) => {
+app.get("/getAccounts", async (req, res) => {
     try {
         Account.find({}).then((accounts) => {
             if (accounts) {

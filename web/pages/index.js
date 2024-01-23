@@ -69,6 +69,16 @@ export default function Home() {
     }
   }
 
+  function calculateEventStatus(startDateTime, endDateTime) {
+    if (Date.parse(startDateTime) > Date.now()) {
+      return "Pending";
+    } else if (Date.parse(startDateTime) < Date.now() && Date.parse(endDateTime) > Date.now()) {
+      return "In Progress";
+    } else if (Date.parse(endDateTime) < Date.now()) {
+      return "Ended";
+    }
+  }
+
   function refreshEvents() {
     console.log("refreshing events")
     console.log("clear events")
@@ -114,79 +124,41 @@ export default function Home() {
           const eventcard = document.createElement("div");
           const eventcontentcontainer = document.createElement("div");
           eventcontentcontainer.style.display = "grid"
-          eventcontentcontainer.style.gridTemplateColumns = "auto 50px";
+          eventcontentcontainer.style.gridTemplateColumns = "200px auto 50px";
           eventcontentcontainer.style.gridGap = "15px"
-          eventcontentcontainer.style.maxHeight = "500px"
           eventcontentcontainer.style.width = "100%"
-          eventcard.className = styles.item;
+          eventcard.className = styles.itemEvents;
           eventcard.onclick = () => push("/dash?view=events&eventid=" + eventid);
           eventcard.style.borderRadius = "30px"
           eventcard.style.marginRight = "20px"
+          eventcard.style.width = "570px"
           eventcard.style.marginBottom = "20px"
           const eventcountdown = document.createElement("div");
-          eventcountdown.style.display = "none"
           const countdownlabeltop = document.createElement("p");
           const countdownlabelbottom = document.createElement("p");
           const countdownnumbs = document.createElement("h2");
           countdownlabeltop.style.margin = "0px"
           countdownlabeltop.style.marginTop = "5px"
-          countdownlabeltop.style.fontSize = "25px"
+          countdownlabeltop.style.fontSize = "20px"
           countdownlabeltop.style.textAlign = "center"
           countdownlabelbottom.style.margin = "0px"
           countdownlabelbottom.style.textAlign = "center"
-          countdownlabelbottom.style.fontSize = "25px"
+          countdownlabelbottom.style.fontSize = "20px"
           countdownnumbs.className = styles.font;
           countdownnumbs.style.textAlign = "center"
           countdownnumbs.style.margin = "0px"
-          countdownnumbs.style.fontSize = "60px"
+          countdownnumbs.style.fontSize = "55px"
           countdownnumbs.style.color = "white"
+          const learnMoreVerbage = document.createElement("p");
+          learnMoreVerbage.innerHTML = "Click to learn more about this event";
+          learnMoreVerbage.style.marginTop = "10px"
+          learnMoreVerbage.style.fontWeight = "normal"
 
-          //Pending means that the event has not happened yet
-          var eventStatusCountdown = false;
-          var registrationStatusCountdown = false;
-
-          var eventStatus = "Pending";
-          eventcard.className = [styles.itemPending, styles.itemEvents].join(" ")
-          if (event.status == "On-Going") {
-            eventStatus = "On-Going";
-            eventcard.className = [styles.itemOnGoing, styles.itemEvents].join(" ")
-          } else if (event.status == "Ended") {
-            eventStatus = "Ended";
-            eventcard.className = [styles.itemEnded, styles.itemEvents].join(" ")
-          } else if (event.status == "Scheduled (Auto)") {
-            eventStatusCountdown = true;
-            eventcountdown.style.display = "block"
-            eventcontentcontainer.style.gridTemplateColumns = "150px auto 50px";
-            if (Date.parse(event.startDateTime) > Date.now()) {
-              eventStatus = "Pending"
-            } else if (Date.parse(event.startDateTime) < Date.now() && Date.parse(event.endDateTime) > Date.now()) {
-              eventStatus = "On-Going"
-            } else if (Date.parse(event.endDateTime) < Date.now()) {
-              eventStatus = "Ended"
-              eventcard.className = [styles.itemEnded, styles.itemEvents].join(" ")
-            }
-          }
-
-          var registrationStatus = "Pending";
-          if (event.registrationStatus == "Open") {
-            registrationStatus = "Open";
-          } else if (event.registrationStatus == "Closed") {
-            registrationStatus = "Closed";
-          } else if (event.registrationStatus == "Scheduled (Auto)") {
-            registrationStatusCountdown = true;
-            eventcountdown.style.display = "grid"
-            eventcontentcontainer.style.gridTemplateColumns = "150px auto 50px";
-            if (Date.parse(event.registrationStartDateTime) > Date.now()) {
-              registrationStatus = "Pending"
-            } else if (Date.parse(event.registrationStartDateTime) < Date.now() && Date.parse(event.registrationEndDateTime) > Date.now()) {
-              registrationStatus = "Open"
-            } else if (Date.parse(event.registrationEndDateTime) < Date.now()) {
-              registrationStatus = "Closed"
-            }
-          }
-
-          if (registrationStatus == "Pending" && registrationStatusCountdown) {
-            //show how many days left until registration opens, but if the time is less than 24 hours, show how many hours left. if the time is less than 1 hour, show how many minutes left
+          var eventStatus = calculateEventStatus(event.startDateTime, event.endDateTime);
+          var registrationStatus = calculateEventStatus(event.registrationStartDateTime, event.registrationEndDateTime);
+          console.log(eventStatus, registrationStatus)
+          if (registrationStatus == "Pending") {
+            eventcard.className = [styles.itemPending, styles.itemEvents].join(" ")
             const interval = setInterval(() => {
               var timeDifference = calculateTimeDifference(event.registrationStartDateTime);
               countdownlabeltop.innerHTML = "Registration opens";
@@ -199,19 +171,20 @@ export default function Home() {
               }
             }, 1000)
             setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
-          } else if (registrationStatus == "Open" && registrationStatusCountdown) {
+          } else if (registrationStatus == "In Progress") {
+            eventcard.style.animation = styles.pulse2 + " 3s infinite linear"
             const interval = setInterval(() => {
               var timeDifference = calculateTimeDifference(event.registrationEndDateTime);
               countdownlabeltop.innerHTML = "Registration closes";
               countdownnumbs.innerHTML = timeDifference.value;
               countdownlabelbottom.innerHTML = timeDifference.unit;
               if (timeDifference.value <= 0) {
-                clearInterval();
                 refreshEvents();
+                clearInterval();
               }
             }, 1000)
             setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
-          } else if (registrationStatus == "Closed" && eventStatusCountdown == true) {
+          } else if (registrationStatus == "Ended") {
             if (eventStatus == "Ended") {
               eventcard.className = [styles.itemEnded, styles.itemEvents].join(" ")
               //show how many days ago the event ended, but if the time is less than 24 hours, show how many hours ago. if the time is less than 1 hour, show how many minutes ago. if the time is less than 1 minute, show how many seconds ago
@@ -221,12 +194,12 @@ export default function Home() {
                 countdownnumbs.innerHTML = timeDifference.value;
                 countdownlabelbottom.innerHTML = timeDifference.unit;
                 if (timeDifference.value <= 0) {
-                  clearInterval();
                   refreshEvents();
+                  clearInterval();
                 }
               }, 1000)
               setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
-            } else if (eventStatus == "On-Going") {
+            } else if (eventStatus == "In Progress") {
               eventcard.className = [styles.itemOnGoing, styles.itemEvents].join(" ")
               //show how many hours left in the event, but if the time is longer than 24 hours, show how many days left. if the time is less than 1 hour, show how many minutes left. if the time is less than 1 minute, show how many seconds left
               const interval = setInterval(() => {
@@ -234,9 +207,9 @@ export default function Home() {
                 countdownlabeltop.innerHTML = "Ends in";
                 countdownnumbs.innerHTML = timeDifference.value;
                 countdownlabelbottom.innerHTML = timeDifference.unit;
-                if (timeDifference.value <= 0) {
-                  clearInterval();
+                if (timeDifference.value <= 1) {
                   refreshEvents();
+                  clearInterval();
                 }
               }, 1000)
               setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
@@ -250,17 +223,17 @@ export default function Home() {
                 countdownnumbs.innerHTML = timeDifference.value;
                 countdownlabelbottom.innerHTML = timeDifference.unit;
                 if (timeDifference.value <= 0) {
-                  clearInterval();
                   refreshEvents();
+                  clearInterval();
                 }
               }, 1000)
               setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
             }
           }
 
-
           eventcountdown.style.backgroundColor = "#0000003b";
           eventcountdown.style.borderRadius = "25px"
+          eventcountdown.style.height = "130px"
           eventcountdown.style.zIndex = "10"
           eventcountdown.appendChild(countdownlabeltop);
           eventcountdown.appendChild(countdownnumbs);
@@ -300,21 +273,12 @@ export default function Home() {
           eventdicon.style.margin = "auto"
           eventdicon.className = "material-symbols-rounded"
 
-          const eventdescription = document.createElement("p");
-          eventdescription.innerHTML = event.description;
-          eventdescription.style.margin = "0px"
-          eventdescription.style.maxHeight = "130px"
-          eventdescription.style.fontWeight = "normal"
+          eventdatestext.innerHTML = new Date(event.startDateTime).toLocaleDateString() + " - " + new Date(event.endDateTime).toLocaleDateString();
 
-          if (event.startDateTime == "" || event.endDateTime == "") {
-            eventdatestext.innerHTML = "Indefinite"
-          } else {
-            eventdatestext.innerHTML = new Date(event.endDateTime).toLocaleString() + " - " + new Date(event.startDateTime).toLocaleString();
-          }
           eventdates.appendChild(eventdicon);
           eventdates.appendChild(eventdatestext);
           eventcontent.appendChild(eventdates);
-          eventcontent.appendChild(eventdescription);
+          eventcontent.appendChild(learnMoreVerbage);
 
           const icon = document.createElement("span");
           icon.className = "material-symbols-rounded";

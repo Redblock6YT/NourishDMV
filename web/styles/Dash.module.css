@@ -78,6 +78,20 @@
     }
 }
 
+@keyframes pulseRegistration {
+    0% {
+        background-color: rgba(255, 255, 0, 0.447);
+    }
+
+    50% {
+        background-color: rgba(219, 219, 0, 0.447);
+    }
+
+    100% {
+        background-color: rgba(255, 255, 0, 0.447);
+    }
+}
+
 .errorCard {
     font-family: 'Outfit', sans-serif;
     color: white;
@@ -90,6 +104,7 @@
     transform: translateX(-50%);
     border-radius: 25px;
     position: absolute;
+    z-index: 100000;
 }
 
 .header {
@@ -166,6 +181,7 @@
 .zigZag {
     position: relative;
     padding-left: 32px;
+    overflow: hidden;
 }
 
 .zigZag:before {
