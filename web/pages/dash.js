@@ -18,10 +18,15 @@ export default function Dash() {
     const adminViewRef = useRef(adminView);
     const [step, setStep] = useState(0);
     const [mobile, setMobile] = useState(false);
+    const mobileRef = useRef(mobile);
     const [accounts, setAccounts] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [selectedEvent, setSelectedEvent] = useState("");
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
+
+    useEffect(() => {
+        mobileRef.current = mobile;
+    }, [mobile])
 
     useEffect(() => {
         adminViewRef.current = adminView;
@@ -393,7 +398,9 @@ export default function Dash() {
             easing: 'easeInOutQuad'
         })
         eventsoverlay.style.display = "block";
-        eventsoverlay.style.height = "65%"
+        if (!mobileRef.current) {
+            eventsoverlay.style.height = "65%"
+        }
         anime({
             targets: eventsoverlay,
             scale: 1,
@@ -417,7 +424,6 @@ export default function Dash() {
                     document.getElementById("vename").innerHTML = event.title;
                     document.getElementById("vedesc").innerHTML = event.description;
                     document.getElementById("veloc").innerHTML = event.location;
-                    document.getElementById("regdef").style.display = "grid"
                     document.getElementById("veregstart").innerHTML = new Date(event.registrationStartDateTime).toLocaleString();
                     document.getElementById("veregend").innerHTML = new Date(event.registrationEndDateTime).toLocaleString();
                     document.getElementById("vestart").innerHTML = new Date(event.startDateTime).toLocaleString();
@@ -551,6 +557,7 @@ export default function Dash() {
                     document.getElementById("eret").value = event.registrationEndDateTime;
                     document.getElementById("est").value = event.startDateTime;
                     document.getElementById("eet").value = event.endDateTime;
+                    document.getElementById("admineanalytics").style.display = "block";
                     document.getElementById("esubmitbtn").innerHTML = "Save Event"
                     document.getElementById("submitdelgrid").style.display = "grid"
                     document.getElementById("edelbtn").style.display = "block"
@@ -559,6 +566,7 @@ export default function Dash() {
                 apiError(err);
             })
         } else {
+            document.getElementById("admineanalytics").style.display = "none";
             document.getElementById("ename").value = "";
             document.getElementById("edesc").value = "";
             document.getElementById("eloc").value = "";
@@ -596,7 +604,9 @@ export default function Dash() {
                 complete: function (anim) {
                     document.getElementById(overlayId).style.display = "none";
                     document.getElementById("events").style.overflowY = "auto";
-                    showSidebar();
+                    if (!mobileRef.current) {
+                        showSidebar();
+                    }
                 }
             })
         } else {
@@ -610,7 +620,9 @@ export default function Dash() {
                 complete: function (anim) {
                     document.getElementById(overlayId).style.display = "none";
                     document.getElementById("events").style.overflowY = "auto";
-                    showSidebar();
+                    if (!mobileRef.current) {
+                        showSidebar();
+                    }
                 }
             })
         }
@@ -694,12 +706,19 @@ export default function Dash() {
     }
 
     function showSidebar() {
-        document.getElementById("content").style.gridTemplateColumns = "300px auto";
+        if (window.innerWidth <= 600) {
+            document.getElementById("content").style.gridTemplateColumns = "250px auto";
+        } else {
+            document.getElementById("content").style.gridTemplateColumns = "300px auto";
+
+        }
         document.getElementById("content").style.left = "50%";
+
         setSidebarOpen(true);
     }
 
     function hideSidebar() {
+        console.log(mobileRef.current)
         document.getElementById("content").style.gridTemplateColumns = "300px 100%";
         const parentWidth = document.getElementById("mainelem").clientWidth;
         var left = (parentWidth / 2) - 325;
@@ -752,16 +771,33 @@ export default function Dash() {
             duration: 1000,
             easing: 'easeInOutQuad',
         })
-        document.getElementById("differenceOverlay").style.display = "grid";
-        anime({
-            targets: "#zigZag",
-            left: "0%",
-            duration: 1000,
-            easing: 'easeInOutQuad',
-            complete: function (anim) {
-                nextStep(type);
-            }
-        })
+        if (mobile) {
+            document.getElementById("differenceOverlay").style.display = "block";
+            document.getElementById("closeZigZag").style.display = "none"
+            document.getElementById("differenceOverlay").style.width = "115%";
+            anime({
+                targets: "#zigZag",
+                left: "-10%",
+                duration: 1000,
+                easing: 'easeInOutQuad',
+                complete: function (anim) {
+                    nextStep(type);
+                }
+            })
+        } else {
+            document.getElementById("differenceOverlay").style.display = "grid";
+            anime({
+                targets: "#zigZag",
+                left: "0%",
+                duration: 1000,
+                easing: 'easeInOutQuad',
+                complete: function (anim) {
+                    nextStep(type);
+                }
+            })
+        }
+
+
     }
 
     function closeOverlay() {
@@ -878,6 +914,10 @@ export default function Dash() {
             //once the page is fully loaded, play the splashscreen outro
             if (window.innerWidth <= 600) {
                 setMobile(true);
+                console.log("mobile")
+                document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_mobile.mp4";
+                document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_mobile.mp4";
+                hideSidebar();
             }
 
             if (Cookies.get("account") != undefined) {
@@ -948,7 +988,7 @@ export default function Dash() {
                                     <button id="eventsbtn" className={styles.sidebarItem} onClick={() => switchView("events")}>Events</button>
                                     <button id="donationsbtn" className={styles.sidebarItem} onClick={() => switchView("donations")}>Donations</button>
                                 </div>
-                                <button className={styles.sidebarItem} onClick={() => push("/accounts?view=Sign+In")} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: "280px", display: (account == "") ? "block" : "none" }}>Sign In</button>
+                                <button className={styles.sidebarItem} onClick={() => push("/accounts?view=Sign+In")} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: (mobileRef.current) ? "230px" : "280px", display: (account == "") ? "block" : "none" }}>Sign In</button>
                                 <div className={styles.sidebarItem} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: "280px", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
                                     <div style={{ display: "grid", gridTemplateColumns: "60px auto 50px", padding: "10px", height: "50px" }}>
                                         <div id="picture" style={{ backgroundColor: "#e3ab4a", width: "50px", height: "100%", borderRadius: "15px" }}>
@@ -970,7 +1010,11 @@ export default function Dash() {
                     <div id="screens" style={{ overflowX: "hidden", overflowY: "hidden", padding: "15px" }}>
                         <div id="aag" className={styles.screen} style={{ marginTop: "0px" }}>
                             <div style={{ padding: "20px" }}>
-                                <h3 className={styles.screenheading}>At a glance</h3>
+                                <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: "70px auto 50px" }}>
+                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                    <h3 className={styles.screenheading}>At a glance</h3>
+                                    <div className={styles.loading} style={{ display: "none" }} id="aagloading"></div>
+                                </div>
                                 <div className={styles.divider}></div>
                                 <div id="admin" style={{ display: (adminView) ? "block" : "none" }}>
                                     <h4 className={styles.screensubheading}>All time statistics</h4>
@@ -1002,7 +1046,7 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Recent Donation Activity</h4>
-                                    <div id="recentactivity" className={styles.previewbento} style={{ margin: "20px" }}>
+                                    <div id="recentactivity" className={styles.previewbento} style={{ width: (mobile) ? "85%" : "50%", margin: "20px" }}>
                                         <button className={styles.minilistitem}>Sauron Monet donated $955</button>
                                         <button className={styles.minilistitem}>Aurelia Gallia donated $162</button>
                                         <button className={styles.minilistitem}>Neela Abraham donated $20</button>
@@ -1011,8 +1055,12 @@ export default function Dash() {
                                     </div>
                                 </div>
                                 <div id="non-admin" style={{ display: (!adminView) ? "block" : "none" }}>
-                                    <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference: <a style={{ backgroundColor: "#fbac29ff" }}>Hands On</a></h3>
-                                    <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block" }} onClick={() => openOverlay("v")}>Join our team</button>
+                                    <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
+                                    <div className={styles.doublegrid} style={{ width: (mobile) ? "100%" : "70%", margin: "auto", display: (mobile) ? "block" : "grid" }}>
+                                        <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block", width: "100%" }} onClick={() => openOverlay("d")}>Donate</button>
+                                        <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block", width: "100%" }} onClick={() => openOverlay("v")}>Join our team</button>
+                                    </div>
+
                                     <div className={styles.divider}></div>
                                     <div style={{ display: (account == "") ? "none" : "block" }}>
                                         <h4 className={styles.screensubheading}>Your Upcoming Events</h4>
@@ -1099,7 +1147,7 @@ export default function Dash() {
                                         </div>
                                         <div className={styles.divider}></div>
                                         <div style={{ width: "80%", margin: "auto" }}>
-                                            <div id="eventsnavbar" style={{ gridTemplateColumns: "75% auto" }} className={styles.doublegrid}>
+                                            <div id="eventsnavbar" style={{ gridTemplateColumns: (mobile) ? "60% auto" : "75% auto" }} className={styles.doublegrid}>
                                                 <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="eventssearch" placeholder="Search with title"></input>
                                                 <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openBlogPostViewer()}>New Post</button>
                                             </div>
@@ -1157,7 +1205,7 @@ export default function Dash() {
                                         </div>
 
                                         <div style={{ width: "80%", margin: "auto" }}>
-                                            <div id="eventsnavbar" style={{ gridTemplateColumns: "80% auto", gridGap: "15px", display: (adminView) ? "grid" : "block" }} className={styles.doublegrid}>
+                                            <div id="eventsnavbar" style={{ gridTemplateColumns: (mobile) ? "60% auto" : "80% auto", gridGap: "15px", display: (adminView) ? "grid" : "block" }} className={styles.doublegrid}>
                                                 <input className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with name"></input>
                                                 <button style={{ width: "100%", display: (adminView) ? "block" : "none" }} className={styles.managebutton} onClick={() => openEventOverlay("editeventsoverlay")}>New Event</button>
                                             </div>
@@ -1169,7 +1217,7 @@ export default function Dash() {
                                     </div>
                                 </div>
 
-                                <div id="vieweventsoverlay" style={{ overflowY: "auto", overflowX: "visible", display: "none", width: "60%", padding: "20%", height: "65%", transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={styles.fullycenter}>
+                                <div id="vieweventsoverlay" style={{ transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={[styles.fullycenter, styles.eventsoverlay].join(" ")}>
                                     <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("vieweventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
                                     <div id="vestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
                                         <div className={styles.fullycenter} style={{ width: "100%" }}>
@@ -1183,43 +1231,43 @@ export default function Dash() {
                                         <p id="vedesc" className={styles.font} style={{ fontSize: "30px", marginTop: "10px", fontWeight: "normal", marginLeft: "20px" }}>Event Description</p>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto", marginBottom: "10px" }}>
-                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto" }}>
-                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>pin_drop</span>
-                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "auto" }}>Event Location:</h3>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "20px" }}>
+                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>pin_drop</span>
+                                        <div>
+                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event Location:</h3>
+                                            <p id="veloc" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Location</p>
                                         </div>
-                                        <p id="veloc" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Location</p>
                                     </div>
 
-                                    <div id="regdef" className={styles.doublegrid}>
-                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto" }}>
+                                    <div id="regdef" style={{ display: (mobile) ? "block" : "grid", marginBottom: "20px" }} className={styles.doublegrid}>
+                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
                                             <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_available</span>
                                             <div>
-                                                <h3 className={styles.font} style={{ fontSize: "25px", margin: "auto" }}>Registration Start:</h3>
-                                                <p id="veregstart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Date Time</p>
+                                                <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Registration Start:</h3>
+                                                <p id="veregstart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
                                             </div>
                                         </div>
                                         <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
                                             <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_busy</span>
                                             <div>
-                                                <h3 className={styles.font} style={{ fontSize: "25px", margin: "auto" }}>Registration End:</h3>
-                                                <p id="veregend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Date Time</p>
+                                                <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Registration End:</h3>
+                                                <p id="veregend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className={styles.doublegrid}>
-                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto" }}>
+                                    <div className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid" }}>
+                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
                                             <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
                                             <div>
-                                                <h3 className={styles.font} style={{ fontSize: "25px", margin: "auto" }}>Event Start:</h3>
-                                                <p id="vestart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Date Time</p>
+                                                <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event Start:</h3>
+                                                <p id="vestart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
                                             </div>
                                         </div>
                                         <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
                                             <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
                                             <div>
-                                                <h3 className={styles.font} style={{ fontSize: "25px", margin: "auto" }}>Event End:</h3>
-                                                <p id="veend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "30px" }}>Date Time</p>
+                                                <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event End:</h3>
+                                                <p id="veend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
                                             </div>
                                         </div>
                                     </div>
@@ -1232,7 +1280,7 @@ export default function Dash() {
                                     <button id="eregistertbtn" className={styles.managebutton}>Register</button>
                                 </div>
 
-                                <div id="editeventsoverlay" style={{ overflowY: "auto", overflowX: "visible", display: "none", width: "60%", padding: "20%", height: "65%", transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={styles.fullycenter}>
+                                <div id="editeventsoverlay" style={{ transform: "translateX(-50%) translateY(-50%) scale(1.2)", marginTop: (mobile) ? "220px" : "0px", filter: "blur(10px)", opacity: 0 }} className={[styles.fullycenter, styles.eventsoverlay].join(" ")}>
                                     <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("editeventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
                                     <div style={{ backgroundColor: "rgb(227, 171, 74)", height: "300px", width: "100%", borderRadius: "25px" }}></div>
                                     <div>
@@ -1271,7 +1319,7 @@ export default function Dash() {
                                         </select>
                                         <input id="eusdamount" className={styles.input} style={{ display: "none" }} placeholder="USD Amount"></input>
                                     </div>
-                                    <div id="erdtdoublegrid" className={styles.doublegrid} style={{ display: "grid", gridGap: "15px" }}>
+                                    <div id="erdtdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridGap: "15px" }}>
                                         <div>
                                             <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Start</h3>
                                             <input id="erst" type="datetime-local" className={styles.input}></input>
@@ -1281,7 +1329,7 @@ export default function Dash() {
                                             <input id="eret" type="datetime-local" className={styles.input}></input>
                                         </div>
                                     </div>
-                                    <div id="etdtdoublegrid" className={styles.doublegrid} style={{ gridGap: "15px" }}>
+                                    <div id="etdtdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridGap: "15px" }}>
                                         <div>
                                             <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Start</h3>
                                             <input id="est" type="datetime-local" className={styles.input}></input>
@@ -1292,11 +1340,14 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Analytics</h3>
-                                    <p id="eev" className={styles.font} style={{ fontSize: "25px", margin: "10px" }}>Views: 0</p>
-                                    <p id="eea" className={styles.font} style={{ fontSize: "25px", margin: "10px" }}>Attendees: 0</p>
-                                    <div className={styles.divider}></div>
-                                    <div id="submitdelgrid" className={styles.doublegrid} style={{ gridTemplateColumns: "70% auto", gridGap: "15px" }}>
+                                    <div id="admineanalytics" style={{ display: "none" }}>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Analytics</h3>
+                                        <p id="eev" className={styles.font} style={{ fontSize: "25px", margin: "10px" }}>Views: 0</p>
+                                        <p id="eea" className={styles.font} style={{ fontSize: "25px", margin: "10px" }}>Attendees: 0</p>
+                                        <div className={styles.divider}></div>
+                                    </div>
+
+                                    <div id="submitdelgrid" className={styles.doublegrid} style={{ gridTemplateColumns: (mobile) ? "60% auto" : "70% auto", gridGap: "15px" }}>
                                         <button id="esubmitbtn" className={styles.managebutton} onClick={() => {
                                             if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                                 axios({
@@ -1384,8 +1435,8 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <div style={{ width: "80%", margin: "auto" }}>
-                                        <div id="donationsnavbar" style={{ gridTemplateColumns: "75% auto" }} className={styles.doublegrid}>
+                                    <div style={{ width: (mobile) ? "100%" : "80%", margin: "auto" }}>
+                                        <div id="donationsnavbar" style={{ gridTemplateColumns: (mobile) ? "55% auto" : "80% auto", }} className={styles.doublegrid}>
                                             <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" placeholder="Search with date"></input>
                                             <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openOverlay("d")}>New Donation</button>
                                         </div>
@@ -1411,7 +1462,8 @@ export default function Dash() {
                             </div>
                         </div>
                     </div>
-                    <div id="zigZag" className={styles.zigZag} style={{ '--lighterColor': "#ffe7bf", backgroundColor: "#ce8400ff", height: "100%", left: "100%" }}>
+                    <div id="zigZag" className={styles.zigZag} style={{ '--lighterColor': "#ffe7bf", backgroundColor: "#ce8400ff", height: "100%", left: "100%", overflowY: "auto" }}>
+                        <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeOverlay()} style={{ margin: "auto", marginTop: "10px" }}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
                         <div id="donate" style={{ position: "relative", height: "100%" }}>
                             <div id="v1d" className={styles.fullycenter} style={{ width: "85%", left: "150%", opacity: 0 }}>
                                 <h1 className={styles.header}>Select donation amount</h1>
@@ -1440,7 +1492,7 @@ export default function Dash() {
                                 </div>
                                 <button id="v1dcont" onClick={() => nextStep("d")} className={[styles.minibutton, styles.hover].join(" ")} style={{ backgroundColor: "rgba(0, 0, 0, 0.281)", opacity: 0, visibility: "hidden" }}>Continue</button>
                             </div>
-                            <div id="v2d" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
+                            <div id="v2d" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
                                 <h1 id="v2dh" className={styles.header}>Donate $0.00</h1>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px" }}>
                                     <input className={styles.input} type='text' placeholder="Name"></input>
@@ -1465,13 +1517,13 @@ export default function Dash() {
                             <div id="v3d" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
                                 <div class="loading" style={{ display: "block", opacity: "1" }}></div>
                             </div>
-                            <div id="v4d" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
+                            <div id="v4d" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
                                 <h1 className={styles.header}>Thank you!</h1>
                                 <p className={styles.subheader}>Your donation has been processed. You can close this by clicking the close button on the left.</p>
                             </div>
                         </div>
                         <div id="volunteer" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1v" className={styles.fullycenter} style={{ width: "65%", left: "150%", opacity: 0 }}>
+                            <div id="v1v" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
                                 <h1 className={styles.header}>NourishDMV Volunteer Application</h1>
                                 <p className={styles.subheader}>Thank you for your interest in being a NourishDMV Volunteer! Please fill out this application and we'll get back to you as soon as possible.</p>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px", gridTemplateColumns: "auto auto auto" }}>
@@ -1496,7 +1548,7 @@ export default function Dash() {
                                 <input className={styles.input} placeholder="How did you hear about us?"></input>
                                 <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
                             </div>
-                            <div id="v2v" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
+                            <div id="v2v" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
                                 <h1 className={styles.header}>Thank you!</h1>
                                 <p className={styles.subheader}>Your application has been processed, we'll be in touch soon! You can close this by clicking the close button on the left.</p>
                             </div>

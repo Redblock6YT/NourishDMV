@@ -48,7 +48,7 @@ export default function Footer(props) {
                 <div>
                     
                     <div style={{ color: "#00000047" }}>
-                        <div className={styles.doublegrid}>
+                        <div className={styles.doublegrid} style={{display: "none"}}>
                             <div style={{ textAlign: "center", fontWeight: "normal",fontSize: "25px" }}>
                                 <Image src="logo.svg" alt="NourishDMV Logo" height={60} width={300} style={{ margin: "auto", marginRight: "auto", display: "block" }} />
                                 <p style={{ margin: "0px" }}>16701 Melford Blvd, Bowie, MD 20715</p>
@@ -91,9 +91,8 @@ export default function Footer(props) {
 
 
                         {(props.citations != null) ? (
-                            <div id="citationsdiv" style={{textAlign: "center"}}>
-                                <div className={styles.divider} style={{ marginTop: "15px", marginBottom: "15px" }}></div>
-                                <h1>Citations/Attributions</h1>
+                            <div id="citationsdiv" style={{textAlign: "left", margin: "0px 5%"}}>
+                                <h1>Attributions</h1>
                                 <div>
 
                                     {elements}

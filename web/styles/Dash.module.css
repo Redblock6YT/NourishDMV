@@ -568,3 +568,38 @@
     color: rgb(227, 171, 74);
     margin: 0px;
 }
+
+.eventsoverlay {
+    height: 65%;
+    width: 60%;
+    display: none;
+    overflow-y: auto;
+    overflow-x: visible;
+    padding: 20%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    filter: blur(10px);
+    opacity: 0;
+}
+
+@media(max-width: 1400px) {
+    .eventsoverlay {
+        width: 80%;
+    }
+}
+
+@media (max-width: 800px) {
+    .eventsoverlay {
+        width: 100%;
+        position: absolute;
+        transform: translate(50%, 50%);
+        height: 95%;
+        margin-top: 50px;
+        padding: 5% 1%;
+    }
+
+    .sidebarContent {
+        grid-template-columns: 250px 100%;
+    }
+}

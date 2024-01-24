@@ -17,7 +17,7 @@ export default function Home() {
 
   function openSidebar() {
     document.getElementById("mainelem").style.overflowY = "hidden"
-    document.body.style.overflowY = "hidden"
+    //document.body.style.overflowY = "hidden"
     anime({
       targets: "#sidebar",
       left: "50%",
@@ -28,7 +28,7 @@ export default function Home() {
 
   function closeSidebar() {
     document.getElementById("mainelem").style.overflowY = "auto"
-    document.body.style.overflowY = "hidden"
+    //document.body.style.overflowY = "hidden"
     anime({
       targets: "#sidebar",
       left: "-50%",
@@ -123,6 +123,7 @@ export default function Home() {
           const eventid = events[i].id;
           const eventcard = document.createElement("div");
           const eventcontentcontainer = document.createElement("div");
+          const eventdetailscontainer = document.createElement("div");
           eventcontentcontainer.style.display = "grid"
           eventcontentcontainer.style.gridTemplateColumns = "200px auto 50px";
           eventcontentcontainer.style.gridGap = "15px"
@@ -288,8 +289,21 @@ export default function Home() {
           icon.style.marginRight = "0px"
 
           eventcontentcontainer.appendChild(eventcountdown)
-          eventcontentcontainer.appendChild(eventcontent);
-          eventcontentcontainer.appendChild(icon);
+          if (mobile) {
+            eventcontentcontainer.style.gridTemplateColumns = "auto"
+            eventcard.style.height = "300px"
+            eventcard.style.width = "93%"
+            eventdetailscontainer.style.gridTemplateColumns = "auto 50px"
+            eventdetailscontainer.style.display = "grid"
+            eventdetailscontainer.style.padding = "0px 20px"
+            eventdetailscontainer.appendChild(eventcontent)
+            eventdetailscontainer.appendChild(icon)
+            eventcontentcontainer.appendChild(eventdetailscontainer);
+          } else {
+            eventcontentcontainer.appendChild(eventcontent);
+            eventcontentcontainer.appendChild(icon);
+          }
+
           eventcard.appendChild(eventcontentcontainer);
           currentEventsList.appendChild(eventcard);
         }
@@ -465,6 +479,10 @@ export default function Home() {
             <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">account_circle</span>
             <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Accounts</p>
           </div>
+          <div onClick={() => push("/dash")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+            <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">space_dashboard</span>
+            <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Dashboard</p>
+          </div>
         </div>
         <div id="content" style={{ opacity: "0" }}>
           <div id="navbar" className={styles.navbar}>
@@ -516,7 +534,7 @@ export default function Home() {
               <div id="makeDifference" className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto" }}>
-                <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Support our cause</button>
+                <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
                 <button className={styles.button} style={{ margin: "auto", height: "300px", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
               </div>
               <div style={{ position: "relative" }}>
