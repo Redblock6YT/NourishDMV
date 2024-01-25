@@ -1447,7 +1447,7 @@ export default function Dash() {
                         </div>
                     </div>
                     <div id="zigZag" className={styles.zigZag} style={{ '--lighterColor': "#ffe7bf", backgroundColor: "#ce8400ff", height: "100%", left: "100%", overflowY: "auto" }}>
-                        <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeOverlay()} style={{ margin: "auto", marginTop: "10px" }}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
+                        <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeOverlay()} style={{ margin: "auto", marginTop: "10px", display: (mobile) ? "block" : "none" }}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
                         <div id="donate" style={{ position: "relative", height: "100%" }}>
                             <div id="v1d" className={styles.fullycenter} style={{ width: "85%", left: "150%", opacity: 0 }}>
                                 <h1 className={styles.header}>Select donation amount</h1>
