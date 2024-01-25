@@ -555,6 +555,7 @@ export default function Accounts() {
                                         <option>D.C.</option>
                                         <option>Maryland</option>
                                         <option>Virginia</option>
+                                        <option>Other (Not from DMV)</option>
                                     </select>
                                 </div>
                                 <input required className={styles.input} onInput={() => clearErrors("email")} type="email" id="email" placeholder="Email" />

@@ -592,40 +592,21 @@ export default function Dash() {
             duration: 500,
             easing: 'easeInOutQuad'
         })
-        if (type == "add") {
-            document.getElementById(overlayId).style.display = "block";
-            anime({
-                targets: "#" + overlayId,
-                height: "10%",
-                scale: 0.5,
-                opacity: 0,
-                filter: "blur(10px)",
-                easing: 'easeInOutQuad',
-                complete: function (anim) {
-                    document.getElementById(overlayId).style.display = "none";
-                    document.getElementById("events").style.overflowY = "auto";
-                    if (!mobileRef.current) {
-                        showSidebar();
-                    }
+        anime({
+            targets: "#" + overlayId,
+            scale: 1.2,
+            opacity: 0,
+            filter: "blur(10px)",
+            duration: 500,
+            easing: 'easeInOutQuad',
+            complete: function (anim) {
+                document.getElementById(overlayId).style.display = "none";
+                document.getElementById("events").style.overflowY = "auto";
+                if (!mobileRef.current) {
+                    showSidebar();
                 }
-            })
-        } else {
-            anime({
-                targets: "#" + overlayId,
-                scale: 1.2,
-                opacity: 0,
-                filter: "blur(10px)",
-                duration: 500,
-                easing: 'easeInOutQuad',
-                complete: function (anim) {
-                    document.getElementById(overlayId).style.display = "none";
-                    document.getElementById("events").style.overflowY = "auto";
-                    if (!mobileRef.current) {
-                        showSidebar();
-                    }
-                }
-            })
-        }
+            }
+        })
     }
 
     useEffect(() => {
@@ -667,7 +648,10 @@ export default function Dash() {
                 }).then((res) => {
                     if (res.data.status == "Account registered for event.") {
                         closeOverlay();
-                        refresh("events");
+                        setTimeout(() => {
+                            closeEventOverlay("vieweventsoverlay");
+                            refresh("events");
+                        }, 2000)
                     }
                 }).catch((err) => {
                     apiError(err);
@@ -818,7 +802,7 @@ export default function Dash() {
                 anime({
                     targets: "#content",
                     opacity: 1,
-                    duration: 1000,
+                    duration: 300,
                     easing: 'easeInOutQuad',
                 })
             }

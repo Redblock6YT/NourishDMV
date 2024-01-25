@@ -244,6 +244,7 @@
     position: relative;
     min-width: 230px;
     cursor: pointer;
+    overflow: hidden;
 }
 
 .verticaldividerInline {
