@@ -156,7 +156,7 @@ export default function Dash() {
                 if (view == "accounts") {
                     axios({
                         method: "get",
-                        url: "http://api.rygb.tech:8445/getAccounts",
+                        url: "http://nourishapi.rygb.tech:8445/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -213,7 +213,7 @@ export default function Dash() {
                 } else if (view == "blog") {
                     axios({
                         method: "get",
-                        url: "http://api.rygb.tech:8445/getBlogPosts"
+                        url: "http://nourishapi.rygb.tech:8445/getBlogPosts"
                     }).then((res) => {
                         const posts = res.data;
                         for (var i = 0; i < posts.length; i++) {
@@ -253,7 +253,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "http://api.rygb.tech:8445/getEvents"
+                        url: "http://nourishapi.rygb.tech:8445/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         setEventsLength(events.length);
@@ -416,7 +416,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "http://api.rygb.tech:8445/getEvent?id=" + id
+                url: "http://nourishapi.rygb.tech:8445/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -437,7 +437,7 @@ export default function Dash() {
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "http://api.rygb.tech:8445/registerEvent",
+                                    url: "http://nourishapi.rygb.tech:8445/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -478,7 +478,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "http://api.rygb.tech:8445/unregisterEvent",
+                                url: "http://nourishapi.rygb.tech:8445/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -631,7 +631,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "http://api.rygb.tech:8445/getEvent?id=" + selectedEvent
+                    url: "http://nourishapi.rygb.tech:8445/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost + " to register for " + res.data.event.title;
                 }).catch((err) => {
@@ -640,7 +640,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "http://api.rygb.tech:8445/registerEvent",
+                    url: "http://nourishapi.rygb.tech:8445/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -870,7 +870,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "http://api.rygb.tech:8445/getAccount?uuid=" + account
+                url: "http://nourishapi.rygb.tech:8445/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1336,7 +1336,7 @@ export default function Dash() {
                                             if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                                 axios({
                                                     method: "post",
-                                                    url: "http://api.rygb.tech:8445/createEvent",
+                                                    url: "http://nourishapi.rygb.tech:8445/createEvent",
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -1360,7 +1360,7 @@ export default function Dash() {
                                                 console.log(selectedEvent)
                                                 axios({
                                                     method: "post",
-                                                    url: "http://api.rygb.tech:8445/updateEvent?id=" + selectedEvent,
+                                                    url: "http://nourishapi.rygb.tech:8445/updateEvent?id=" + selectedEvent,
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -1386,7 +1386,7 @@ export default function Dash() {
                                         <button onClick={() => {
                                             axios({
                                                 method: "post",
-                                                url: "http://api.rygb.tech:8445/deleteEvent?id=" + selectedEvent,
+                                                url: "http://nourishapi.rygb.tech:8445/deleteEvent?id=" + selectedEvent,
                                             }).then((res) => {
                                                 closeEventOverlay("editeventsoverlay");
                                                 refresh("events")
