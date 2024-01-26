@@ -1,9 +1,14 @@
 require("dotenv").config();
 const mongoose = require('mongoose');
+const fs = require('fs');
 const express = require('express');
+const https = require('https');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
+var privateKey = fs.readFileSync("creds/cloudflare/rygb.tech.pem", "utf8");
+var certificate = fs.readFileSync("creds/cloudflare/rygb.tech.crt", "utf8");
+var credentials = { key: privateKey, cert: certificate };
 
 const app = express();
 var jsonParser = bodyParser.json();
@@ -291,6 +296,7 @@ app.get("/getAccount", async (req, res) => {
     }
 })
 
-app.listen(8445, () => {
-    console.log("Server listening");
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(8443, () => {
+    console.log("HTTPS Server listening");
 })
