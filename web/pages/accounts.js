@@ -258,7 +258,7 @@ export default function Accounts() {
                             if (actionType == "Sign In") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: 'http://nourishnourishapi.rygb.tech:8443/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
+                                    url: 'https://nourishapi.rygb.tech:8443/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
                                     method: 'get',
                                 }).then((result) => {
                                     if (result.data.status == "Sign In approved.") {
@@ -347,7 +347,7 @@ export default function Accounts() {
                             } else if (actionType == "Sign Up") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: "http://nourishnourishapi.rygb.tech:8443/createAccount",
+                                    url: "https://nourishapi.rygb.tech:8443/createAccount",
                                     method: 'post',
                                     data: {
                                         email: document.getElementById("email").value,
