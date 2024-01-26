@@ -90,7 +90,7 @@ export default function Home() {
 
     axios({
       method: "get",
-      url: "http://localhost:8445/getEvents"
+      url: "http://api.rygb.tech:8445/getEvents"
     }).then((res) => {
       if (res.status == 200) {
         console.log("got events")
@@ -125,7 +125,7 @@ export default function Home() {
           const eventcontentcontainer = document.createElement("div");
           const eventdetailscontainer = document.createElement("div");
           eventcontentcontainer.style.display = "grid"
-          eventcontentcontainer.style.gridTemplateColumns = "200px auto 50px";
+          eventcontentcontainer.style.gridTemplateColumns = "200px auto 30px";
           eventcontentcontainer.style.gridGap = "15px"
           eventcontentcontainer.style.width = "100%"
           eventcard.className = styles.itemEvents;
@@ -151,7 +151,7 @@ export default function Home() {
           countdownnumbs.style.fontSize = "55px"
           countdownnumbs.style.color = "white"
           const learnMoreVerbage = document.createElement("p");
-          learnMoreVerbage.innerHTML = "Click to learn more about this event";
+          learnMoreVerbage.innerHTML = "Learn more about this event";
           learnMoreVerbage.style.marginTop = "10px"
           learnMoreVerbage.style.fontWeight = "normal"
 
@@ -244,7 +244,6 @@ export default function Home() {
           const eventtitle = document.createElement("h3");
           eventtitle.innerHTML = event.title;
           eventtitle.style.margin = "0px"
-          eventtitle.style.marginTop = "10px"
           eventcontent.appendChild(eventtitle);
 
           if (event.location != "") {
@@ -293,7 +292,7 @@ export default function Home() {
             eventcontentcontainer.style.gridTemplateColumns = "auto"
             eventcard.style.height = "300px"
             eventcard.style.width = "93%"
-            eventdetailscontainer.style.gridTemplateColumns = "auto 50px"
+            eventdetailscontainer.style.gridTemplateColumns = "auto 30px"
             eventdetailscontainer.style.display = "grid"
             eventdetailscontainer.style.padding = "0px 20px"
             eventdetailscontainer.appendChild(eventcontent)
@@ -467,21 +466,17 @@ export default function Home() {
             <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">food_bank</span>
             <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Make a difference</p>
           </div>
+          <div onClick={() => push("/dash")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+            <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">space_dashboard</span>
+            <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Dashboard</p>
+          </div>
           <div onClick={() => push("/dash?view=events")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
             <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">local_activity</span>
             <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Events</p>
           </div>
-          <div onClick={() => push("/dash?view=blog")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
-            <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">hub</span>
-            <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Blog</p>
-          </div>
           <div onClick={() => push("/accounts")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
             <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">account_circle</span>
             <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Accounts</p>
-          </div>
-          <div onClick={() => push("/dash")} style={{ margin: "auto", height: "100px", width: "100%", marginBottom: "10px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
-            <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">space_dashboard</span>
-            <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Dashboard</p>
           </div>
         </div>
         <div id="content" style={{ opacity: "0" }}>
@@ -490,7 +485,11 @@ export default function Home() {
               <span id="menuicon" class="material-symbols-rounded" style={{ fontSize: "30px", margin: "auto", cursor: "pointer", display: "none" }} onClick={() => openSidebar()}>menu</span>
               <Image style={{ marginLeft: "5px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
             </div>
-            <div id="buttons" className={[styles.fullycenter, styles.navbtngrid].join(" ")}>
+            <div id="buttons" style={{position: "absolute", right: "5px", top: "5px"}} className={styles.navbtngrid}>
+              <div id="dashbtn" onClick={() => push("/dash")} style={{ margin: "auto", height: "35px", width: "100%", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
+                <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">space_dashboard</span>
+                <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Dashboard</p>
+              </div>
               <div id="makediffbtn" onClick={() => router.push("/#makeDifference")} style={{ margin: "auto", height: "35px", width: "280px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">food_bank</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Make a difference</p>
@@ -499,18 +498,10 @@ export default function Home() {
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">local_activity</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Events</p>
               </div>
-              <div id="blogbtn" onClick={() => push("/dash?view=blog")} style={{ margin: "auto", height: "35px", width: "130px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
-                <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">hub</span>
-                <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Blog</p>
-              </div>
               <div id="acctsbtn" onClick={() => push("/accounts")} style={{ margin: "auto", height: "35px", width: "170px", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">account_circle</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Accounts</p>
               </div>
-            </div>
-            <div style={{ position: "absolute", right: "5px", top: "5px" }}>
-              <button id="makeadifferencebtn" className={styles.button} onClick={() => push("/accounts?view=Sign+Up")} style={{ height: "35px", marginBottom: "0px", width: "250px", backgroundColor: "rgb(251 172 41 / 58%)", display: (account != "") ? "none" : "block" }}>Sign Up</button>
-              <button className={styles.button} style={{ display: (account != "") ? "block" : "none", height: "35px", marginBottom: "0px", width: "150px", backgroundColor: "rgb(251 172 41 / 58%)" }} onClick={() => push("dash")}>Dashboard</button>
             </div>
           </div>
           <div id="bodyContent" style={{ marginTop: "47px", padding: "10px 5%" }}>
@@ -684,7 +675,7 @@ export default function Home() {
               citation: `The Maryland Interagency Council on Homelessness "2020/2021 report on Homelessness" The Maryland Interagency Council on Homelessness, 2021, https://dhcd.maryland.gov/HomelessServices/Documents/2021AnnualReport.pdf`
             }, {
               name: "Homeless count for Virginia",
-              citation: ``
+              citation: `Stebbins, Samuel. “How the Homelessness Problem in Virginia Compares to Other States.” The Center Square, 25 Sept. 2023, www.thecentersquare.com/virginia/article_6f7fc690-aec1-5f54-b496-6f44ef67ccbf.html#:~:text=Rates%20of%20unsheltered%20homelessness%20%2D%2D,night%20in%20Virginia%20in%202022. `
             }, {
               name: "Image 2",
               citation: `NC 211 "people laying on beds in a homeless shelter" NC 211, 4 October 2022, https://nc211.org/shelters/`

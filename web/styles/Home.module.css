@@ -18,7 +18,7 @@
 .navbtngrid {
     display: grid;
     grid-gap: 15px;
-    grid-template-columns: 280px 160px 130px 170px;
+    grid-template-columns: 200px 280px 160px 170px;
 }
 
 .font {
