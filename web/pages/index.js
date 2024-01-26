@@ -90,7 +90,7 @@ export default function Home() {
 
     axios({
       method: "get",
-      url: "http://nourishapi.rygb.tech:8445/getEvents"
+      url: "http://nourishnourishapi.rygb.tech:8443/getEvents"
     }).then((res) => {
       if (res.status == 200) {
         console.log("got events")
