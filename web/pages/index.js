@@ -388,7 +388,6 @@ export default function Home() {
         document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_mobile.mp4";
         document.getElementById("menuicon").style.display = "block";
         document.getElementById("menulogogrid").style.display = "grid"
-        document.getElementById("makeadifferencebtn").style.display = "none"
         document.getElementById("goalgrid").style.gridTemplateColumns = "auto";
       }
 
