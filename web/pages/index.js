@@ -392,22 +392,21 @@ export default function Home() {
       }
 
       if (window.innerWidth <= 1300) {
-        document.getElementById("acctsbtn").style.display = "none";
-        document.getElementById("buttons").style.gridTemplateColumns = "280px 160px 130px"
+        document.getElementById("eventsbtn").style.display = "none";
+        document.getElementById("buttons").style.gridTemplateColumns = "200px 280px 170px"
       }
 
       if (window.innerWidth <= 1122) {
-        document.getElementById("blogbtn").style.display = "none"
-        document.getElementById("buttons").style.gridTemplateColumns = "280px 160px"
+        document.getElementById("makediffbtn").style.display = "none"
+        document.getElementById("buttons").style.gridTemplateColumns = "200px 170px"
       }
 
       if (window.innerWidth <= 900) {
         document.getElementById("eventsbtn").style.display = "none"
-        document.getElementById("buttons").style.gridTemplateColumns = "280px"
+        document.getElementById("buttons").style.gridTemplateColumns = "200px"
       }
 
       if (window.innerWidth <= 800) {
-        document.getElementById("makediffbtn").style.display = "none"
         document.getElementById("buttons").style.display = "none"
       }
 
