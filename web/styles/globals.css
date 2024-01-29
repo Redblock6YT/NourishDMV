@@ -15,6 +15,9 @@ body {
   object-fit: cover;
 }
 
+.blurredEdges {
+  box-shadow: 0 0 8px 8px #ffe7bf inset;
+}
 
 video::-internal-media-controls-overlay-cast-button {
   display: none;

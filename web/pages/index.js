@@ -90,7 +90,7 @@ export default function Home() {
 
     axios({
       method: "get",
-      url: "https://nourishapi.rygb.tech:8443/getEvents"
+      url: "https://localhost:8443/getEvents"
     }).then((res) => {
       if (res.status == 200) {
         console.log("got events")
@@ -415,7 +415,7 @@ export default function Home() {
       }
 
       setLoadContent(true);
-      window.scrollTo(0, 0);
+      //window.scrollTo(0, 0);
       //playing the splashscreen is not essential, if it errors, just fade
 
       document.getElementById("splashscreenOutro").play().catch((e) => {
@@ -483,7 +483,7 @@ export default function Home() {
               <span id="menuicon" class="material-symbols-rounded" style={{ fontSize: "30px", margin: "auto", cursor: "pointer", display: "none" }} onClick={() => openSidebar()}>menu</span>
               <Image style={{ marginLeft: "5px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
             </div>
-            <div id="buttons" style={{position: "absolute", right: "5px", top: "5px"}} className={styles.navbtngrid}>
+            <div id="buttons" style={{ position: "absolute", right: "5px", top: "5px" }} className={styles.navbtngrid}>
               <div id="dashbtn" onClick={() => push("/dash")} style={{ margin: "auto", height: "35px", width: "100%", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">space_dashboard</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Dashboard</p>
@@ -574,28 +574,38 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.divider}></div>
-              <div style={{ display: "none" }}>
-                <h3 className={styles.header} style={{ color: "black", marginLeft: "20px" }}>See how we've been <a style={{ backgroundColor: "rgb(251, 172, 41)" }}>impacting our community</a></h3>
-                <h4 className={styles.subheader} style={{ marginLeft: "20px", marginBottom: "20px" }}>Our blog</h4>
-                <div>
-                  <div className={styles.redirectcard} onClick={() => push("/dash?view=blog")}>
-                    <div className={styles.fullycenter}>
-                      <div style={{ position: "relative" }}>
-                        <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "140px", height: "140px", filter: "blur(20px)", transform: "translateY(-50%) translateX(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
-                        <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                          <span style={{ fontSize: "50px" }} className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                            open_in_new
-                          </span>
-                        </div>
-                      </div>
-                      <p style={{ margin: "auto", fontSize: "50px", width: "100%", textAlign: "center", marginTop: "50px" }}>See All</p>
-                    </div>
-
+              <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>How we help</h3>
+              <p className={styles.description} style={{ fontSize: "25px", padding: "0px 20px" }}>
+                See how NourishDMV makes an impact in commuinities across the DMV.
+              </p>
+              <div id="howhelplist">
+                <div className={styles.doublegrid} style={{ gridTemplateColumns: "40% auto", gridGap: "100px", margin: "80px 0px" }}>
+                  <div style={{ position: "relative" }}>
+                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(20px)" }}></img>
+                    <img alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
+                  </div>
+                  <div>
+                    <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Homeless Shelters & Food Banks</h3>
+                    <p className={styles.description} style={{ fontSize: "25px" }}>
+                      NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and shelter.
+                    </p>
                   </div>
                 </div>
-                <div className={styles.divider}></div>
+                <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto 40%", gridGap: "100px", margin: "80px 0px" }}>
+                  <div>
+                    <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Fundraising Events</h3>
+                    <p className={styles.description} style={{ fontSize: "25px" }}>
+                      NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and shelter.
+                    </p>
+                  </div>
+                  <div style={{ position: "relative" }}>
+                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(20px)" }}></img>
+                    <img alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
+                  </div>
+                </div>
               </div>
-
+              <button className={[styles.minibutton, styles.hover].join(" ")} onClick={() => push("/dash?view=volunteer")}>Join our Team</button>
+              <div className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Get in touch</h3>
               <div className={styles.contactgrid}>
                 <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
