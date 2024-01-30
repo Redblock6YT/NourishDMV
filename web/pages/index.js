@@ -622,7 +622,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <button className={styles.minibutton} onClick={() => push("/dash?view=volunteer")}>Join our Team</button>
+              <button className={styles.minibutton} onClick={() => push("/dash?view=volunteer")}>Button</button>
               <div className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Get in touch</h3>
               <div className={styles.contactgrid}>
