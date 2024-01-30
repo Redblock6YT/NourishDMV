@@ -310,6 +310,30 @@
     width: 95%;
 }
 
+.minibutton {
+    height: 45px;
+    width: 200px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    transition: all .5s ease;
+    cursor: pointer;
+    border: none;
+    color: white;
+    background-color: #ffbe4aff;
+    font-family: 'Outfit', sans-serif;
+    font-weight: normal;
+    margin: auto;
+    display: block;
+    transition: all 0.5s ease;
+    font-size: 20px;
+}
+
+.minibutton:hover {
+    transform: scale(1.05);
+}
+
 .hero {
     height: 500px;
     width: 100%;

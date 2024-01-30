@@ -579,7 +579,7 @@ export default function Home() {
                 See how NourishDMV makes an impact in commuinities across the DMV.
               </p>
               <div id="howhelplist">
-                <div className={styles.doublegrid} style={{ gridTemplateColumns: "40% auto", gridGap: "100px", margin: "80px 0px" }}>
+                <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
                   <div style={{ position: "relative" }}>
                     <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(20px)" }}></img>
                     <img alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
@@ -589,22 +589,40 @@ export default function Home() {
                     <p className={styles.description} style={{ fontSize: "25px" }}>
                       NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and shelter.
                     </p>
+                    <div className={styles.doublegrid} style={{marginTop: "10px"}}>
+                      <button className={styles.minibutton} style={{width: "100%"}}>Find a Homeless Shelter</button>
+                      <button className={styles.minibutton} style={{width: "100%"}}>Find a Food Bank</button>
+                    </div>
+                    
                   </div>
                 </div>
-                <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto 40%", gridGap: "100px", margin: "80px 0px" }}>
+                <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
                   <div>
                     <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Fundraising Events</h3>
                     <p className={styles.description} style={{ fontSize: "25px" }}>
                       NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and shelter.
                     </p>
+                    <button className={styles.minibutton} onClick={() => push("/dash?view=events")} style={{width: "100%", marginTop: "10px"}}>View Events</button>
                   </div>
+                  <div style={{ position: "relative" }}>
+                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(20px)" }}></img>
+                    <img alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
+                  </div>
+                </div>
+                <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
                   <div style={{ position: "relative" }}>
                     <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(20px)" }}></img>
                     <img alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
                   </div>
+                  <div>
+                    <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Spreading the word</h3>
+                    <p className={styles.description} style={{ fontSize: "25px" }}>
+                      We run advertisements and campaigns to raise awareness & encourage action about homelessness and hunger in the DMV.
+                    </p>
+                  </div>
                 </div>
               </div>
-              <button className={[styles.minibutton, styles.hover].join(" ")} onClick={() => push("/dash?view=volunteer")}>Join our Team</button>
+              <button className={styles.minibutton} onClick={() => push("/dash?view=volunteer")}>Join our Team</button>
               <div className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Get in touch</h3>
               <div className={styles.contactgrid}>
