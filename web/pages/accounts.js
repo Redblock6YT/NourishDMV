@@ -258,12 +258,17 @@ export default function Accounts() {
                             if (actionType == "Sign In") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: 'https://nourishapi.rygb.tech:8443/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
+                                    url: 'https://localhost:8443/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
                                     method: 'get',
                                 }).then((result) => {
                                     if (result.data.status == "Sign In approved.") {
                                         Cookies.set("account", result.data.uuid);
-                                        push("/dash");
+                                        if (router.query.redirect != undefined) {
+                                            push(router.query.redirect);
+                                        } else {
+                                            push("/dash");
+                                        }
+
                                     }
                                 }).catch((err) => {
                                     console.log(err)
@@ -347,7 +352,7 @@ export default function Accounts() {
                             } else if (actionType == "Sign Up") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: "https://nourishapi.rygb.tech:8443/createAccount",
+                                    url: "https://localhost:8443/createAccount",
                                     method: 'post',
                                     data: {
                                         email: document.getElementById("email").value,
@@ -359,7 +364,11 @@ export default function Accounts() {
                                 }).then((res) => {
                                     if (res.data.status == "Account created.") {
                                         Cookies.set("account", res.data.uuid);
-                                        push("/dash");
+                                        if (router.query.redirect != undefined) {
+                                            push(router.query.redirect);
+                                        } else {
+                                            push("/dash");
+                                        }
                                     }
                                 }).catch((err) => {
                                     animateBackground("in");
@@ -549,8 +558,8 @@ export default function Accounts() {
                                     <input required style={{ display: "none" }} className={styles.input} type="text" onInput={() => clearErrors("name")} id="name" placeholder="Full Name"></input>
                                     <input required style={{ display: "none" }} className={styles.input} type="tel" onInput={() => clearErrors("phone")} id="phone" placeholder="Phone Number"></input>
                                 </div>
-                                <div className={styles.doublegrid} style={{gridTemplateColumns: "75px auto", display: (actionType == "Sign Up") ? "grid" : "none"}}>
-                                    <p style={{fontSize: "25px", margin: "0px", marginTop: "5px", textAlign: "right"}}>Area</p>
+                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "75px auto", display: (actionType == "Sign Up") ? "grid" : "none" }}>
+                                    <p style={{ fontSize: "25px", margin: "0px", marginTop: "5px", textAlign: "right" }}>Area</p>
                                     <select className={styles.input} id="area">
                                         <option>D.C.</option>
                                         <option>Maryland</option>

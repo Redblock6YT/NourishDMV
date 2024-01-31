@@ -468,6 +468,7 @@ export default function Dash() {
                     if (!analytics.attendees.includes(accountRef.current)) {
                         if (accountRef.current == "") {
                             document.getElementById("eregistertbtn").innerHTML = "Sign In to Register"
+                            document.getElementById("eregistertbtn").onclick = () => push("/accounts?view=Sign+In&redirect=" + encodeURIComponent("/dash?view=events&eventid=" + id));
                         } else {
                             document.getElementById("eregistertbtn").innerHTML = "Register"
                         }

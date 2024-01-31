@@ -589,11 +589,11 @@ export default function Home() {
                     <p className={styles.description} style={{ fontSize: "25px" }}>
                       NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and shelter.
                     </p>
-                    <div className={styles.doublegrid} style={{marginTop: "10px"}}>
-                      <button className={styles.minibutton} style={{width: "100%"}}>Find a Homeless Shelter</button>
-                      <button className={styles.minibutton} style={{width: "100%"}}>Find a Food Bank</button>
+                    <div className={styles.doublegrid} style={{ marginTop: "10px" }}>
+                      <button className={styles.minibutton} style={{ width: "100%" }}>Find a Homeless Shelter</button>
+                      <button className={styles.minibutton} style={{ width: "100%" }}>Find a Food Bank</button>
                     </div>
-                    
+
                   </div>
                 </div>
                 <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
@@ -602,7 +602,7 @@ export default function Home() {
                     <p className={styles.description} style={{ fontSize: "25px" }}>
                       NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and shelter.
                     </p>
-                    <button className={styles.minibutton} onClick={() => push("/dash?view=events")} style={{width: "100%", marginTop: "10px"}}>View Events</button>
+                    <button className={styles.minibutton} onClick={() => push("/dash?view=events")} style={{ width: "100%", marginTop: "10px" }}>View Events</button>
                   </div>
                   <div style={{ position: "relative" }}>
                     <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(20px)" }}></img>
@@ -610,9 +610,8 @@ export default function Home() {
                   </div>
                 </div>
                 <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
-                  <div style={{ position: "relative" }}>
-                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(20px)" }}></img>
-                    <img alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
+                  <div style={{ position: "relative", border: "10px solid black", borderRadius: "25px" }}>
+                    <img alt="NourishDMV Logo" src="ndmv_ss_static.png" style={{ objectFit: "cover", height: "100%", width: "100%", position: "relative", zIndex: -1 }}></img>
                   </div>
                   <div>
                     <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Spreading the word</h3>
@@ -622,71 +621,77 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <button className={styles.minibutton} onClick={() => push("/dash?view=volunteer")}>Button</button>
               <div className={styles.divider}></div>
-              <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Get in touch</h3>
-              <div className={styles.contactgrid}>
-                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
-                  <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
-                    (410) 123-4567
-                  </div>
-                  <div style={{ position: "relative" }}>
-                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
-                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                        call
-                      </span>
-                    </div>
-                  </div>
+              <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Let's make a difference <a style={{ backgroundColor: "#fbac29ff" }}>together</a></h3>
+              <div className={styles.doublegrid} style={{ margin: "auto", gridGap: "0px" }}>
+                <div style={{ borderRight: "1px solid rgba(0, 0, 0, 0.104)", padding: "20px" }}>
+                  <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Make a difference</a></h3>
+                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>You have the power to change the lives of 21,808 homeless individiuals by volunteering at our Homeless Shelters, Food Banks, or events to provide them with food, shelter, and hope</p>
+                  <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Network</a></h3>
+                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>Network with other passionate and caring individuals who share a passion for volunteering.</p>
+                  <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Teamwork</a></h3>
+                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>Be a part of a team that works together to save lives and create a better DMV.</p>
                 </div>
-                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginLeft: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "mailto:contact@nourishdmv.com"}>
-                  <div style={{ position: "relative" }}>
-                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
-                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                        email
-                      </span>
-                    </div>
-
-                  </div>
-                  <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "30px" }}>
-                    contact<br />@nourishdmv.com
-                  </div>
+                <div style={{ borderLeft: "1px solid rgba(0, 0, 0, 0.104)", padding: "20px 0px 20px 50px", display: "grid", gap: "30px", gridTemplateRows: "1fr 1fr" }}>
+                  <button className={styles.button} style={{ margin: "auto", height: "100%", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "30px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
+                  <button className={styles.button} style={{ margin: "auto", height: "100%", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "0px", color: "black", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
                 </div>
-                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "https://www.google.com/maps/dir//16701+Melford+Blvd+%23421,+Bowie,+MD+20715/@38.9611344,-76.7158268,19z/data=!4m9!4m8!1m0!1m5!1m1!1s0x89b7ec1769408c5f:0x5e0035c97d3c3f24!2m2!1d-76.7146091!2d38.9611344!3e0?entry=ttu"}>
-                  <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "25px" }}>
-                    16701 Melford Blvd, Bowie, MD 20715
-                    <h2 className={styles.subheader} style={{ fontSize: "20px" }}>headquarters</h2>
-                  </div>
-                  <div style={{ position: "relative" }}>
-                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
-                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                        pin_drop
-                      </span>
+              </div>
+              <div className={styles.divider}></div>
+              <div style={{ position: "relative" }}>
+                <div className={styles.blurredCircle} style={{ position: "absolute", top: "-100%", left: "50%", height: "500px", width: "500px", zIndex: "-1", filter: "blur(150px)", transform: "translateX(-50%)", backgroundColor: "rgb(227, 171, 74)" }}></div>
+                <h3 className={styles.header} style={{ color: "black", marginBottom: "40px", textAlign: "center" }}>Get in touch</h3>
+                <div className={styles.contactgrid}>
+                  <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
+                    <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
+                      (410) 123-4567
                     </div>
-                  </div>
-                </div>
-                <div className={styles.item} style={{ margin: "auto", marginLeft: "0px", cursor: "default" }}>
-                  <div style={{ position: "relative", height: "100%", filter: "blur(20px)" }}>
-                    <div style={{ position: "absolute" }} className={styles.fullycenter}>
-                      <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateX(-50%) translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
+                    <div style={{ position: "relative" }}>
                       <div style={{ zIndex: "5" }} className={styles.fullycenter}>
                         <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                          alternate_email
+                          call
                         </span>
                       </div>
                     </div>
                   </div>
-                  <div className={styles.fullycenter} style={{ width: "100%" }}>
-                    <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
-                      <h2 className={styles.subheader} style={{ fontSize: "20px" }}>Social Media</h2>
-                      @nourishdmv
+                  <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginLeft: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "mailto:contact@nourishdmv.com"}>
+                    <div style={{ position: "relative" }}>
+                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                        <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                          email
+                        </span>
+                      </div>
+
+                    </div>
+                    <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "30px" }}>
+                      contact<br />@nourishdmv.com
                     </div>
                   </div>
+                  <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "https://www.google.com/maps/dir//16701+Melford+Blvd+%23421,+Bowie,+MD+20715/@38.9611344,-76.7158268,19z/data=!4m9!4m8!1m0!1m5!1m1!1s0x89b7ec1769408c5f:0x5e0035c97d3c3f24!2m2!1d-76.7146091!2d38.9611344!3e0?entry=ttu"}>
+                    <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "25px" }}>
+                      16701 Melford Blvd, Bowie, MD 20715
+                      <h2 className={styles.subheader} style={{ fontSize: "20px" }}>headquarters</h2>
+                    </div>
+                    <div style={{ position: "relative" }}>
+                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                        <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                          pin_drop
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.item} style={{ margin: "auto", marginLeft: "0px", cursor: "default" }}>
+                    <div className={styles.fullycenter} style={{ width: "100%" }}>
+                      <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
+                        <h2 className={styles.subheader} style={{ fontSize: "20px" }}>Social Media</h2>
+                        @nourishdmv
+                      </div>
+                    </div>
 
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
           <Footer citations={[
