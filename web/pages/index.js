@@ -90,7 +90,7 @@ export default function Home() {
 
     axios({
       method: "get",
-      url: "https://localhost:8443/getEvents"
+      url: "http://localhost:8443/getEvents"
     }).then((res) => {
       if (res.status == 200) {
         console.log("got events")
@@ -520,11 +520,11 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div id="makeDifference" className={styles.divider}></div>
+              <div className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto" }}>
                 <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
-                <button className={styles.button} style={{ margin: "auto", height: "300px", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
+                <button className={styles.button} style={{ margin: "auto", height: "300px", color: "black", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
               </div>
               <div style={{ position: "relative" }}>
                 <div className={styles.divider}></div>
@@ -581,13 +581,13 @@ export default function Home() {
               <div id="howhelplist">
                 <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
                   <div style={{ position: "relative" }}>
-                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(20px)" }}></img>
+                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", filter: "blur(40px)", width: "100%", borderRadius: "25px" }}></img>
                     <img alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
                   </div>
                   <div>
                     <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Homeless Shelters & Food Banks</h3>
                     <p className={styles.description} style={{ fontSize: "25px" }}>
-                      NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and shelter.
+                      NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and water.
                     </p>
                     <div className={styles.doublegrid} style={{ marginTop: "10px" }}>
                       <button className={styles.minibutton} style={{ width: "100%" }}>Find a Homeless Shelter</button>
@@ -598,14 +598,14 @@ export default function Home() {
                 </div>
                 <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
                   <div>
-                    <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Fundraising Events</h3>
+                    <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Events</h3>
                     <p className={styles.description} style={{ fontSize: "25px" }}>
-                      NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and shelter.
+                      NourishDMV hosts events to raise money for it's mission, aswell as to raise awareness about homelessness and hunger in the DMV.
                     </p>
                     <button className={styles.minibutton} onClick={() => push("/dash?view=events")} style={{ width: "100%", marginTop: "10px" }}>View Events</button>
                   </div>
                   <div style={{ position: "relative" }}>
-                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(20px)" }}></img>
+                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(40px)", }}></img>
                     <img alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
                   </div>
                 </div>
@@ -618,14 +618,15 @@ export default function Home() {
                     <p className={styles.description} style={{ fontSize: "25px" }}>
                       We run advertisements and campaigns to raise awareness & encourage action about homelessness and hunger in the DMV.
                     </p>
+                    <button className={styles.minibutton} onClick={() => push("/dash?view=volunteer")} style={{ width: "100%", marginTop: "10px" }}>Join our team</button>
                   </div>
                 </div>
               </div>
-              <div className={styles.divider}></div>
+              <div className={styles.divider} id="makeDifference"></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Let's make a difference <a style={{ backgroundColor: "#fbac29ff" }}>together</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto", gridGap: "0px" }}>
                 <div style={{ borderRight: "1px solid rgba(0, 0, 0, 0.104)", padding: "20px" }}>
-                  <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Make a difference</a></h3>
+                  <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Change Lives</a></h3>
                   <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>You have the power to change the lives of 21,808 homeless individiuals by volunteering at our Homeless Shelters, Food Banks, or events to provide them with food, shelter, and hope</p>
                   <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Network</a></h3>
                   <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>Network with other passionate and caring individuals who share a passion for volunteering.</p>

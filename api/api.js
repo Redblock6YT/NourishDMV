@@ -296,7 +296,13 @@ app.get("/getAccount", async (req, res) => {
     }
 })
 
+/*
 var httpsServer = https.createServer(credentials, app);
 httpsServer.listen(8443, () => {
     console.log("HTTPS Server listening");
+})
+*/
+
+app.listen(8443, () => {
+    console.log("Server listening on port 8443");
 })
