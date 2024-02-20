@@ -128,6 +128,7 @@
 
 .itemOnGoing {
     background-color: #fbac29ff;
+    color: rgba(0, 0, 0, 0.504);
     animation: pulse 3s infinite linear;
 }
 
@@ -161,14 +162,47 @@
 
 .itemEnded {
     background-color: #f66d4bff;
-    color: black;
+    color: rgba(0, 0, 0, 0.504);
+}
+
+.currentEventsList {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+    position: absolute;
+    width: 90%;
+    overflow-x: hidden;
+    left: 0;
+    scrollbar-color: rgb(227, 171, 74) rgb(255, 231, 191);
+    scrollbar-arrow-color: rgb(255, 231, 191);
+    padding: 0px 5%;
+}
+
+.currentEventsList:hover {
+    overflow-x: scroll;
+}
+
+.expandItem {
+    cursor: pointer;
+    background-color: #ffd180ff;
+    color: rgba(0, 0, 0, 0.504);
+    border: 1px dashed rgb(227, 171, 74);
+    height: 130px;
+    width: 450px;
+    border-radius: 25px;
+    padding: 15px;
+    transition: all 0.5s ease;
+    position: relative;
+    font-family: 'Outfit', sans-serif;
+}
+
+.expandItem:hover {
+    background-color: rgb(227, 171, 74);
+    padding: 20px;
 }
 
 .itemEvents {
     font-family: 'Outfit', sans-serif;
     font-size: 20px;
-    color: rgba(0, 0, 0, 0.504);
-    font-weight: bold;
     height: 130px;
     width: 600px;
     border-radius: 25px;

@@ -115,7 +115,7 @@ export default function Home() {
           currentEventsList.appendChild(noevents);
         }
 
-        for (var i = 0; i < 4; i++) {
+        for (var i = 0; i < 3; i++) {
           if (events[i] == undefined) {
             continue;
           }
@@ -125,35 +125,21 @@ export default function Home() {
           const eventcontentcontainer = document.createElement("div");
           const eventdetailscontainer = document.createElement("div");
           eventcontentcontainer.style.display = "grid"
-          eventcontentcontainer.style.gridTemplateColumns = "200px auto 30px";
+          eventcontentcontainer.style.gridTemplateColumns = "auto 30px";
           eventcontentcontainer.style.gridGap = "15px"
-          eventcontentcontainer.style.width = "100%"
+          eventcontentcontainer.style.width = "90%"
+          eventcontentcontainer.style.margin = "auto";
+          eventcontentcontainer.style.transform = "translate(-50%, -50%)"
+          eventcontentcontainer.style.position = "absolute"
+          eventcontentcontainer.style.top = "50%"
+          eventcontentcontainer.style.left = "50%"
           eventcard.className = styles.itemEvents;
           eventcard.onclick = () => push("/dash?view=events&eventid=" + eventid);
           eventcard.style.borderRadius = "30px"
           eventcard.style.marginRight = "20px"
           eventcard.style.width = "570px"
           eventcard.style.marginBottom = "20px"
-          const eventcountdown = document.createElement("div");
-          const countdownlabeltop = document.createElement("p");
-          const countdownlabelbottom = document.createElement("p");
-          const countdownnumbs = document.createElement("h2");
-          countdownlabeltop.style.margin = "0px"
-          countdownlabeltop.style.marginTop = "5px"
-          countdownlabeltop.style.fontSize = "20px"
-          countdownlabeltop.style.textAlign = "center"
-          countdownlabelbottom.style.margin = "0px"
-          countdownlabelbottom.style.textAlign = "center"
-          countdownlabelbottom.style.fontSize = "20px"
-          countdownnumbs.className = styles.font;
-          countdownnumbs.style.textAlign = "center"
-          countdownnumbs.style.margin = "0px"
-          countdownnumbs.style.fontSize = "55px"
-          countdownnumbs.style.color = "white"
-          const learnMoreVerbage = document.createElement("p");
-          learnMoreVerbage.innerHTML = "Learn more about this event";
-          learnMoreVerbage.style.marginTop = "10px"
-          learnMoreVerbage.style.fontWeight = "normal"
+          const eventcountdownline = document.createElement("a");
 
           var eventStatus = calculateEventStatus(event.startDateTime, event.endDateTime);
           var registrationStatus = calculateEventStatus(event.registrationStartDateTime, event.registrationEndDateTime);
@@ -162,9 +148,7 @@ export default function Home() {
             eventcard.className = [styles.itemPending, styles.itemEvents].join(" ")
             const interval = setInterval(() => {
               var timeDifference = calculateTimeDifference(event.registrationStartDateTime);
-              countdownlabeltop.innerHTML = "Registration opens";
-              countdownnumbs.innerHTML = timeDifference.value;
-              countdownlabelbottom.innerHTML = timeDifference.unit;
+              eventcountdownline.innerHTML = "Registration opens in " + timeDifference.value + " " + timeDifference.unit;
               if (timeDifference.value <= 0) {
                 clearInterval();
                 refreshEvents();
@@ -176,9 +160,7 @@ export default function Home() {
             eventcard.style.animation = styles.pulse2 + " 3s infinite linear"
             const interval = setInterval(() => {
               var timeDifference = calculateTimeDifference(event.registrationEndDateTime);
-              countdownlabeltop.innerHTML = "Registration closes";
-              countdownnumbs.innerHTML = timeDifference.value;
-              countdownlabelbottom.innerHTML = timeDifference.unit;
+              eventcountdownline.innerHTML = "Registration closes in " + timeDifference.value + " " + timeDifference.unit;
               if (timeDifference.value <= 0) {
                 refreshEvents();
                 clearInterval();
@@ -191,9 +173,7 @@ export default function Home() {
               //show how many days ago the event ended, but if the time is less than 24 hours, show how many hours ago. if the time is less than 1 hour, show how many minutes ago. if the time is less than 1 minute, show how many seconds ago
               const interval = setInterval(() => {
                 var timeDifference = calculateTimeAgoDifference(event.endDateTime);
-                countdownlabeltop.innerHTML = "Ended";
-                countdownnumbs.innerHTML = timeDifference.value;
-                countdownlabelbottom.innerHTML = timeDifference.unit;
+                eventcountdownline.innerHTML = "Ended " + timeDifference.value + " " + timeDifference.unit;
                 if (timeDifference.value <= 0) {
                   refreshEvents();
                   clearInterval();
@@ -205,9 +185,7 @@ export default function Home() {
               //show how many hours left in the event, but if the time is longer than 24 hours, show how many days left. if the time is less than 1 hour, show how many minutes left. if the time is less than 1 minute, show how many seconds left
               const interval = setInterval(() => {
                 var timeDifference = calculateTimeDifference(event.endDateTime);
-                countdownlabeltop.innerHTML = "Ends in";
-                countdownnumbs.innerHTML = timeDifference.value;
-                countdownlabelbottom.innerHTML = timeDifference.unit;
+                eventcountdownline.innerHTML = "Ends in " + timeDifference.value + " " + timeDifference.unit;
                 if (timeDifference.value <= 1) {
                   refreshEvents();
                   clearInterval();
@@ -220,9 +198,7 @@ export default function Home() {
               //Pending means that the registration window has not begun yet
               const interval = setInterval(() => {
                 var timeDifference = calculateTimeDifference(event.startDateTime);
-                countdownlabeltop.innerHTML = "Starts in";
-                countdownnumbs.innerHTML = timeDifference.value;
-                countdownlabelbottom.innerHTML = timeDifference.unit;
+                eventcountdownline.innerHTML = "Starts in " + timeDifference.value + " " + timeDifference.unit;
                 if (timeDifference.value <= 0) {
                   refreshEvents();
                   clearInterval();
@@ -232,18 +208,11 @@ export default function Home() {
             }
           }
 
-          eventcountdown.style.backgroundColor = "#0000003b";
-          eventcountdown.style.borderRadius = "25px"
-          eventcountdown.style.height = "130px"
-          eventcountdown.style.zIndex = "10"
-          eventcountdown.appendChild(countdownlabeltop);
-          eventcountdown.appendChild(countdownnumbs);
-          eventcountdown.appendChild(countdownlabelbottom);
-
           const eventcontent = document.createElement("div");
           const eventtitle = document.createElement("h3");
           eventtitle.innerHTML = event.title;
           eventtitle.style.margin = "0px"
+          eventcontent.appendChild(eventcountdownline);
           eventcontent.appendChild(eventtitle);
 
           if (event.location != "") {
@@ -278,7 +247,6 @@ export default function Home() {
           eventdates.appendChild(eventdicon);
           eventdates.appendChild(eventdatestext);
           eventcontent.appendChild(eventdates);
-          eventcontent.appendChild(learnMoreVerbage);
 
           const icon = document.createElement("span");
           icon.className = "material-symbols-rounded";
@@ -287,7 +255,6 @@ export default function Home() {
           icon.style.margin = "auto"
           icon.style.marginRight = "0px"
 
-          eventcontentcontainer.appendChild(eventcountdown)
           if (mobile) {
             eventcontentcontainer.style.gridTemplateColumns = "auto"
             eventcard.style.height = "300px"
@@ -306,6 +273,34 @@ export default function Home() {
           eventcard.appendChild(eventcontentcontainer);
           currentEventsList.appendChild(eventcard);
         }
+
+        const seeAllButton = document.createElement("div");
+        seeAllButton.className = styles.expandItem;
+        const icontext = document.createElement("div");
+        icontext.style.display = "grid";
+        icontext.style.gridTemplateColumns = "auto";
+        const icon = document.createElement("span");
+        icon.className = "material-symbols-rounded";
+        icon.innerHTML = "open_in_new";
+        icon.style.fontSize = "60px";
+        icon.style.margin = "auto";
+        
+        const text = document.createElement("p");
+        text.innerHTML = "View more"
+        text.style.margin = "auto";
+        text.style.fontSize = "40px";
+        text.style.fontWeight = "bold";
+        icontext.appendChild(icon);
+        icontext.appendChild(text);
+        icontext.style.position = "absolute";
+        icontext.style.top = "50%";
+        icontext.style.left = "50%";
+        icontext.style.transform = "translate(-50%, -50%)";
+
+        icontext.style.margin = "auto"
+        seeAllButton.appendChild(icontext);
+        seeAllButton.onclick = () => push("/dash?view=events");
+        currentEventsList.appendChild(seeAllButton);
       }
     }).catch((err) => {
       console.log(err);
@@ -513,14 +508,14 @@ export default function Home() {
 
             <div id="innerContent" style={{ padding: "15px 0px" }}>
               <div id="currentEvents" style={{ marginTop: "15px" }}>
-                <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Happening Now</h3>
-                <div id="currentEventsList">
+                <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "15px" }}>Happening Now</h3>
+                <div id="currentEventsList" className={styles.currentEventsList}>
                   <div id="noevents" className={styles.item} style={{ cursor: "unset" }}>
                     <p style={{ color: "rgba(0, 0, 0, 0.300)", margin: "0", width: "100%", textAlign: "center" }} className={styles.fullycenter}>No events to show</p>
                   </div>
                 </div>
               </div>
-              <div className={styles.divider}></div>
+              <div className={styles.divider} style={{marginTop: "240px"}}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto" }}>
                 <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
@@ -711,6 +706,18 @@ export default function Home() {
             }, {
               name: "Image 2",
               citation: `NC 211 "people laying on beds in a homeless shelter" NC 211, 4 October 2022, https://nc211.org/shelters/`
+            }, {
+              name: "Haven Ministries Shelter",
+              citation: `"Haven Ministries Shelter - Haven Ministries" https://www.google.com/url?sa=i&url=https%3A%2F%2Fhaven-ministries.org%2Fhaven-ministries-shelter%2F&psig=AOvVaw272pnXRRshV4CBChB8ibYh&ust=1708470305797000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCKiT9f3BuIQDFQAAAAAdAAAAABAE`
+            }, {
+              name: "Capital Area Food Bank",
+              citation: `"Food Bank for the Washington, DC, Region | Capital Area Food Bank" https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.capitalareafoodbank.org%2F&psig=AOvVaw1oE-_zud0zvrdh5-GSlh9h&ust=1708470331792000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCICnsIrCuIQDFQAAAAAdAAAAABAE`
+            }, {
+              name: "Instrumentl Fundraising Event Image",
+              citation: `team, Instrumentl. “How to Start a Successful Nonprofit Fundraising Event in 7 Steps.” Instrumentl, 3 Aug. 2022, www.instrumentl.com/blog/how-to-start-successful-nonprofit-fundraising-event. `
+            }, {
+              name: "Caritas of Austin Event Image",
+              citation: `“4 Ways You Can Contribute to Nonprofit Events.” Caritas of Austin, 15 Aug. 2023, caritasofaustin.org/blog/4-ways-you-can-contribute-to-nonprofit-events/. `
             }
           ]} />
         </div>

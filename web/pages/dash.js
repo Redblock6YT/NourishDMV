@@ -291,7 +291,11 @@ export default function Dash() {
                             eventItem.className = [styles.itemEvents, styles.doublegrid].join(" ");
 
                             var registrationStatus = calculateEventStatus(event.registrationStartDateTime, event.registrationEndDateTime);
-                            if (registrationStatus == "In Progress") {
+                            if (registrationStatus == "Pending") {
+                                eventItem.style.color = "black"
+                                pending++;
+                                eventItem.style.backgroundColor = "#ffff0072"
+                            } else if (registrationStatus == "In Progress") {
                                 eventItem.style.color = "black"
                                 pending++;
                                 eventItem.style.backgroundColor = "#fbac29ff"
@@ -866,9 +870,10 @@ export default function Dash() {
         if (view == "vieweventsoverlay") {
             var registrationStatus = calculateEventStatus(registrationStartDateTime, registrationEndDateTime);
             if (registrationStatus == "Pending") {
+                document.getElementById("vestatusdiv").style.backgroundColor = "#ffff0072"
                 document.getElementById("vestatusdiv").style.animation = "none"
                 document.getElementById("eregistertbtn").style.display = "none"
-                document.getElementById("vestatusdiv").style.color = "#ffedf0"
+                document.getElementById("vestatusdiv").style.color = "black"
                 document.getElementById("vestatusverbtop").innerHTML = "Event registration"
                 document.getElementById("vestatus").innerHTML = "CLOSED"
                 var timeDifference = calculateTimeDifference(registrationStartDateTime);
