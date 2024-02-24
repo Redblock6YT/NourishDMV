@@ -44,6 +44,13 @@ const Account = mongoose.model("Account", {
     donations: { type: Array, default: [] },
 })
 
+const Tracker = mongoose.model("Tracker", {
+    uuid: { type: String, default: "" },
+    page: { type: String, default: "" },
+    view: { type: String, default: "" },
+    date: { type: Date, default: Date.now },
+})
+
 const Event = mongoose.model("Event", {
     id: { type: String, default: "" },
     event: { type: Object, default: {} },
@@ -294,6 +301,65 @@ app.get("/getAccount", async (req, res) => {
         console.log(err)
         res.status(400).send(err);
     }
+})
+
+//anonymously track which page the user is on, for analytics
+app.post("/track", jsonParser, async (req, res) => {
+    //find one and update tracker, but if it doesn't exist, create a new one
+    if (req.body.page == "Inactive") {
+        Tracker.findOneAndDelete({ uuid: req.body.uuid }).then((tracker) => {
+            res.status(200).send("Tracked.");
+        }).catch((err) => {
+            console.log(err)
+            res.status(400).send(err);
+        })
+    } else {
+        Tracker.findOneAndUpdate({ uuid: req.body.uuid }, { page: req.body.page, view: req.body.view, date: Date.now() }, { upsert: true }).then((tracker) => {
+            res.status(200).send("Tracked.");
+        }).catch((err) => {
+            console.log(err)
+            res.status(400).send(err);
+        })
+    }
+})
+
+app.get("/getTrackerStats", async (req, res) => {
+    var active = 0;
+    var homepage = {};
+    var accounts = {};
+    var dashboard = {};
+    Tracker.find({}).then((trackers) => {
+        for (var i = 0; i < trackers.length; i++) {
+            //if the date of the tracker is within the last 1 minute, it is considered active
+            const tracker = trackers[i];
+            if (Date.now() - tracker.date < 60000) {
+                active++;
+                if (tracker.page == "Homepage") {
+                    if (!homepage[tracker.view]) {
+                        homepage[tracker.view] = 1;
+                    } else {
+                        homepage[tracker.view]++;
+                    }
+                } else if (tracker.page == "Accounts") {
+                    if (!accounts[tracker.view]) {
+                        accounts[tracker.view] = 1;
+                    } else {
+                        accounts[tracker.view]++;
+                    }
+                } else if (tracker.page == "Dashboard") {
+                    if (!dashboard[tracker.view]) {
+                        dashboard[tracker.view] = 1;
+                    } else {
+                        dashboard[tracker.view]++;
+                    }
+                }
+            }
+        }
+        res.status(200).send({ active: active, homepage: homepage, accounts: accounts, dashboard: dashboard });
+    }).catch((err) => {
+        console.log(err)
+        res.status(400).send(err);
+    })
 })
 
 /*

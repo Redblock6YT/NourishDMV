@@ -6,6 +6,7 @@ import axios from 'axios';
 import Image from 'next/image'
 import anime from 'animejs'
 import Cookies from 'js-cookie'
+import { uuid } from 'uuidv4'
 
 export default function Dash() {
     const router = useRouter();
@@ -24,6 +25,10 @@ export default function Dash() {
     const [selectedEvent, setSelectedEvent] = useState("");
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
 
+    //this uuid will identify the user's session, keeping track of which view they are in and staying anonymous
+    const [trackerUUID, setTrackerUUID] = useState("");
+    const [viewState, setViewState] = useState("aag")
+
     useEffect(() => {
         mobileRef.current = mobile;
     }, [mobile])
@@ -36,6 +41,20 @@ export default function Dash() {
         accountRef.current = account;
     }, [account])
 
+    useEffect(() => {
+        if (trackerUUID != "") {
+            axios({
+                method: "post",
+                url: "http://localhost:8443/track",
+                data: {
+                    uuid: trackerUUID,
+                    page: "Dashboard",
+                    view: viewState
+                }
+            })
+        }
+    }, [viewState, trackerUUID]);
+
     function switchView(view) {
         const navbtns = document.getElementById("navbtns");
         for (var i = 0; i < navbtns.children.length; i++) {
@@ -47,6 +66,7 @@ export default function Dash() {
         document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
         router.push("/dash", "/dash?view=" + view, { shallow: true });
         refresh(view);
+        setViewState(view);
     }
 
     function calculateEventStatus(startDateTime, endDateTime) {
@@ -138,6 +158,25 @@ export default function Dash() {
         })
     }
     */
+
+    useEffect(() => {
+        const exitFunction = () => {
+            axios({
+                method: "post",
+                url: "http://localhost:8443/track",
+                data: {
+                    uuid: trackerUUID,
+                    page: "Inactive",
+                    view: ""
+                }
+            })
+        }
+
+        router.events.on("routeChangeStart", exitFunction);
+        return () => {
+            router.events.off("routeChangeStart", exitFunction);
+        }
+    }, []);
 
     function refresh(view) {
         anime({
@@ -565,6 +604,7 @@ export default function Dash() {
             duration: 500,
             easing: 'easeInOutQuad'
         })
+
         anime({
             targets: "#" + overlayId,
             scale: 1.2,
@@ -973,6 +1013,20 @@ export default function Dash() {
                 setAccount(Cookies.get("account"));
             }
 
+
+            if (trackerUUID == "") {
+                setTrackerUUID(uuid());
+                setInterval(() => {
+                    if (viewState == "aag") {
+                        axios({
+                            method: "get",
+                            url: "http://localhost:8443/getTrackerStats"
+                        }).then((res) => {
+                            console.log(res.data);
+                        })
+                    }
+                }, 1000)
+            }
             refresh("accounts");
             refresh("events");
 
@@ -1069,7 +1123,7 @@ export default function Dash() {
                                     <h4 className={styles.screensubheading}>All time statistics</h4>
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>$170K</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>$0</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>in donations</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
@@ -1082,7 +1136,7 @@ export default function Dash() {
                                         </div>
                                         <br />
                                         <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>1.1M</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>page views</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
@@ -1094,8 +1148,46 @@ export default function Dash() {
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>event attendees</p>
                                         </div>
                                     </div>
+                                    <div style={{ position: "relative" }}>
+                                        <div className={styles.blurredCircle} style={{ position: "absolute", zIndex: -1, animation: styles.pulseLive + " 3s infinite linear", top: "13%", left: "-20%", width: "300px", height: "300px", filter: "blur(150px)", backgroundColor: "#f66d4bff" }}></div>
+                                        <h4 className={styles.screensubheading}>See where users are in real-time</h4>
+                                        <div style={{ margin: "20px" }}>
+                                            <div className={styles.bentoboxShorter} style={{ float: "inline-start" }}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>active users</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px", float: "inline-start" }}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
+                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Hero</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Statistics/Goal</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>How we help</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Difference Together</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Get In Touch</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Footer</a></p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "auto", float: "inline-start" }}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
+                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Landing</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign In</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign Up</a></p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px" }}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
+                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>At a glance</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Events</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Event Details</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Donations</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Donation Flow</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Volunteer Flow</a></p>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                     <h4 className={styles.screensubheading}>Recent Donation Activity</h4>
-                                    <div id="recentactivity" className={styles.previewbento} style={{ width: (mobile) ? "85%" : "50%", margin: "20px" }}>
+                                    <div id="recentactivity" className={styles.previewbento} style={{ width: (mobile) ? "85%" : "50%", margin: "20px", cursor: "pointer" }} onClick={() => switchView("donations")}>
                                         <button className={styles.minilistitem}>Sauron Monet donated $955</button>
                                         <button className={styles.minilistitem}>Aurelia Gallia donated $162</button>
                                         <button className={styles.minilistitem}>Neela Abraham donated $20</button>
@@ -1104,27 +1196,52 @@ export default function Dash() {
                                     </div>
                                 </div>
                                 <div id="non-admin" style={{ display: (!adminView) ? "block" : "none" }}>
-                                    <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
+                                    <div id="youSection">
+                                        <h4 className={styles.screensubheading}>You</h4>
+                                        <div style={{ margin: "20px" }}>
+                                            <div className={styles.bentoboxShorter} style={{ width: "350px" }}>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>role</p>
+                                                <p style={{ margin: "0px", textAlign: "center" }}>SUPPORTER</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter}>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>joined</p>
+                                                <p style={{ margin: "0px", textAlign: "center" }}>2/23/24</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}>$0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>volunteer hours</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>events attended</p>
+                                            </div>
+                                        </div>
+                                        <div className={styles.divider}></div>
+                                    </div>
+
+                                    <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", marginTop: "10px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
                                     <div className={styles.doublegrid} style={{ width: (mobile) ? "100%" : "70%", margin: "auto", display: (mobile) ? "block" : "grid" }}>
                                         <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block", width: "100%" }} onClick={() => openOverlay("d")}>Donate</button>
                                         <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#fbe85dff", color: "black", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block", width: "100%" }} onClick={() => openOverlay("v")}>Join our team</button>
                                     </div>
-
                                     <div className={styles.divider}></div>
-                                    <div style={{ display: (account == "") ? "none" : "block" }}>
+                                    <div style={{ display: "none" }}>
                                         <h4 className={styles.screensubheading}>Your Upcoming Events</h4>
                                         <div id="upcomingeventsl" style={{ margin: "20px" }}>
-                                            <div className={styles.card}>
+                                            <div className={styles.card} style={{ height: "130px" }}>
                                                 <div className={styles.fullycenter} style={{ width: "100%" }}>
                                                     <p className={styles.font} style={{ fontSize: "25px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>You aren't apart of any events</p>
-                                                    <button className={[styles.minibutton, styles.hover].join(" ")} onClick={() => switchView("events")}>View Events</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <h4 className={styles.screensubheading}>{(account == "") ? "Events Happening Now" : "Other Events"}</h4>
+                                        <h4 className={styles.screensubheading}>Recent Events</h4>
                                         <div id="othereventsl" style={{ margin: "20px" }}>
                                             <div className={styles.card}>
                                                 <div className={styles.fullycenter} style={{ width: "100%" }}>
@@ -1500,7 +1617,7 @@ export default function Dash() {
                                     <div className={styles.divider}></div>
                                     <div style={{ width: (mobile) ? "100%" : "80%", margin: "auto" }}>
                                         <div id="donationsnavbar" style={{ gridTemplateColumns: (mobile) ? "55% auto" : "80% auto", }} className={styles.doublegrid}>
-                                            <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" placeholder="Search with date"></input>
+                                            <input className={styles.inputScreen} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" placeholder="Search with date"></input>
                                             <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openOverlay("d")}>New Donation</button>
                                         </div>
                                         <div id="donatelist">

@@ -622,7 +622,7 @@ export default function Home() {
               <div className={styles.doublegrid} style={{ margin: "auto", gridGap: "0px" }}>
                 <div style={{ borderRight: "1px solid rgba(0, 0, 0, 0.104)", padding: "20px" }}>
                   <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Change Lives</a></h3>
-                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>You have the power to change the lives of 21,808 homeless individiuals by volunteering at our Homeless Shelters, Food Banks, or events to provide them with food, shelter, and hope</p>
+                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>You have the power to change the lives of 21,808 homeless individiuals by volunteering at our Homeless Shelters, Food Banks, or events to provide them with food, shelter, and hope.</p>
                   <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Network</a></h3>
                   <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>Network with other passionate and caring individuals who share a passion for volunteering.</p>
                   <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Teamwork</a></h3>

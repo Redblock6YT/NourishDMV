@@ -64,6 +64,24 @@
     transform: scale(1.02)
 }
 
+.itemEventsMore {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    height: 130px;
+    width: 600px;
+    border-radius: 25px;
+    padding: 15px;
+    display: inline-block;
+    transition: all .5s ease;
+    position: relative;
+    overflow:hidden;
+    cursor: pointer;
+}
+
+.itemEventsMore:hover {
+    padding: 20px;
+}
+
 @keyframes pulse {
     0% {
         background-color: #fbac29ff;
@@ -89,6 +107,20 @@
 
     100% {
         background-color: rgba(255, 255, 0, 0.447);
+    }
+}
+
+@keyframes pulseLive {
+    0% {
+        background-color: rgb(255, 0, 0);
+    }
+
+    50% {
+        background-color: rgba(146, 0, 0, 0.185);
+    }
+
+    100% {
+        background-color: rgb(255, 0, 0);
     }
 }
 
@@ -144,10 +176,10 @@
 
 .card {
     background-color: rgba(255, 208, 128, 0.692);
-    border: dashed 2px rgb(214, 164, 78);
+    border: dashed 1px rgb(214, 164, 78);
     backdrop-filter: blur(10px);
     width: 500px;
-    height: 300px;
+    height: 130px;
     display: inline-block;
     border-radius: 35px;
     margin-bottom: 15px;
@@ -228,6 +260,7 @@
 .managebutton:hover {
     transform: scale(1.05);
 }
+
 
 .blurredCircle {
     filter: blur(30px);
