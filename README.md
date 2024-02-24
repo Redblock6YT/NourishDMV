@@ -4,10 +4,13 @@ NourishDMV is not a real non-profit. It was created for this 2024 FBLA Web Desig
 # Awards
 2nd Place - Maryland FBLA Region #3 Leadership Conference
 
+# Reduced Demo Functionality
+Due to upcoming changes, features may not work as expected.
+
 # Try it on your device
 Go to https://nourishdmv.rygb.tech
 Create your own account, or log into the admin account to create/modify events:
-Email: mmredblock6@gmail.com
+Email: admin@nourishdmv.com
 Password: 1234
 
 Copyright © Marcus Mauricio 2023-2024
