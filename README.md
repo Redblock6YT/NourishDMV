@@ -2,7 +2,7 @@
 ![NourishDMV _ Corner Icon (2)](https://github.com/Redblock6YT/NourishDMV/assets/37982990/0ed22841-515f-486d-ba15-df5e3715acc3)
 
 # Note
-NourishDMV is not a real non-profit. It was created for this 2024 FBLA Web Design Project.
+NourishDMV is not a real non-profit. It was created for this 2024 FBLA Website Design Project.
 
 # Awards
 2nd Place - Maryland FBLA Region #3 Leadership Conference
