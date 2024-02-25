@@ -7,7 +7,6 @@ import anime from 'animejs';
 export default function Footer(props) {
     const [elements, setElements] = useState([]);
     const router = useRouter();
-    console.log(props.citations)
 
     useEffect(() => {
         if (props.citations != null) {
@@ -44,7 +43,7 @@ export default function Footer(props) {
 
     return (
         <>
-            <div className={[styles.footer, styles.font].join(" ")}>
+            <div id="footer" className={[styles.footer, styles.font].join(" ")}>
                 <div>
                     
                     <div style={{ color: "#00000047" }}>

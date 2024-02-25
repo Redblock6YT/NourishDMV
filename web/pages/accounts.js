@@ -7,12 +7,30 @@ import anime from 'animejs';
 import Image from 'next/image';
 import axios from 'axios';
 import crypto from 'crypto';
+import { uuid } from 'uuidv4';
 
 export default function Accounts() {
     const router = useRouter();
     const [view, setView] = useState('norm');
     const [mobile, setMobile] = useState(false);
     const [actionType, setActionType] = useState("Sign In");
+
+    const [trackerUUID, setTrackerUUID] = useState("");
+
+    useEffect(() => {
+        if (trackerUUID != "") {
+            Cookies.set("trackerUUID", trackerUUID);
+            axios({
+                method: "post",
+                url: "http://localhost:8443/track",
+                data: {
+                    uuid: trackerUUID,
+                    page: "Accounts",
+                    view: (view == "norm") ? "Landing" : actionType,
+                }
+            })
+        }
+    }, [view, trackerUUID]);
 
     function push(path) {
         if (router.isReady) {
@@ -503,6 +521,12 @@ export default function Accounts() {
                         easing: 'easeInOutQuad'
                     })
                 }, 500)
+            }
+
+            if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+                setTrackerUUID(uuid());
+            } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+                setTrackerUUID(Cookies.get("trackerUUID"));
             }
         }
     }, [router.isReady]);

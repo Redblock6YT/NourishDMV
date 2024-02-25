@@ -26,6 +26,7 @@ export default function Dash() {
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
 
     //this uuid will identify the user's session, keeping track of which view they are in and staying anonymous
+    const [trackerEnabled, setTrackerEnabled] = useState(false);
     const [trackerUUID, setTrackerUUID] = useState("");
     const [viewState, setViewState] = useState("aag")
 
@@ -43,6 +44,7 @@ export default function Dash() {
 
     useEffect(() => {
         if (trackerUUID != "") {
+            Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
                 url: "http://localhost:8443/track",
@@ -54,6 +56,12 @@ export default function Dash() {
             })
         }
     }, [viewState, trackerUUID]);
+
+    useEffect(() => {
+        if (trackerEnabled) {
+
+        }
+    }, [trackerEnabled]);
 
     function switchView(view) {
         const navbtns = document.getElementById("navbtns");
@@ -214,6 +222,7 @@ export default function Dash() {
                             accountName.style.margin = "0px";
                             accountName.className = styles.font;
                             accountItem.className = styles.item;
+                            accountItem.style.cursor = "default";
                             if (account.area == "D.C.") {
                                 dc++;
                             } else if (account.area == "Maryland") {
@@ -244,46 +253,6 @@ export default function Dash() {
                         apiError(err);
                         anime({
                             targets: accountsloading,
-                            opacity: 0,
-                            duration: 300,
-                            easing: 'linear',
-                        })
-                    })
-                } else if (view == "blog") {
-                    axios({
-                        method: "get",
-                        url: "http://localhost:8443/getBlogPosts"
-                    }).then((res) => {
-                        const posts = res.data;
-                        for (var i = 0; i < posts.length; i++) {
-                            const post = posts[i];
-                            var postItem = document.createElement("div");
-                            var postTitle = document.createElement("p");
-                            postTitle.innerHTML = post.title;
-                            postTitle.style.margin = "0px";
-                            postTitle.className = styles.font;
-                            postItem.className = styles.item;
-                            postItem.appendChild(postTitle);
-                            document.getElementById("bloglist").appendChild(postItem);
-                        }
-                        document.getElementById("blogpostsnum").innerHTML = posts.length;
-                        anime({
-                            targets: "#" + view + "loading",
-                            opacity: 0,
-                            duration: 300,
-                            easing: 'linear',
-                        })
-                        anime({
-                            targets: "#" + view + "content",
-                            filter: "blur(0px)",
-                            duration: 500,
-                            scale: 1,
-                            easing: 'easeInOutQuad',
-                        })
-                    }).catch((err) => {
-                        apiError(err);
-                        anime({
-                            targets: "#" + view + "loading",
                             opacity: 0,
                             duration: 300,
                             easing: 'linear',
@@ -321,6 +290,7 @@ export default function Dash() {
                             eventName.innerHTML = event.title;
                             eventName.style.margin = "0px";
                             eventName.className = styles.font;
+                            eventItem.setAttribute("name", event.title)
                             var icon = document.createElement("span");
                             icon.className = "material-symbols-rounded";
                             icon.style.fontSize = "30px";
@@ -410,18 +380,68 @@ export default function Dash() {
                         })
                     })
                 } else if (view == "donations") {
-                    anime({
-                        targets: "#donationsloading",
-                        opacity: 0,
-                        duration: 300,
-                        easing: 'linear',
-                    })
-                    anime({
-                        targets: "#donationscontent",
-                        filter: "blur(0px)",
-                        scale: 1,
-                        duration: 500,
-                        easing: 'easeInOutQuad',
+                    axios({
+                        method: "get",
+                        url: "http://localhost:8443/getDonations"
+                    }).then((res) => {
+                        const accounts = res.data;
+                        var amount = 0;
+                        const accountslist = document.getElementById("donatelist");
+                        while (accountslist.firstChild) {
+                            accountslist.removeChild(accountslist.firstChild);
+                        }
+                        var donationsToday = 0;
+                        var amountToday = 0;
+                        for (var i = 0; i < accounts.length; i++) {
+                            const account = accounts[i];
+                            var accountItem = document.createElement("div");
+                            var accountName = document.createElement("p");
+                            accountName.innerHTML = new Date(account.date).toLocaleString() + " - " + formatUSD(account.amount);
+                            accountName.style.margin = "0px";
+                            accountName.className = styles.font;
+                            accountItem.style.cursor = "default";
+                            accountItem.className = styles.item;
+                            if (new Date(account.date).toDateString() == new Date().toDateString()) {
+                                donationsToday++;
+                                amountToday += account.amount;
+                            }
+                            amount += account.amount;
+                            accountItem.appendChild(accountName);
+                            accountslist.appendChild(accountItem);
+                        }
+                        if (accounts.length == 1) {
+                            document.getElementById("donationssub").innerHTML = "donation"
+                            document.getElementById("tdonssub").innerHTML = "donation"
+                        } else {
+                            document.getElementById("donationssub").innerHTML = "donations"
+                            document.getElementById("tdonssub").innerHTML = "donations"
+                        }
+                        document.getElementById("tdonsnum").innerHTML = donationsToday;
+                        document.getElementById("donationsnumber").innerHTML = accounts.length;
+                        document.getElementById("donationsamt").innerHTML = formatUSD(amount);
+                        document.getElementById("aagdonsamt").innerHTML = formatUSD(amount);
+                        document.getElementById("tdonsamt").innerHTML = formatUSD(amountToday);
+                        anime({
+                            targets: "#donationsloading",
+                            opacity: 0,
+                            duration: 300,
+                            easing: 'linear',
+                        })
+                        anime({
+                            targets: "#donationscontent",
+                            filter: "blur(0px)",
+                            scale: 1,
+                            duration: 500,
+                            easing: 'easeInOutQuad',
+                        })
+                    }).catch((err) => {
+                        apiError(err);
+                        anime({
+                            targets: "#donationsloading",
+                            opacity: 0,
+                            duration: 300,
+                            easing: 'linear',
+                        })
                     })
                 }
             }
@@ -430,6 +450,7 @@ export default function Dash() {
 
     function openEventOverlay(overlayid, id) {
         hideSidebar();
+        setViewState("eventDetails");
         document.getElementById("events").style.overflowY = "hidden";
         const eventsoverlay = document.getElementById(overlayid);
         anime({
@@ -596,6 +617,7 @@ export default function Dash() {
     }
 
     function closeEventOverlay(overlayId, type) {
+        setViewState("events");
         anime({
             targets: "#affectbyeoverlay",
             scale: 1,
@@ -622,6 +644,15 @@ export default function Dash() {
         })
     }
 
+    function randomNumber(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    function formatUSD(amount) {
+        //format the amount with commas and two decimal places
+        return "$" + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+
     useEffect(() => {
         anime({
             targets: "#v" + step + currentOverlayType,
@@ -632,13 +663,87 @@ export default function Dash() {
 
         if (currentOverlayType == "d") {
             if (step == 2) {
-                var amount = parseFloat(document.getElementById("v1damt").value).toFixed(2);
-                document.getElementById("v2dh").innerHTML = "Donate $" + amount;
+                var amount = formatUSD(document.getElementById("v1damt").value);
+                document.getElementById("v2dh").innerHTML = "Donate " + amount;
             } else if (step == 3) {
                 // "process" the donation
+                axios({
+                    method: "post",
+                    url: "http://localhost:8443/addDonation",
+                    data: {
+                        amount: parseFloat(document.getElementById("v1damt").value).toFixed(2),
+                    }
+                })
                 setTimeout(() => {
-                    nextStep("d");
-                }, 2000)
+                    closeOverlay();
+                    setTimeout(() => {
+                        const donationSuccessful = document.getElementById("donationSuccessful");
+                        donationSuccessful.style.display = "block";
+                        for (var i = 1; i < 4; i++) {
+                            document.getElementById("dsc" + i).style.transform = "translate(" + (-50 - randomNumber(-30, 30)) + "%, " + (-50 - randomNumber(-30, 30)) + "%)"
+                        }
+                        document.getElementById("dscamttextval").innerHTML = formatUSD(document.getElementById("v1damt").value);
+                        anime({
+                            targets: donationSuccessful,
+                            opacity: 1,
+                            duration: 1000,
+                            easing: 'easeInOutQuad',
+                            complete: function (anim) {
+                                anime({
+                                    targets: ["#dsc1", "#dsc2", "#dsc3"],
+                                    opacity: 1,
+                                    width: "500px",
+                                    height: "500px",
+                                    duration: 3000,
+                                    filter: "blur(200px)",
+                                    easing: 'easeInOutQuad',
+                                })
+
+                                document.getElementById("dscamttext").style.opacity = 0;
+                                document.getElementById("dscamttext2").style.opacity = 0;
+                                anime({
+                                    targets: "#dscamttext",
+                                    opacity: 1,
+                                    duration: 1000,
+                                    easing: 'easeInOutQuad',
+                                    delay: 1500,
+                                    complete: function (anim) {
+                                        anime({
+                                            targets: "#dscamttext2",
+                                            opacity: 1,
+                                            easing: 'easeInOutQuad',
+                                            complete: function (anim) {
+                                                setTimeout(() => {
+                                                    refresh("donations");
+                                                    anime({
+                                                        targets: donationSuccessful,
+                                                        scale: 1.5,
+                                                        filter: "blur(20px)",
+                                                        opacity: 0,
+                                                        duration: 500,
+                                                        easing: 'easeInOutQuad',
+                                                        complete: function (anim) {
+                                                            donationSuccessful.style.display = "none";
+                                                            donationSuccessful.style.filter = "blur(0px)";
+                                                            donationSuccessful.style.transform = "translateX(-50%) translateY(-50%)";
+                                                            document.getElementById("dscamttext").style.opacity = 0;
+                                                            document.getElementById("dscamttext2").style.opacity = 0;
+                                                            for (var i = 1; i < 4; i++) {
+                                                                document.getElementById("dsc" + i).style.transform = "translate(" + (-50 - randomNumber(-30, 30)) + "%, " + (-50 - randomNumber(-30, 30)) + "%)"
+                                                                document.getElementById("dsc" + i).style.width = "0px";
+                                                                document.getElementById("dsc" + i).style.height = "0px";
+                                                            }
+                                                        }
+                                                    })
+                                                }, 2000);
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                    }, 2000);
+                }, 1000)
             }
         } else if (currentOverlayType == "re") {
             if (step == 1) {
@@ -746,9 +851,27 @@ export default function Dash() {
 
         if (type == "d") {
             donate.style.display = "block";
+            axios({
+                method: "post",
+                url: "http://localhost:8443/track",
+                data: {
+                    uuid: trackerUUID,
+                    page: "Dashboard",
+                    view: "donationFlow"
+                }
+            })
             volunteer.style.display = "none";
         } else if (type == "v") {
             volunteer.style.display = "block";
+            axios({
+                method: "post",
+                url: "http://localhost:8443/track",
+                data: {
+                    uuid: trackerUUID,
+                    page: "Dashboard",
+                    view: "volunteerFlow"
+                }
+            })
             donate.style.display = "none";
         } else if (type == "re") {
             registerEvent.style.display = "block";
@@ -799,6 +922,15 @@ export default function Dash() {
 
     function closeOverlay() {
         setStep(0);
+        axios({
+            method: "post",
+            url: "http://localhost:8443/track",
+            data: {
+                uuid: trackerUUID,
+                page: "Dashboard",
+                view: viewState
+            }
+        })
         anime({
             targets: "#closeZigZag",
             opacity: 0,
@@ -889,6 +1021,99 @@ export default function Dash() {
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
                 if (res.data.role == "Admin") {
                     setAdminView(true);
+                    setInterval(() => {
+                        if (viewState == "aag") {
+                            axios({
+                                method: "get",
+                                url: "http://localhost:8443/getTrackerStats"
+                            }).then((res) => {
+                                const stats = res.data;
+                                console.log(stats);
+                                document.getElementById("activeusersnum").innerHTML = stats.active;
+
+                                const homepage = stats.homepage;
+                                var homepagenum = 0;
+                                document.getElementById("footernum").innerHTML = "0";
+                                document.getElementById("getintouchnum").innerHTML = "0";
+                                document.getElementById("makedifferencenum").innerHTML = "0";
+                                document.getElementById("howhelplistnum").innerHTML = "0";
+                                document.getElementById("goalgridnum").innerHTML = "0";
+                                document.getElementById("heronum").innerHTML = "0";
+                                for (const [key, value] of Object.entries(homepage)) {
+                                    if (key == "footer") {
+                                        document.getElementById("footernum").innerHTML = value;
+                                        homepagenum += value;
+                                    } else if (key == "getintouch") {
+                                        document.getElementById("getintouchnum").innerHTML = value;
+                                        homepagenum += value;
+                                    } else if (key == "makeDifference") {
+                                        document.getElementById("makedifferencenum").innerHTML = value;
+                                        homepagenum += value;
+                                    } else if (key == "howhelp") {
+                                        document.getElementById("howhelplistnum").innerHTML = value;
+                                        homepagenum += value;
+                                    } else if (key == "goalgrid") {
+                                        document.getElementById("goalgridnum").innerHTML = value;
+                                        homepagenum += value;
+                                    } else if (key == "hero") {
+                                        document.getElementById("heronum").innerHTML = value;
+                                        homepagenum += value;
+                                    }
+                                }
+                                document.getElementById("homepagenum").innerHTML = homepagenum;
+
+                                const dashboard = stats.dashboard;
+                                var dashboardnum = 0;
+                                document.getElementById("aagnum").innerHTML = "0";
+                                document.getElementById("eventsnum").innerHTML = "0";
+                                document.getElementById("eventdetailsnum").innerHTML = "0";
+                                document.getElementById("donationsnum").innerHTML = "0";
+                                document.getElementById("donationflownum").innerHTML = "0";
+                                document.getElementById("volunteerflownum").innerHTML = "0";
+                                for (const [key, value] of Object.entries(dashboard)) {
+                                    if (key == "aag") {
+                                        document.getElementById("aagnum").innerHTML = value;
+                                        dashboardnum += value;
+                                    } else if (key == "events") {
+                                        document.getElementById("eventsnum").innerHTML = value;
+                                        dashboardnum += value;
+                                    } else if (key == "eventDetails") {
+                                        document.getElementById("eventdetailsnum").innerHTML = value;
+                                        dashboardnum += value;
+                                    } else if (key == "donations") {
+                                        document.getElementById("donationsnum").innerHTML = value;
+                                        dashboardnum += value;
+                                    } else if (key == "donationFlow") {
+                                        document.getElementById("donationflownum").innerHTML = value;
+                                        dashboardnum += value;
+                                    } else if (key == "volunteerFlow") {
+                                        document.getElementById("volunteerflownum").innerHTML = value;
+                                        dashboardnum += value;
+                                    }
+                                }
+                                document.getElementById("dashboardnum").innerHTML = dashboardnum;
+
+                                const accounts = stats.accounts;
+                                var accountsnum = 0;
+                                document.getElementById("landingnum").innerHTML = "0";
+                                document.getElementById("innum").innerHTML = "0";
+                                document.getElementById("upnum").innerHTML = "0";
+                                for (const [key, value] of Object.entries(accounts)) {
+                                    if (key == "Landing") {
+                                        document.getElementById("landingnum").innerHTML = value;
+                                        accountsnum += value;
+                                    } else if (key == "Sign In") {
+                                        document.getElementById("innum").innerHTML = value;
+                                        accountsnum += value;
+                                    } else if (key == "Sign Up") {
+                                        document.getElementById("upnum").innerHTML = value;
+                                        accountsnum += value;
+                                    }
+                                }
+                                document.getElementById("accountsnum").innerHTML = accountsnum;
+                            })
+                        }
+                    }, 1000)
                 }
             }).catch((err) => {
                 console.log(err);
@@ -904,6 +1129,7 @@ export default function Dash() {
 
             })
         }
+
     }, [account])
 
     function updateEventStatus(view, registrationStartDateTime, registrationEndDateTime, startDateTime, endDateTime) {
@@ -1013,22 +1239,15 @@ export default function Dash() {
                 setAccount(Cookies.get("account"));
             }
 
-
-            if (trackerUUID == "") {
-                setTrackerUUID(uuid());
-                setInterval(() => {
-                    if (viewState == "aag") {
-                        axios({
-                            method: "get",
-                            url: "http://localhost:8443/getTrackerStats"
-                        }).then((res) => {
-                            console.log(res.data);
-                        })
-                    }
-                }, 1000)
-            }
             refresh("accounts");
             refresh("events");
+            refresh("donations");
+
+            if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+                setTrackerUUID(uuid());
+            } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+                setTrackerUUID(Cookies.get("trackerUUID"));
+            }
 
             window.scrollTo(0, 0);
             document.getElementById("splashscreenOutro").play().catch((err) => {
@@ -1113,17 +1332,95 @@ export default function Dash() {
                     <div id="screens" style={{ overflowX: "hidden", overflowY: "hidden", padding: "15px" }}>
                         <div id="aag" className={styles.screen} style={{ marginTop: "0px" }}>
                             <div style={{ padding: "20px" }}>
-                                <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: "70px auto 50px" }}>
-                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                    <h3 className={styles.screenheading}>At a glance</h3>
-                                    <div className={styles.loading} style={{ display: "none" }} id="aagloading"></div>
-                                </div>
+                                    <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: "70px auto 50px" }}>
+                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                        <h3 className={styles.screenheading}>At a glance</h3>
+                                        <div className={styles.loading} style={{ display: "none" }} id="aagloading"></div>
+                                    </div>
                                 <div className={styles.divider}></div>
                                 <div id="admin" style={{ display: (adminView) ? "block" : "none" }}>
-                                    <h4 className={styles.screensubheading}>All time statistics</h4>
+                                    <h4 className={styles.screensubheading}>Today</h4>
+                                    <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxShorter} style={{ float: "inline-start", width: "500px", height: "98px", border: "dashed 1px rgb(214, 164, 78)", backgroundColor: "rgba(255, 208, 128, 0.692)" }}>
+                                            <div className={styles.fullycenter} style={{ width: "100%" }}>
+                                                <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
+                                            </div>
+                                        </div>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "250px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="tdonsnum">0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }} id="tdonssub">donations</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "250px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="tdonsamt">$0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new users</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>returning users</p>
+                                        </div>
+                                    </div>
+                                    <div className={styles.divider}></div>
+                                    <div style={{ position: "relative" }}>
+                                        <h4 className={styles.screensubheading}>Real-time User Activity Monitor</h4>
+                                        <div style={{ margin: "20px" }}>
+                                            <div className={styles.bentoboxShorter} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <p style={{ margin: "0px", textAlign: "center" }} id="activeusersnum">0</p>
+                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total active users</p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px", float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}><a id="homepagenum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
+                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="heronum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Hero</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="goalgridnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Statistics/Goal</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="howhelplistnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>How we help</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="makedifferencenum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Difference Together</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="getintouchnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Get In Touch</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="footernum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Footer</a></p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "auto", float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}><a id="accountsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
+                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="landingnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Landing</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="innum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign In</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="upnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign Up</a></p>
+                                            </div>
+                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <p style={{ margin: "0px", textAlign: "center" }}><a id="dashboardnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
+                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="aagnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>At a glance</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="eventsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Events</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="eventdetailsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Event Details</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="donationsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Donations</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="donationflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Donation Flow</a></p>
+                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="volunteerflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Volunteer Flow</a></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={styles.divider}></div>
+                                    <h4 className={styles.screensubheading}>This Month</h4>
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>$0</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>users</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new users</p>
+                                        </div>
+                                    </div>
+                                    <div className={styles.divider}></div>
+                                    <h4 className={styles.screensubheading}>All Time</h4>
+                                    <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">$0</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>in donations</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
@@ -1134,10 +1431,13 @@ export default function Dash() {
                                             <p style={{ margin: "0px", textAlign: "center" }}>{accounts.length}</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>accounts</p>
                                         </div>
-                                        <br />
                                         <div className={styles.bentoboxShorter}>
                                             <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>page views</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>homepage views</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
                                             <p style={{ margin: "0px", textAlign: "center" }}>{eventsLength}</p>
@@ -1148,55 +1448,44 @@ export default function Dash() {
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>event attendees</p>
                                         </div>
                                     </div>
-                                    <div style={{ position: "relative" }}>
-                                        <div className={styles.blurredCircle} style={{ position: "absolute", zIndex: -1, animation: styles.pulseLive + " 3s infinite linear", top: "13%", left: "-20%", width: "300px", height: "300px", filter: "blur(150px)", backgroundColor: "#f66d4bff" }}></div>
-                                        <h4 className={styles.screensubheading}>See where users are in real-time</h4>
-                                        <div style={{ margin: "20px" }}>
-                                            <div className={styles.bentoboxShorter} style={{ float: "inline-start" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>active users</p>
-                                            </div>
-                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px", float: "inline-start" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
-                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Hero</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Statistics/Goal</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>How we help</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Difference Together</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Get In Touch</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Footer</a></p>
-                                            </div>
-                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "auto", float: "inline-start" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
-                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Landing</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign In</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign Up</a></p>
-                                            </div>
-                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
-                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>At a glance</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Events</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Event Details</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Donations</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Donation Flow</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}>0 <a style={{ fontWeight: "normal", fontSize: "25px" }}>Volunteer Flow</a></p>
-                                            </div>
+                                    <h4 className={styles.screensubheading}>Retention</h4>
+                                    <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">5,554</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new users</p>
                                         </div>
-
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">2,345</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>returning users</p>
+                                        </div>
                                     </div>
-                                    <h4 className={styles.screensubheading}>Recent Donation Activity</h4>
-                                    <div id="recentactivity" className={styles.previewbento} style={{ width: (mobile) ? "85%" : "50%", margin: "20px", cursor: "pointer" }} onClick={() => switchView("donations")}>
-                                        <button className={styles.minilistitem}>Sauron Monet donated $955</button>
-                                        <button className={styles.minilistitem}>Aurelia Gallia donated $162</button>
-                                        <button className={styles.minilistitem}>Neela Abraham donated $20</button>
-                                        <button className={styles.minilistitem}>Aadan De Ven donated $32</button>
-                                        <h3 className={styles.font} style={{ position: "absolute", bottom: 0, zIndex: 100, left: "50%", transform: "translateX(-50%)", color: "white", fontSize: "30px", textShadow: "0px 0px 50px #000000" }}>View More</h3>
+                                    <h4 className={styles.screensubheading}>Demographics</h4>
+                                    <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">40%</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Maryland</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">30%</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from DC</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">30%</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Virginia</p>
+                                        </div>
+                                        <br />
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">77%</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a mobile device</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">23%</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a desktop device</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="non-admin" style={{ display: (!adminView) ? "block" : "none" }}>
-                                    <div id="youSection">
+                                    <div id="youSection" style={{ display: (account == "") ? "none" : "block" }}>
                                         <h4 className={styles.screensubheading}>You</h4>
                                         <div style={{ margin: "20px" }}>
                                             <div className={styles.bentoboxShorter} style={{ width: "350px" }}>
@@ -1314,7 +1603,7 @@ export default function Dash() {
                                         <div className={styles.divider}></div>
                                         <div style={{ width: "80%", margin: "auto" }}>
                                             <div id="eventsnavbar" style={{ gridTemplateColumns: (mobile) ? "60% auto" : "75% auto" }} className={styles.doublegrid}>
-                                                <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="eventssearch" placeholder="Search with title"></input>
+                                                <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="blogsearch" placeholder="Search with title"></input>
                                                 <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openBlogPostViewer()}>New Post</button>
                                             </div>
                                             <div id="bloglist">
@@ -1371,8 +1660,17 @@ export default function Dash() {
                                         </div>
 
                                         <div style={{ width: "80%", margin: "auto" }}>
-                                            <div id="eventsnavbar" style={{ gridTemplateColumns: (mobile) ? "60% auto" : "80% auto", gridGap: "15px", display: (adminView) ? "grid" : "block" }} className={styles.doublegrid}>
-                                                <input className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with name"></input>
+                                            <div id="eventsnavbar" style={{ gridTemplateColumns: (mobile) ? "auto 200px" : "auto 230px", gridGap: "15px", display: (adminView) ? "grid" : "block" }} className={styles.doublegrid}>
+                                                <input onInput={() => {
+                                                    const children = document.getElementById("eventslist").children;
+                                                    for (let i = 0; i < children.length; i++) {
+                                                        if (children[i].getAttribute("name").toLowerCase().includes(document.getElementById("eventssearch").value.toLowerCase())) {
+                                                            children[i].style.display = "grid";
+                                                        } else {
+                                                            children[i].style.display = "none";
+                                                        }
+                                                    }
+                                                }} className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with title"></input>
                                                 <button style={{ width: "100%", display: (adminView) ? "block" : "none" }} className={styles.managebutton} onClick={() => openEventOverlay("editeventsoverlay")}>New Event</button>
                                             </div>
                                             <div id="eventslist"></div>
@@ -1606,18 +1904,18 @@ export default function Dash() {
                                 <div id="donationscontent">
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>1K</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donations</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="donationsnumber">0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }} id="donationssub">donations</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>$170K</p>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "250px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="donationsamt">$0</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>raised</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div style={{ width: (mobile) ? "100%" : "80%", margin: "auto" }}>
-                                        <div id="donationsnavbar" style={{ gridTemplateColumns: (mobile) ? "55% auto" : "80% auto", }} className={styles.doublegrid}>
-                                            <input className={styles.inputScreen} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" placeholder="Search with date"></input>
+                                        <div id="donationsnavbar" style={{ gridTemplateColumns: (mobile) ? "auto 200px" : "auto 250px", }} className={styles.doublegrid}>
+                                            <input className={styles.inputScreen} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" type="date" placeholder="Search with date"></input>
                                             <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openOverlay("d")}>New Donation</button>
                                         </div>
                                         <div id="donatelist">
@@ -1766,6 +2064,12 @@ export default function Dash() {
                         </div>
                     </div>
 
+                </div>
+                <div id="donationSuccessful" style={{ position: "absolute", width: "100vw", height: "100vh", backgroundColor: "#000000b8", opacity: "0", display: "none", left: "50%", top: "50%", transform: "translateX(-50%) translateY(-50%)" }}>
+                    <div id="dsc1" className={styles.blurredCircle} style={{ position: "absolute", top: "50%", left: "50%", width: "0px", height: "0px", transform: "translateX(-50%) translateY(-50%)" }}></div>
+                    <div id="dsc2" className={styles.blurredCircle} style={{ position: "absolute", top: "50%", left: "50%", width: "0px", height: "0px", transform: "translateX(-50%) translateY(-50%)" }}></div>
+                    <div id="dsc3" className={styles.blurredCircle} style={{ position: "absolute", top: "50%", left: "50%", width: "0px", height: "0px", transform: "translateX(-50%) translateY(-50%)" }}></div>
+                    <h1 id="dscamttext" className={styles.font} style={{ position: "absolute", margin: "0px", fontSize: "15vw", color: "white", top: "50%", left: "50%", opacity: "0", transform: "translateX(-50%) translateY(-50%)" }}><a id='dscamttextval'>0</a><a id="dscamttext2" style={{ fontSize: "5vw", opacity: 0, display: "block", textAlign: "center" }}>Thank you!</a></h1>
                 </div>
                 <div id="errorCard" className={styles.errorCard}>
                     <h2>Error</h2>

@@ -124,6 +124,20 @@
     }
 }
 
+@keyframes pulseLive2 {
+    0% {
+        background-color: #ff00008a;
+    }
+
+    50% {
+        background-color: #ca00008a;
+    }
+
+    100% {
+        background-color: #ff00008a;
+    }
+}
+
 .errorCard {
     font-family: 'Outfit', sans-serif;
     color: white;

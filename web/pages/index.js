@@ -7,6 +7,7 @@ import anime from 'animejs';
 import Footer from '@/components/NDMVFooter.jsx';
 import Cookies from 'js-cookie';
 import axios from 'axios'
+import { uuid } from 'uuidv4'
 
 export default function Home() {
   const router = useRouter();
@@ -14,6 +15,9 @@ export default function Home() {
   const [mobile, setMobile] = useState(false);
   const [loadContent, setLoadContent] = useState(false);
   const [intervalIds, setIntervalIds] = useState([]);
+
+  const [trackerUUID, setTrackerUUID] = useState("");
+  const [viewingContent, setViewingContent] = useState("hero");
 
   function openSidebar() {
     document.getElementById("mainelem").style.overflowY = "hidden"
@@ -284,7 +288,7 @@ export default function Home() {
         icon.innerHTML = "open_in_new";
         icon.style.fontSize = "60px";
         icon.style.margin = "auto";
-        
+
         const text = document.createElement("p");
         text.innerHTML = "View more"
         text.style.margin = "auto";
@@ -375,6 +379,60 @@ export default function Home() {
   }, [loadContent])
 
   useEffect(() => {
+    if (trackerUUID != "") {
+      Cookies.set("trackerUUID", trackerUUID);
+      axios({
+        method: "post",
+        url: "http://localhost:8443/track",
+        data: {
+          uuid: trackerUUID,
+          page: "Homepage",
+          view: viewingContent,
+        }
+      })
+    }
+  }, [trackerUUID, viewingContent]);
+
+
+  //from https://gist.github.com/jjmu15/8646226
+  function isInViewport(ele) {
+    const { top, bottom } = ele.getBoundingClientRect();
+    const vHeight = (window.innerHeight || document.documentElement.clientHeight);
+
+    return (
+      (top > 0 || bottom > 0) &&
+      top < vHeight
+    );
+  }
+
+  function handleScroll() {
+    const footer = document.getElementById("footer");
+    const getintouch = document.getElementById("getInTouch");
+    const makeDifference = document.getElementById("makeDifference");
+    const howhelp = document.getElementById("howhelplist");
+    const goalgrid = document.getElementById("goalgrid");
+    const hero = document.getElementById("hero");
+
+    if (isInViewport(footer)) {
+      setViewingContent("footer");
+    } else if (isInViewport(getintouch)) {
+      setViewingContent("getintouch");
+    } else if (isInViewport(makeDifference)) {
+      setViewingContent("makeDifference");
+    } else if (isInViewport(howhelp)) {
+      setViewingContent("howhelp");
+    } else if (isInViewport(goalgrid)) {
+      setViewingContent("goalgrid");
+    } else if (isInViewport(hero)) {
+      setViewingContent("hero");
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+  });
+
+  useEffect(() => {
     if (router.isReady) {
       //once the page is fully loaded, play the splashscreen outro
       if (window.innerWidth <= 600) {
@@ -412,6 +470,12 @@ export default function Home() {
       setLoadContent(true);
       //window.scrollTo(0, 0);
       //playing the splashscreen is not essential, if it errors, just fade
+
+      if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+        setTrackerUUID(uuid());
+      } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+        setTrackerUUID(Cookies.get("trackerUUID"));
+      }
 
       document.getElementById("splashscreenOutro").play().catch((e) => {
         console.log(e)
@@ -515,7 +579,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className={styles.divider} style={{marginTop: "240px"}}></div>
+              <div className={styles.divider} style={{ marginTop: "240px" }}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto" }}>
                 <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
@@ -634,7 +698,7 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.divider}></div>
-              <div style={{ position: "relative" }}>
+              <div style={{ position: "relative" }} id="getInTouch">
                 <div className={styles.blurredCircle} style={{ position: "absolute", top: "-100%", left: "50%", height: "500px", width: "500px", zIndex: "-1", filter: "blur(150px)", transform: "translateX(-50%)", backgroundColor: "rgb(227, 171, 74)" }}></div>
                 <h3 className={styles.header} style={{ color: "black", marginBottom: "40px", textAlign: "center" }}>Get in touch</h3>
                 <div className={styles.contactgrid}>

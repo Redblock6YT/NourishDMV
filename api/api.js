@@ -44,6 +44,11 @@ const Account = mongoose.model("Account", {
     donations: { type: Array, default: [] },
 })
 
+const Donations = mongoose.model("Donations", {
+    amount: { type: Number, default: 0 },
+    date: { type: Date, default: Date.now },
+})
+
 const Tracker = mongoose.model("Tracker", {
     uuid: { type: String, default: "" },
     page: { type: String, default: "" },
@@ -124,7 +129,17 @@ app.get("/requestSignIn", async (req, res) => {
         if (account) {
             //account with that email exists now check if the password matches
             if (account.password == req.query.password) {
-                res.status(200).send({ uuid: account.uuid, status: "Sign In approved." });
+                //update last login
+                Account.findOneAndUpdate({ uuid: account.uuid }, { lastLogin: Date.now() }).then((account) => {
+                    if (account) {
+                        res.status(200).send({ uuid: account.uuid, status: "Sign In approved.", lastLogin: Date.now() });
+                    } else {
+                        res.status(400).send("Account not found.");
+                    }
+                }).catch((err) => {
+                    console.log(err)
+                    res.status(400).send(err);
+                })
             } else {
                 res.status(400).send("Incorrect password.");
             }
@@ -321,6 +336,28 @@ app.post("/track", jsonParser, async (req, res) => {
             res.status(400).send(err);
         })
     }
+})
+
+app.post("/addDonation", jsonParser, async (req, res) => {
+    const donation = new Donations({
+        amount: req.body.amount,
+        date: Date.now(),
+    })
+    donation.save().then((donation) => {
+        res.status(200).send(donation);
+    }).catch((err) => {
+        console.log(err)
+        res.status(400).send(err);
+    })
+})
+
+app.get("/getDonations", async (req, res) => {
+    Donations.find({}).then((donations) => {
+        res.status(200).send(donations);
+    }).catch((err) => {
+        console.log(err)
+        res.status(400).send(err);
+    })
 })
 
 app.get("/getTrackerStats", async (req, res) => {
