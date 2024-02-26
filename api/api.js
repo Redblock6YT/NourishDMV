@@ -338,6 +338,27 @@ app.post("/track", jsonParser, async (req, res) => {
     }
 })
 
+app.get("/getTotalUsers", async (req, res) => {
+    Tracker.find({}).then((trackers) => {
+        var response = { today: 0, month: 0, all: 0 };
+        for (var i = 0; i < trackers.length; i++) {
+            var trackerDate = new Date(trackers[i].date);   
+            if (trackerDate.getDate() == new Date().getDate()) {
+                response.today++;
+            }
+            if (trackerDate.getMonth() == new Date().getMonth()) {
+                response.month++;
+            }
+            response.all++;
+        }
+        console.log(response);
+        res.status(200).send(response);
+    }).catch((err) => {
+        console.log(err)
+        res.status(400).send(err);
+    })
+})
+
 app.post("/addDonation", jsonParser, async (req, res) => {
     const donation = new Donations({
         amount: req.body.amount,

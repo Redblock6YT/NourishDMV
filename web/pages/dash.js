@@ -22,6 +22,8 @@ export default function Dash() {
     const mobileRef = useRef(mobile);
     const [accounts, setAccounts] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [userSidebarOpen, setUserSidebarOpen] = useState(true);
+
     const [selectedEvent, setSelectedEvent] = useState("");
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
 
@@ -264,6 +266,35 @@ export default function Dash() {
                         url: "http://localhost:8443/getEvents"
                     }).then((res) => {
                         const events = res.data;
+                        //sort the events array based on the event start date time
+                        events.sort((a, b) => {
+                            return Date.parse(a.event.startDateTime) - Date.parse(b.event.startDateTime);
+                        });
+
+                        //sort the events array based on the event's status
+                        events.sort((a, b) => {
+                            const aStatus = calculateEventStatus(a.event.startDateTime, a.event.endDateTime);
+                            const bStatus = calculateEventStatus(b.event.startDateTime, b.event.endDateTime);
+                            if (aStatus == "Pending" && bStatus == "Pending") {
+                                return 0;
+                            } else if (aStatus == "Pending" && bStatus == "In Progress") {
+                                return -1;
+                            } else if (aStatus == "Pending" && bStatus == "Ended") {
+                                return -1;
+                            } else if (aStatus == "In Progress" && bStatus == "Pending") {
+                                return 1;
+                            } else if (aStatus == "In Progress" && bStatus == "In Progress") {
+                                return 0;
+                            } else if (aStatus == "In Progress" && bStatus == "Ended") {
+                                return -1;
+                            } else if (aStatus == "Ended" && bStatus == "Pending") {
+                                return 1;
+                            } else if (aStatus == "Ended" && bStatus == "In Progress") {
+                                return 1;
+                            } else if (aStatus == "Ended" && bStatus == "Ended") {
+                                return 0;
+                            }
+                        });
                         setEventsLength(events.length);
                         const eventslist = document.getElementById("eventslist");
                         const eventsattendlist = document.getElementById("eventsattendlist");
@@ -283,6 +314,7 @@ export default function Dash() {
                         for (var i = 0; i < events.length; i++) {
                             const event = events[i].event;
                             attendees += events[i].analytics.attendees.length;
+                            console.log(events[i].analytics.attendees);
                             document.getElementById("eea").innerHTML = events[i].analytics.attendees.length + " Attendees";
                             document.getElementById("eev").innerHTML = events[i].analytics.views + " Views";
                             var eventItem = document.createElement("div");
@@ -384,14 +416,16 @@ export default function Dash() {
                         method: "get",
                         url: "http://localhost:8443/getDonations"
                     }).then((res) => {
-                        const accounts = res.data;
+                        const accounts = res.data.reverse();
                         var amount = 0;
                         const accountslist = document.getElementById("donatelist");
                         while (accountslist.firstChild) {
                             accountslist.removeChild(accountslist.firstChild);
                         }
                         var donationsToday = 0;
+                        var donationsThisMonth = 0;
                         var amountToday = 0;
+                        var amountThisMonth = 0;
                         for (var i = 0; i < accounts.length; i++) {
                             const account = accounts[i];
                             var accountItem = document.createElement("div");
@@ -405,6 +439,11 @@ export default function Dash() {
                                 donationsToday++;
                                 amountToday += account.amount;
                             }
+                            if (new Date(account.date).getMonth() == new Date().getMonth()) {
+                                donationsThisMonth++;
+                                amountThisMonth += account.amount;
+                            }
+
                             amount += account.amount;
                             accountItem.appendChild(accountName);
                             accountslist.appendChild(accountItem);
@@ -421,6 +460,8 @@ export default function Dash() {
                         document.getElementById("donationsamt").innerHTML = formatUSD(amount);
                         document.getElementById("aagdonsamt").innerHTML = formatUSD(amount);
                         document.getElementById("tdonsamt").innerHTML = formatUSD(amountToday);
+                        document.getElementById("maagdonsamt").innerHTML = formatUSD(amountThisMonth);
+                        document.getElementById("maagdonsnum").innerHTML = donationsThisMonth;
                         anime({
                             targets: "#donationsloading",
                             opacity: 0,
@@ -442,6 +483,16 @@ export default function Dash() {
                             duration: 300,
                             easing: 'linear',
                         })
+                    })
+                } else if (view == "aag") {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:8443/getTotalUsers"
+                    }).then((res) => {
+                        var users = res.data;
+                        document.getElementById("totaluserstd").innerHTML = users.today;
+                        document.getElementById("totalusersm").innerHTML = users.month;
+                        document.getElementById("totalusers").innerHTML = users.all;
                     })
                 }
             }
@@ -613,6 +664,7 @@ export default function Dash() {
             document.getElementById("eestatusverb").innerHTML = "It will start in ??? days"
             document.getElementById("eestatus").innerHTML = "PENDING";
             document.getElementById("eestatusverbtop").innerHTML = "Event is";
+            document.getElementById("vestatusdiv").style.color = "black";
         }
     }
 
@@ -651,6 +703,10 @@ export default function Dash() {
     function formatUSD(amount) {
         //format the amount with commas and two decimal places
         return "$" + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+
+    function formatNumber(amount) {
+        return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
 
     useEffect(() => {
@@ -1145,6 +1201,7 @@ export default function Dash() {
                 var timeDifference = calculateTimeDifference(registrationStartDateTime);
                 document.getElementById("vestatusverb").innerHTML = "It will open in " + timeDifference.value + " " + timeDifference.unit;
             } else if (registrationStatus == "In Progress") {
+                document.getElementById("vestatusdiv").style.color = "black"
                 document.getElementById("eregistertbtn").style.display = "block"
                 document.getElementById("vestatusdiv").style.animation = styles.pulseRegistration + " 3s infinite linear"
                 document.getElementById("vestatusverbtop").innerHTML = "Event registration"
@@ -1183,7 +1240,7 @@ export default function Dash() {
             var registrationStatus = calculateEventStatus(registrationStartDateTime, registrationEndDateTime);
             if (registrationStatus == "Pending") {
                 document.getElementById("eestatusdiv").style.animation = "none"
-                document.getElementById("eestatusdiv").style.color = "#ffedf0"
+                document.getElementById("eestatusdiv").style.color = "black"
                 document.getElementById("eestatusverbtop").innerHTML = "Event registration"
                 document.getElementById("eestatus").innerHTML = "CLOSED"
                 var timeDifference = calculateTimeDifference(registrationStartDateTime);
@@ -1192,6 +1249,7 @@ export default function Dash() {
                 document.getElementById("eestatusdiv").style.animation = styles.pulseRegistration + " 3s infinite linear"
                 document.getElementById("eestatusverbtop").innerHTML = "Event registration"
                 document.getElementById("eestatus").innerHTML = "OPEN"
+                document.getElementById("eestatusdiv").style.color = "black"
                 var timeDifference = calculateTimeDifference(registrationEndDateTime);
                 document.getElementById("eestatusverb").innerHTML = "It will close in " + timeDifference.value + " " + timeDifference.unit;
             } else if (registrationStatus == "Ended") {
@@ -1339,7 +1397,7 @@ export default function Dash() {
                                     </div>
                                 <div className={styles.divider}></div>
                                 <div id="admin" style={{ display: (adminView) ? "block" : "none" }}>
-                                    <h4 className={styles.screensubheading}>Today</h4>
+                                    <h4 className={styles.screensubheading} style={{fontSize: "40px"}}>Today</h4>
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter} style={{ float: "inline-start", width: "500px", height: "98px", border: "dashed 1px rgb(214, 164, 78)", backgroundColor: "rgba(255, 208, 128, 0.692)" }}>
                                             <div className={styles.fullycenter} style={{ width: "100%" }}>
@@ -1355,7 +1413,7 @@ export default function Dash() {
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="totaluserstd">0</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
@@ -1369,7 +1427,7 @@ export default function Dash() {
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div style={{ position: "relative" }}>
-                                        <h4 className={styles.screensubheading}>Real-time User Activity Monitor</h4>
+                                        <h4 className={styles.screensubheading} style={{fontSize: "40px"}}>Real-time User Activity Monitor</h4>
                                         <div style={{ margin: "20px" }}>
                                             <div className={styles.bentoboxShorter} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
                                                 <p style={{ margin: "0px", textAlign: "center" }} id="activeusersnum">0</p>
@@ -1405,23 +1463,46 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading}>This Month</h4>
+                                    <h4 className={styles.screensubheading} style={{fontSize: "40px"}}>{ new Date().toLocaleString('default', {month: 'long'}) }</h4>
                                     <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="maagdonsamt">$0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                        </div>
                                         <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>users</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="maagdonsnum">0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donations</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>{accounts.length}</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new accounts</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
                                             <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>event attendees</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="totalusersm">0</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
+                                        </div>
+                                    </div>
+                                    <h4 className={styles.screensubheading}>Retention</h4>
+                                    <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>5,554</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new users</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>2,345</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>returning users</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading}>All Time</h4>
+                                    <h4 className={styles.screensubheading} style={{fontSize: "40px"}}>All Time</h4>
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
                                             <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">$0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>in donations</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
                                             <p style={{ margin: "0px", textAlign: "center" }}>0</p>
@@ -1432,33 +1513,15 @@ export default function Dash() {
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>accounts</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }} id="totalusers">0</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
                                         </div>
                                         <div className={styles.bentoboxShorter}>
                                             <p style={{ margin: "0px", textAlign: "center" }}>0</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>homepage views</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>{eventsLength}</p>
-                                            <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>events</p>
-                                        </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="vacount" style={{ margin: "0px", textAlign: "center" }}>{eventAttendees}</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>event attendees</p>
-                                        </div>
                                     </div>
-                                    <h4 className={styles.screensubheading}>Retention</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">5,554</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new users</p>
-                                        </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">2,345</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>returning users</p>
-                                        </div>
-                                    </div>
+                                    
                                     <h4 className={styles.screensubheading}>Demographics</h4>
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
@@ -1481,6 +1544,17 @@ export default function Dash() {
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
                                             <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">23%</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a desktop device</p>
+                                        </div>
+                                    </div>
+                                    <h4 className={styles.screensubheading}>Events</h4>
+                                    <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>{eventsLength}</p>
+                                            <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>events</p>
+                                        </div>
+                                        <div className={styles.bentoboxShorter}>
+                                            <p id="vacount" style={{ margin: "0px", textAlign: "center" }}>{eventAttendees}</p>
+                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>event attendees</p>
                                         </div>
                                     </div>
                                 </div>
