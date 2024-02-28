@@ -9,6 +9,32 @@ import Cookies from 'js-cookie'
 import { uuid } from 'uuidv4'
 
 export default function Dash() {
+    //from https://designtechworld.medium.com/create-a-custom-debounce-hook-in-react-114f3f245260
+    const useDebounce = (callback, delay) => {
+        const timeoutRef = useRef(null);
+
+        useEffect(() => {
+            // Cleanup the previous timeout on re-render
+            return () => {
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
+            };
+        }, []);
+
+        const debouncedCallback = (...args) => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+
+            timeoutRef.current = setTimeout(() => {
+                callback(...args);
+            }, delay);
+        };
+
+        return debouncedCallback;
+    };
+
     const router = useRouter();
     const [account, setAccount] = useState("");
     const accountRef = useRef(account);
@@ -31,6 +57,35 @@ export default function Dash() {
     const [trackerEnabled, setTrackerEnabled] = useState(false);
     const [trackerUUID, setTrackerUUID] = useState("");
     const [viewState, setViewState] = useState("aag")
+
+    //from https://stackoverflow.com/questions/70612769/how-do-i-recognize-swipe-events-in-react
+    //used to detect a swipe on mobile for showing and hiding the sidebar
+    const [touchStart, setTouchStart] = useState(null)
+    const [touchEnd, setTouchEnd] = useState(null)
+
+    // the required distance between touchStart and touchEnd to be detected as a swipe
+    const minSwipeDistance = 50
+
+    const onTouchStart = (e) => {
+        setTouchEnd(null) // otherwise the swipe is fired even with usual touch events
+        setTouchStart(e.targetTouches[0].clientX)
+    }
+
+    const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX)
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return
+        const distance = touchStart - touchEnd
+        const isLeftSwipe = distance > minSwipeDistance
+        const isRightSwipe = distance < -minSwipeDistance
+        if (isLeftSwipe || isRightSwipe) console.log('swipe', isLeftSwipe ? 'left' : 'right')
+        if (isLeftSwipe) {
+            hideSidebar();
+        } else if (isRightSwipe) {
+            showSidebar();
+        }
+        // add your conditional logic here
+    }
 
     useEffect(() => {
         mobileRef.current = mobile;
@@ -59,12 +114,6 @@ export default function Dash() {
         }
     }, [viewState, trackerUUID]);
 
-    useEffect(() => {
-        if (trackerEnabled) {
-
-        }
-    }, [trackerEnabled]);
-
     function switchView(view) {
         const navbtns = document.getElementById("navbtns");
         for (var i = 0; i < navbtns.children.length; i++) {
@@ -77,6 +126,9 @@ export default function Dash() {
         router.push("/dash", "/dash?view=" + view, { shallow: true });
         refresh(view);
         setViewState(view);
+        if (window.innerWidth <= 600) {
+            hideSidebar();
+        }
     }
 
     function calculateEventStatus(startDateTime, endDateTime) {
@@ -858,28 +910,39 @@ export default function Dash() {
     function toggleSidebar() {
         if (sidebarOpen) {
             hideSidebar();
+            setUserSidebarOpen(false);
         } else {
             showSidebar();
+            setUserSidebarOpen(true);
         }
     }
 
     function showSidebar() {
         if (window.innerWidth <= 600) {
-            document.getElementById("content").style.gridTemplateColumns = "250px auto";
+            //mobile
+            document.getElementById("content").style.gridTemplateColumns = "245px 100%";
         } else {
             document.getElementById("content").style.gridTemplateColumns = "300px auto";
-
         }
         document.getElementById("content").style.left = "50%";
+        document.getElementById("errorCard").style.display = "none"
 
         setSidebarOpen(true);
     }
 
     function hideSidebar() {
         console.log(mobileRef.current)
-        document.getElementById("content").style.gridTemplateColumns = "300px 100%";
         const parentWidth = document.getElementById("mainelem").clientWidth;
         var left = (parentWidth / 2) - 325;
+        if (window.innerWidth <= 600) {
+            document.getElementById("content").style.gridTemplateColumns = "245px 100%";
+            left = (parentWidth / 2) - 270;
+        } else {
+            document.getElementById("content").style.gridTemplateColumns = "300px 100%";
+        }
+
+
+
         document.getElementById("content").style.left = left + "px";
         setSidebarOpen(false);
     }
@@ -1049,18 +1112,20 @@ export default function Dash() {
             message = err.response.data
         }
         document.getElementById("errorMessage").innerHTML = message;
+        document.getElementById("errorCard").style.display = "block";
         anime({
             targets: "#errorCard",
-            bottom: "10px",
-            duration: 500,
+            bottom: "5%",
             easing: 'easeInOutQuad',
             complete: function (anim) {
                 anime({
                     targets: "#errorCard",
-                    bottom: "-50%",
-                    duration: 500,
+                    bottom: "-100%",
                     easing: 'easeInOutQuad',
                     delay: 5000,
+                    complete: function (anim) {
+                        document.getElementById("errorCard").style.display = "none";
+                    }
                 })
             }
         })
@@ -1354,7 +1419,7 @@ export default function Dash() {
                 <title>Dashboard | NourishDMV</title>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
             </Head>
-            <main id="mainelem" style={{ overflow: 'hidden' }}>
+            <main id="mainelem" style={{ overflow: 'hidden' }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
                 <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen"><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
                 <video id="splashscreenIntro" playsInline muted className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
                 <div id="content" style={{ opacity: 0, overflow: "visible", transition: "all ease 0.5s" }} className={styles.sidebarContent}>
@@ -1387,17 +1452,21 @@ export default function Dash() {
                             </div>
                         </div>
                     </div>
-                    <div id="screens" style={{ overflowX: "hidden", overflowY: "hidden", padding: "15px" }}>
+                    <div id="screens" style={{ overflowX: "hidden", overflowY: "hidden", padding: "15px" }} onClick={() => {
+                        if (mobile && sidebarOpen) {
+                            hideSidebar();
+                            setUserSidebarOpen(false);
+                        }
+                    }}>
                         <div id="aag" className={styles.screen} style={{ marginTop: "0px" }}>
                             <div style={{ padding: "20px" }}>
-                                    <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: "70px auto 50px" }}>
-                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                        <h3 className={styles.screenheading}>At a glance</h3>
-                                        <div className={styles.loading} style={{ display: "none" }} id="aagloading"></div>
-                                    </div>
+                                <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: (mobile) ? "auto" : "70px auto" }}>
+                                    <button style={{ margin: (mobile) ? "0" : "auto" }} className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                    <h3 className={styles.screenheading}>At a glance</h3>
+                                </div>
                                 <div className={styles.divider}></div>
                                 <div id="admin" style={{ display: (adminView) ? "block" : "none" }}>
-                                    <h4 className={styles.screensubheading} style={{fontSize: "40px"}}>Today</h4>
+                                    <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>Today</h4>
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter} style={{ float: "inline-start", width: "500px", height: "98px", border: "dashed 1px rgb(214, 164, 78)", backgroundColor: "rgba(255, 208, 128, 0.692)" }}>
                                             <div className={styles.fullycenter} style={{ width: "100%" }}>
@@ -1427,7 +1496,7 @@ export default function Dash() {
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div style={{ position: "relative" }}>
-                                        <h4 className={styles.screensubheading} style={{fontSize: "40px"}}>Real-time User Activity Monitor</h4>
+                                        <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>Real-time User Activity Monitor</h4>
                                         <div style={{ margin: "20px" }}>
                                             <div className={styles.bentoboxShorter} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
                                                 <p style={{ margin: "0px", textAlign: "center" }} id="activeusersnum">0</p>
@@ -1463,7 +1532,7 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading} style={{fontSize: "40px"}}>{ new Date().toLocaleString('default', {month: 'long'}) }</h4>
+                                    <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>{new Date().toLocaleString('default', { month: 'long' })}</h4>
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
                                             <p style={{ margin: "0px", textAlign: "center" }} id="maagdonsamt">$0</p>
@@ -1498,7 +1567,7 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading} style={{fontSize: "40px"}}>All Time</h4>
+                                    <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>All Time</h4>
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
                                             <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">$0</p>
@@ -1521,7 +1590,7 @@ export default function Dash() {
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>homepage views</p>
                                         </div>
                                     </div>
-                                    
+
                                     <h4 className={styles.screensubheading}>Demographics</h4>
                                     <div style={{ margin: "20px" }}>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
@@ -1605,7 +1674,7 @@ export default function Dash() {
 
                                     <div>
                                         <h4 className={styles.screensubheading}>Recent Events</h4>
-                                        <div id="othereventsl" style={{ margin: "20px" }}>
+                                        <div id="othereventsl" style={{ margin: "20px", overflowX: "auto" }}>
                                             <div className={styles.card}>
                                                 <div className={styles.fullycenter} style={{ width: "100%" }}>
                                                     <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;500;600&display=swap');
+
 .sidebar {
     background-color: rgba(255, 208, 128, 0.692);
     border: solid 1px rgb(255, 208, 128);
@@ -145,11 +147,12 @@
     width: 300px;
     padding: 20px;
     min-height: 100px;
-    bottom: -50%;
+    bottom: -100%;
     left: 50%;
     transform: translateX(-50%);
     border-radius: 25px;
     position: absolute;
+    display: none;
     z-index: 100000;
 }
 
@@ -262,6 +265,8 @@
 
 .font {
     font-family: 'Outfit', sans-serif;
+    font-style: normal;
+    font-weight: 500;
 }
 
 .hover {

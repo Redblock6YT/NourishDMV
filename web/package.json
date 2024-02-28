@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@smakss/react-scroll-direction": "^4.0.4",
     "animejs": "^3.2.2",
     "axios": "^1.6.5",
     "crypto": "^1.0.1",
