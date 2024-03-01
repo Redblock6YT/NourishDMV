@@ -104,6 +104,7 @@ export default function Accounts() {
             duration: 300,
             easing: 'linear',
             complete: function (anim) {
+                document.getElementById("loading").style.display = "none";
                 document.getElementById("content").style.visibility = "visible";
                 anime({
                     targets: "#content",
@@ -210,6 +211,7 @@ export default function Accounts() {
 
     function submit() {
         const modal = document.getElementById("content");
+        document.getElementById("loading").style.display = "block";
         var goal = 0;
         var accepted = 0;
         for (let i = 0; i < modal.children.length; i++) {

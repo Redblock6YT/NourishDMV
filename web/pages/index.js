@@ -140,7 +140,6 @@ export default function Home() {
           eventcard.className = styles.itemEvents;
           eventcard.onclick = () => push("/dash?view=events&eventid=" + eventid);
           eventcard.style.borderRadius = "30px"
-          eventcard.style.marginRight = "20px"
           eventcard.style.width = "570px"
           eventcard.style.marginBottom = "20px"
           const eventcountdownline = document.createElement("a");
@@ -304,7 +303,9 @@ export default function Home() {
         icontext.style.margin = "auto"
         seeAllButton.appendChild(icontext);
         seeAllButton.onclick = () => push("/dash?view=events");
-        currentEventsList.appendChild(seeAllButton);
+        if (events.length > 3) {
+          currentEventsList.appendChild(seeAllButton);
+        }
       }
     }).catch((err) => {
       console.log(err);

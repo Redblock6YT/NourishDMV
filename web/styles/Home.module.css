@@ -167,7 +167,7 @@
 
 .currentEventsList {
     display: grid;
-    grid-template-columns: auto auto auto auto auto;
+    grid-template-columns: 620px 620px 620px 620px;
     position: absolute;
     width: 90%;
     overflow-x: hidden;

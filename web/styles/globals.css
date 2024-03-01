@@ -24,7 +24,7 @@ video::-internal-media-controls-overlay-cast-button {
 }
 
 .loading {
-  display: block;
+  display: none;
   position: absolute;
   top: 50%;
   left: 50%;
