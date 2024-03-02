@@ -7,6 +7,7 @@ import anime from 'animejs';
 import Footer from '@/components/NDMVFooter.jsx';
 import Cookies from 'js-cookie';
 import axios from 'axios'
+import { uuid } from 'uuidv4'
 
 export default function Home() {
   const router = useRouter();
@@ -14,6 +15,9 @@ export default function Home() {
   const [mobile, setMobile] = useState(false);
   const [loadContent, setLoadContent] = useState(false);
   const [intervalIds, setIntervalIds] = useState([]);
+
+  const [trackerUUID, setTrackerUUID] = useState("");
+  const [viewingContent, setViewingContent] = useState("hero");
 
   function openSidebar() {
     document.getElementById("mainelem").style.overflowY = "hidden"
@@ -90,7 +94,7 @@ export default function Home() {
 
     axios({
       method: "get",
-      url: "https://nourishapi.rygb.tech:8443/getEvents"
+      url: "https://nourishapi.rygb.tech/getEvents"
     }).then((res) => {
       if (res.status == 200) {
         console.log("got events")
@@ -115,7 +119,7 @@ export default function Home() {
           currentEventsList.appendChild(noevents);
         }
 
-        for (var i = 0; i < 4; i++) {
+        for (var i = 0; i < 3; i++) {
           if (events[i] == undefined) {
             continue;
           }
@@ -125,35 +129,20 @@ export default function Home() {
           const eventcontentcontainer = document.createElement("div");
           const eventdetailscontainer = document.createElement("div");
           eventcontentcontainer.style.display = "grid"
-          eventcontentcontainer.style.gridTemplateColumns = "200px auto 30px";
+          eventcontentcontainer.style.gridTemplateColumns = "auto 30px";
           eventcontentcontainer.style.gridGap = "15px"
-          eventcontentcontainer.style.width = "100%"
+          eventcontentcontainer.style.width = "90%"
+          eventcontentcontainer.style.margin = "auto";
+          eventcontentcontainer.style.transform = "translate(-50%, -50%)"
+          eventcontentcontainer.style.position = "absolute"
+          eventcontentcontainer.style.top = "50%"
+          eventcontentcontainer.style.left = "50%"
           eventcard.className = styles.itemEvents;
           eventcard.onclick = () => push("/dash?view=events&eventid=" + eventid);
           eventcard.style.borderRadius = "30px"
-          eventcard.style.marginRight = "20px"
           eventcard.style.width = "570px"
           eventcard.style.marginBottom = "20px"
-          const eventcountdown = document.createElement("div");
-          const countdownlabeltop = document.createElement("p");
-          const countdownlabelbottom = document.createElement("p");
-          const countdownnumbs = document.createElement("h2");
-          countdownlabeltop.style.margin = "0px"
-          countdownlabeltop.style.marginTop = "5px"
-          countdownlabeltop.style.fontSize = "20px"
-          countdownlabeltop.style.textAlign = "center"
-          countdownlabelbottom.style.margin = "0px"
-          countdownlabelbottom.style.textAlign = "center"
-          countdownlabelbottom.style.fontSize = "20px"
-          countdownnumbs.className = styles.font;
-          countdownnumbs.style.textAlign = "center"
-          countdownnumbs.style.margin = "0px"
-          countdownnumbs.style.fontSize = "55px"
-          countdownnumbs.style.color = "white"
-          const learnMoreVerbage = document.createElement("p");
-          learnMoreVerbage.innerHTML = "Learn more about this event";
-          learnMoreVerbage.style.marginTop = "10px"
-          learnMoreVerbage.style.fontWeight = "normal"
+          const eventcountdownline = document.createElement("a");
 
           var eventStatus = calculateEventStatus(event.startDateTime, event.endDateTime);
           var registrationStatus = calculateEventStatus(event.registrationStartDateTime, event.registrationEndDateTime);
@@ -162,9 +151,7 @@ export default function Home() {
             eventcard.className = [styles.itemPending, styles.itemEvents].join(" ")
             const interval = setInterval(() => {
               var timeDifference = calculateTimeDifference(event.registrationStartDateTime);
-              countdownlabeltop.innerHTML = "Registration opens";
-              countdownnumbs.innerHTML = timeDifference.value;
-              countdownlabelbottom.innerHTML = timeDifference.unit;
+              eventcountdownline.innerHTML = "Registration opens in " + timeDifference.value + " " + timeDifference.unit;
               if (timeDifference.value <= 0) {
                 clearInterval();
                 refreshEvents();
@@ -176,9 +163,7 @@ export default function Home() {
             eventcard.style.animation = styles.pulse2 + " 3s infinite linear"
             const interval = setInterval(() => {
               var timeDifference = calculateTimeDifference(event.registrationEndDateTime);
-              countdownlabeltop.innerHTML = "Registration closes";
-              countdownnumbs.innerHTML = timeDifference.value;
-              countdownlabelbottom.innerHTML = timeDifference.unit;
+              eventcountdownline.innerHTML = "Registration closes in " + timeDifference.value + " " + timeDifference.unit;
               if (timeDifference.value <= 0) {
                 refreshEvents();
                 clearInterval();
@@ -191,9 +176,7 @@ export default function Home() {
               //show how many days ago the event ended, but if the time is less than 24 hours, show how many hours ago. if the time is less than 1 hour, show how many minutes ago. if the time is less than 1 minute, show how many seconds ago
               const interval = setInterval(() => {
                 var timeDifference = calculateTimeAgoDifference(event.endDateTime);
-                countdownlabeltop.innerHTML = "Ended";
-                countdownnumbs.innerHTML = timeDifference.value;
-                countdownlabelbottom.innerHTML = timeDifference.unit;
+                eventcountdownline.innerHTML = "Ended " + timeDifference.value + " " + timeDifference.unit;
                 if (timeDifference.value <= 0) {
                   refreshEvents();
                   clearInterval();
@@ -205,9 +188,7 @@ export default function Home() {
               //show how many hours left in the event, but if the time is longer than 24 hours, show how many days left. if the time is less than 1 hour, show how many minutes left. if the time is less than 1 minute, show how many seconds left
               const interval = setInterval(() => {
                 var timeDifference = calculateTimeDifference(event.endDateTime);
-                countdownlabeltop.innerHTML = "Ends in";
-                countdownnumbs.innerHTML = timeDifference.value;
-                countdownlabelbottom.innerHTML = timeDifference.unit;
+                eventcountdownline.innerHTML = "Ends in " + timeDifference.value + " " + timeDifference.unit;
                 if (timeDifference.value <= 1) {
                   refreshEvents();
                   clearInterval();
@@ -220,9 +201,7 @@ export default function Home() {
               //Pending means that the registration window has not begun yet
               const interval = setInterval(() => {
                 var timeDifference = calculateTimeDifference(event.startDateTime);
-                countdownlabeltop.innerHTML = "Starts in";
-                countdownnumbs.innerHTML = timeDifference.value;
-                countdownlabelbottom.innerHTML = timeDifference.unit;
+                eventcountdownline.innerHTML = "Starts in " + timeDifference.value + " " + timeDifference.unit;
                 if (timeDifference.value <= 0) {
                   refreshEvents();
                   clearInterval();
@@ -232,18 +211,11 @@ export default function Home() {
             }
           }
 
-          eventcountdown.style.backgroundColor = "#0000003b";
-          eventcountdown.style.borderRadius = "25px"
-          eventcountdown.style.height = "130px"
-          eventcountdown.style.zIndex = "10"
-          eventcountdown.appendChild(countdownlabeltop);
-          eventcountdown.appendChild(countdownnumbs);
-          eventcountdown.appendChild(countdownlabelbottom);
-
           const eventcontent = document.createElement("div");
           const eventtitle = document.createElement("h3");
           eventtitle.innerHTML = event.title;
           eventtitle.style.margin = "0px"
+          eventcontent.appendChild(eventcountdownline);
           eventcontent.appendChild(eventtitle);
 
           if (event.location != "") {
@@ -278,7 +250,6 @@ export default function Home() {
           eventdates.appendChild(eventdicon);
           eventdates.appendChild(eventdatestext);
           eventcontent.appendChild(eventdates);
-          eventcontent.appendChild(learnMoreVerbage);
 
           const icon = document.createElement("span");
           icon.className = "material-symbols-rounded";
@@ -287,7 +258,6 @@ export default function Home() {
           icon.style.margin = "auto"
           icon.style.marginRight = "0px"
 
-          eventcontentcontainer.appendChild(eventcountdown)
           if (mobile) {
             eventcontentcontainer.style.gridTemplateColumns = "auto"
             eventcard.style.height = "300px"
@@ -305,6 +275,36 @@ export default function Home() {
 
           eventcard.appendChild(eventcontentcontainer);
           currentEventsList.appendChild(eventcard);
+        }
+
+        const seeAllButton = document.createElement("div");
+        seeAllButton.className = styles.expandItem;
+        const icontext = document.createElement("div");
+        icontext.style.display = "grid";
+        icontext.style.gridTemplateColumns = "auto";
+        const icon = document.createElement("span");
+        icon.className = "material-symbols-rounded";
+        icon.innerHTML = "open_in_new";
+        icon.style.fontSize = "60px";
+        icon.style.margin = "auto";
+
+        const text = document.createElement("p");
+        text.innerHTML = "View more"
+        text.style.margin = "auto";
+        text.style.fontSize = "40px";
+        text.style.fontWeight = "bold";
+        icontext.appendChild(icon);
+        icontext.appendChild(text);
+        icontext.style.position = "absolute";
+        icontext.style.top = "50%";
+        icontext.style.left = "50%";
+        icontext.style.transform = "translate(-50%, -50%)";
+
+        icontext.style.margin = "auto"
+        seeAllButton.appendChild(icontext);
+        seeAllButton.onclick = () => push("/dash?view=events");
+        if (events.length > 3) {
+          currentEventsList.appendChild(seeAllButton);
         }
       }
     }).catch((err) => {
@@ -380,6 +380,60 @@ export default function Home() {
   }, [loadContent])
 
   useEffect(() => {
+    if (trackerUUID != "") {
+      Cookies.set("trackerUUID", trackerUUID);
+      axios({
+        method: "post",
+        url: "https://nourishapi.rygb.tech/track",
+        data: {
+          uuid: trackerUUID,
+          page: "Homepage",
+          view: viewingContent,
+        }
+      })
+    }
+  }, [trackerUUID, viewingContent]);
+
+
+  //from https://gist.github.com/jjmu15/8646226
+  function isInViewport(ele) {
+    const { top, bottom } = ele.getBoundingClientRect();
+    const vHeight = (window.innerHeight || document.documentElement.clientHeight);
+
+    return (
+      (top > 0 || bottom > 0) &&
+      top < vHeight
+    );
+  }
+
+  function handleScroll() {
+    const footer = document.getElementById("footer");
+    const getintouch = document.getElementById("getInTouch");
+    const makeDifference = document.getElementById("makeDifference");
+    const howhelp = document.getElementById("howhelplist");
+    const goalgrid = document.getElementById("goalgrid");
+    const hero = document.getElementById("hero");
+
+    if (isInViewport(footer)) {
+      setViewingContent("footer");
+    } else if (isInViewport(getintouch)) {
+      setViewingContent("getintouch");
+    } else if (isInViewport(makeDifference)) {
+      setViewingContent("makeDifference");
+    } else if (isInViewport(howhelp)) {
+      setViewingContent("howhelp");
+    } else if (isInViewport(goalgrid)) {
+      setViewingContent("goalgrid");
+    } else if (isInViewport(hero)) {
+      setViewingContent("hero");
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+  });
+
+  useEffect(() => {
     if (router.isReady) {
       //once the page is fully loaded, play the splashscreen outro
       if (window.innerWidth <= 600) {
@@ -415,8 +469,14 @@ export default function Home() {
       }
 
       setLoadContent(true);
-      window.scrollTo(0, 0);
+      //window.scrollTo(0, 0);
       //playing the splashscreen is not essential, if it errors, just fade
+
+      if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+        setTrackerUUID(uuid());
+      } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+        setTrackerUUID(Cookies.get("trackerUUID"));
+      }
 
       document.getElementById("splashscreenOutro").play().catch((e) => {
         console.log(e)
@@ -483,7 +543,7 @@ export default function Home() {
               <span id="menuicon" class="material-symbols-rounded" style={{ fontSize: "30px", margin: "auto", cursor: "pointer", display: "none" }} onClick={() => openSidebar()}>menu</span>
               <Image style={{ marginLeft: "5px" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
             </div>
-            <div id="buttons" style={{position: "absolute", right: "5px", top: "5px"}} className={styles.navbtngrid}>
+            <div id="buttons" style={{ position: "absolute", right: "5px", top: "5px" }} className={styles.navbtngrid}>
               <div id="dashbtn" onClick={() => push("/dash")} style={{ margin: "auto", height: "35px", width: "100%", gridTemplateColumns: "50px auto", backgroundColor: "#00000034", gridGap: "5px" }} className={[styles.button, styles.doublegrid].join(" ")}>
                 <span style={{ fontSize: "30px", margin: "auto", display: "block" }} class="material-symbols-rounded">space_dashboard</span>
                 <p style={{ margin: "0px", fontSize: "23px", textAlign: "left", marginRight: "10px", margin: "auto", color: "rgb(255 255 255 / 76%)" }} className={styles.font}>Dashboard</p>
@@ -513,18 +573,18 @@ export default function Home() {
 
             <div id="innerContent" style={{ padding: "15px 0px" }}>
               <div id="currentEvents" style={{ marginTop: "15px" }}>
-                <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Happening Now</h3>
-                <div id="currentEventsList">
+                <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "15px" }}>Happening Now</h3>
+                <div id="currentEventsList" className={styles.currentEventsList}>
                   <div id="noevents" className={styles.item} style={{ cursor: "unset" }}>
                     <p style={{ color: "rgba(0, 0, 0, 0.300)", margin: "0", width: "100%", textAlign: "center" }} className={styles.fullycenter}>No events to show</p>
                   </div>
                 </div>
               </div>
-              <div id="makeDifference" className={styles.divider}></div>
+              <div className={styles.divider} style={{ marginTop: "240px" }}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto" }}>
                 <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
-                <button className={styles.button} style={{ margin: "auto", height: "300px", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
+                <button className={styles.button} style={{ margin: "auto", height: "300px", color: "black", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
               </div>
               <div style={{ position: "relative" }}>
                 <div className={styles.divider}></div>
@@ -574,91 +634,125 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.divider}></div>
-              <div style={{ display: "none" }}>
-                <h3 className={styles.header} style={{ color: "black", marginLeft: "20px" }}>See how we've been <a style={{ backgroundColor: "rgb(251, 172, 41)" }}>impacting our community</a></h3>
-                <h4 className={styles.subheader} style={{ marginLeft: "20px", marginBottom: "20px" }}>Our blog</h4>
-                <div>
-                  <div className={styles.redirectcard} onClick={() => push("/dash?view=blog")}>
-                    <div className={styles.fullycenter}>
-                      <div style={{ position: "relative" }}>
-                        <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "140px", height: "140px", filter: "blur(20px)", transform: "translateY(-50%) translateX(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
-                        <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                          <span style={{ fontSize: "50px" }} className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                            open_in_new
-                          </span>
-                        </div>
-                      </div>
-                      <p style={{ margin: "auto", fontSize: "50px", width: "100%", textAlign: "center", marginTop: "50px" }}>See All</p>
+              <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>How we help</h3>
+              <p className={styles.description} style={{ fontSize: "25px", padding: "0px 20px" }}>
+                See how NourishDMV makes an impact in commuinities across the DMV.
+              </p>
+              <div id="howhelplist">
+                <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
+                  <div style={{ position: "relative" }}>
+                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", filter: "blur(40px)", width: "100%", borderRadius: "25px" }}></img>
+                    <img alt="people laying on beds in a homeless shelter" src="sheltersandfoodbanks.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
+                  </div>
+                  <div>
+                    <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Homeless Shelters & Food Banks</h3>
+                    <p className={styles.description} style={{ fontSize: "25px" }}>
+                      NourishDMV and its partners founded shelters across the DMV to house those experiencing homelessness and provide them with food and water.
+                    </p>
+                    <div className={styles.doublegrid} style={{ marginTop: "10px" }}>
+                      <button className={styles.minibutton} style={{ width: "100%" }}>Find a Homeless Shelter</button>
+                      <button className={styles.minibutton} style={{ width: "100%" }}>Find a Food Bank</button>
                     </div>
 
                   </div>
                 </div>
-                <div className={styles.divider}></div>
+                <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
+                  <div>
+                    <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Events</h3>
+                    <p className={styles.description} style={{ fontSize: "25px" }}>
+                      NourishDMV hosts events to raise money for it's mission, aswell as to raise awareness about homelessness and hunger in the DMV.
+                    </p>
+                    <button className={styles.minibutton} onClick={() => push("/dash?view=events")} style={{ width: "100%", marginTop: "10px" }}>View Events</button>
+                  </div>
+                  <div style={{ position: "relative" }}>
+                    <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(40px)", }}></img>
+                    <img alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
+                  </div>
+                </div>
+                <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
+                  <div style={{ position: "relative", border: "10px solid black", borderRadius: "25px" }}>
+                    <img alt="NourishDMV Logo" src="ndmv_ss_static.png" style={{ objectFit: "cover", height: "100%", width: "100%", position: "relative", zIndex: -1 }}></img>
+                  </div>
+                  <div>
+                    <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Spreading the word</h3>
+                    <p className={styles.description} style={{ fontSize: "25px" }}>
+                      We run advertisements and campaigns to raise awareness & encourage action about homelessness and hunger in the DMV.
+                    </p>
+                    <button className={styles.minibutton} onClick={() => push("/dash?view=volunteer")} style={{ width: "100%", marginTop: "10px" }}>Join our team</button>
+                  </div>
+                </div>
               </div>
-
-              <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Get in touch</h3>
-              <div className={styles.contactgrid}>
-                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
-                  <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
-                    (410) 123-4567
-                  </div>
-                  <div style={{ position: "relative" }}>
-                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
-                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                        call
-                      </span>
-                    </div>
-                  </div>
+              <div className={styles.divider} id="makeDifference"></div>
+              <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Let's make a difference <a style={{ backgroundColor: "#fbac29ff" }}>together</a></h3>
+              <div className={styles.doublegrid} style={{ margin: "auto", gridGap: "0px" }}>
+                <div style={{ borderRight: "1px solid rgba(0, 0, 0, 0.104)", padding: "20px" }}>
+                  <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Change Lives</a></h3>
+                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>You have the power to change the lives of 21,808 homeless individiuals by volunteering at our Homeless Shelters, Food Banks, or events to provide them with food, shelter, and hope.</p>
+                  <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Network</a></h3>
+                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>Network with other passionate and caring individuals who share a passion for volunteering.</p>
+                  <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Teamwork</a></h3>
+                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>Be a part of a team that works together to save lives and create a better DMV.</p>
                 </div>
-                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginLeft: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "mailto:contact@nourishdmv.com"}>
-                  <div style={{ position: "relative" }}>
-                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
-                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                        email
-                      </span>
-                    </div>
-
-                  </div>
-                  <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "30px" }}>
-                    contact<br />@nourishdmv.com
-                  </div>
+                <div style={{ borderLeft: "1px solid rgba(0, 0, 0, 0.104)", padding: "20px 0px 20px 50px", display: "grid", gap: "30px", gridTemplateRows: "1fr 1fr" }}>
+                  <button className={styles.button} style={{ margin: "auto", height: "100%", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "30px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
+                  <button className={styles.button} style={{ margin: "auto", height: "100%", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "0px", color: "black", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
                 </div>
-                <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "https://www.google.com/maps/dir//16701+Melford+Blvd+%23421,+Bowie,+MD+20715/@38.9611344,-76.7158268,19z/data=!4m9!4m8!1m0!1m5!1m1!1s0x89b7ec1769408c5f:0x5e0035c97d3c3f24!2m2!1d-76.7146091!2d38.9611344!3e0?entry=ttu"}>
-                  <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "25px" }}>
-                    16701 Melford Blvd, Bowie, MD 20715
-                    <h2 className={styles.subheader} style={{ fontSize: "20px" }}>headquarters</h2>
-                  </div>
-                  <div style={{ position: "relative" }}>
-                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "0", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
-                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                        pin_drop
-                      </span>
+              </div>
+              <div className={styles.divider}></div>
+              <div style={{ position: "relative" }} id="getInTouch">
+                <div className={styles.blurredCircle} style={{ position: "absolute", top: "-100%", left: "50%", height: "500px", width: "500px", zIndex: "-1", filter: "blur(150px)", transform: "translateX(-50%)", backgroundColor: "rgb(227, 171, 74)" }}></div>
+                <h3 className={styles.header} style={{ color: "black", marginBottom: "40px", textAlign: "center" }}>Get in touch</h3>
+                <div className={styles.contactgrid}>
+                  <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
+                    <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
+                      (410) 123-4567
                     </div>
-                  </div>
-                </div>
-                <div className={styles.item} style={{ margin: "auto", marginLeft: "0px", cursor: "default" }}>
-                  <div style={{ position: "relative", height: "100%", filter: "blur(20px)" }}>
-                    <div style={{ position: "absolute" }} className={styles.fullycenter}>
-                      <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ left: "50%", width: "120px", height: "120px", filter: "blur(20px)", transform: "translateX(-50%) translateY(-50%)", backgroundColor: "rgb(227, 171, 74)", zIndex: "1" }}></div>
+                    <div style={{ position: "relative" }}>
                       <div style={{ zIndex: "5" }} className={styles.fullycenter}>
                         <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                          alternate_email
+                          call
                         </span>
                       </div>
                     </div>
                   </div>
-                  <div className={styles.fullycenter} style={{ width: "100%" }}>
-                    <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
-                      <h2 className={styles.subheader} style={{ fontSize: "20px" }}>Social Media</h2>
-                      @nourishdmv
+                  <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginLeft: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "mailto:contact@nourishdmv.com"}>
+                    <div style={{ position: "relative" }}>
+                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                        <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                          email
+                        </span>
+                      </div>
+
+                    </div>
+                    <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "30px" }}>
+                      contact<br />@nourishdmv.com
                     </div>
                   </div>
+                  <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "https://www.google.com/maps/dir//16701+Melford+Blvd+%23421,+Bowie,+MD+20715/@38.9611344,-76.7158268,19z/data=!4m9!4m8!1m0!1m5!1m1!1s0x89b7ec1769408c5f:0x5e0035c97d3c3f24!2m2!1d-76.7146091!2d38.9611344!3e0?entry=ttu"}>
+                    <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "25px" }}>
+                      16701 Melford Blvd, Bowie, MD 20715
+                      <h2 className={styles.subheader} style={{ fontSize: "20px" }}>headquarters</h2>
+                    </div>
+                    <div style={{ position: "relative" }}>
+                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                        <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
+                          pin_drop
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.item} style={{ margin: "auto", marginLeft: "0px", cursor: "default" }}>
+                    <div className={styles.fullycenter} style={{ width: "100%" }}>
+                      <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
+                        <h2 className={styles.subheader} style={{ fontSize: "20px" }}>Social Media</h2>
+                        @nourishdmv
+                      </div>
+                    </div>
 
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
           <Footer citations={[
@@ -677,6 +771,18 @@ export default function Home() {
             }, {
               name: "Image 2",
               citation: `NC 211 "people laying on beds in a homeless shelter" NC 211, 4 October 2022, https://nc211.org/shelters/`
+            }, {
+              name: "Haven Ministries Shelter",
+              citation: `"Haven Ministries Shelter - Haven Ministries" https://www.google.com/url?sa=i&url=https%3A%2F%2Fhaven-ministries.org%2Fhaven-ministries-shelter%2F&psig=AOvVaw272pnXRRshV4CBChB8ibYh&ust=1708470305797000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCKiT9f3BuIQDFQAAAAAdAAAAABAE`
+            }, {
+              name: "Capital Area Food Bank",
+              citation: `"Food Bank for the Washington, DC, Region | Capital Area Food Bank" https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.capitalareafoodbank.org%2F&psig=AOvVaw1oE-_zud0zvrdh5-GSlh9h&ust=1708470331792000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCICnsIrCuIQDFQAAAAAdAAAAABAE`
+            }, {
+              name: "Instrumentl Fundraising Event Image",
+              citation: `team, Instrumentl. “How to Start a Successful Nonprofit Fundraising Event in 7 Steps.” Instrumentl, 3 Aug. 2022, www.instrumentl.com/blog/how-to-start-successful-nonprofit-fundraising-event. `
+            }, {
+              name: "Caritas of Austin Event Image",
+              citation: `“4 Ways You Can Contribute to Nonprofit Events.” Caritas of Austin, 15 Aug. 2023, caritasofaustin.org/blog/4-ways-you-can-contribute-to-nonprofit-events/. `
             }
           ]} />
         </div>

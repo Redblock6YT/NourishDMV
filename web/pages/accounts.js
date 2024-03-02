@@ -7,12 +7,30 @@ import anime from 'animejs';
 import Image from 'next/image';
 import axios from 'axios';
 import crypto from 'crypto';
+import { uuid } from 'uuidv4';
 
 export default function Accounts() {
     const router = useRouter();
     const [view, setView] = useState('norm');
     const [mobile, setMobile] = useState(false);
     const [actionType, setActionType] = useState("Sign In");
+
+    const [trackerUUID, setTrackerUUID] = useState("");
+
+    useEffect(() => {
+        if (trackerUUID != "") {
+            Cookies.set("trackerUUID", trackerUUID);
+            axios({
+                method: "post",
+                url: "https://nourishapi.rygb.tech/track",
+                data: {
+                    uuid: trackerUUID,
+                    page: "Accounts",
+                    view: (view == "norm") ? "Landing" : actionType,
+                }
+            })
+        }
+    }, [view, trackerUUID]);
 
     function push(path) {
         if (router.isReady) {
@@ -86,6 +104,7 @@ export default function Accounts() {
             duration: 300,
             easing: 'linear',
             complete: function (anim) {
+                document.getElementById("loading").style.display = "none";
                 document.getElementById("content").style.visibility = "visible";
                 anime({
                     targets: "#content",
@@ -192,6 +211,7 @@ export default function Accounts() {
 
     function submit() {
         const modal = document.getElementById("content");
+        document.getElementById("loading").style.display = "block";
         var goal = 0;
         var accepted = 0;
         for (let i = 0; i < modal.children.length; i++) {
@@ -258,12 +278,17 @@ export default function Accounts() {
                             if (actionType == "Sign In") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: 'https://nourishapi.rygb.tech:8443/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
+                                    url: 'https://nourishapi.rygb.tech/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
                                     method: 'get',
                                 }).then((result) => {
                                     if (result.data.status == "Sign In approved.") {
                                         Cookies.set("account", result.data.uuid);
-                                        push("/dash");
+                                        if (router.query.redirect != undefined) {
+                                            push(router.query.redirect);
+                                        } else {
+                                            push("/dash");
+                                        }
+
                                     }
                                 }).catch((err) => {
                                     console.log(err)
@@ -347,7 +372,7 @@ export default function Accounts() {
                             } else if (actionType == "Sign Up") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: "https://nourishapi.rygb.tech:8443/createAccount",
+                                    url: "https://nourishapi.rygb.tech/createAccount",
                                     method: 'post',
                                     data: {
                                         email: document.getElementById("email").value,
@@ -359,7 +384,11 @@ export default function Accounts() {
                                 }).then((res) => {
                                     if (res.data.status == "Account created.") {
                                         Cookies.set("account", res.data.uuid);
-                                        push("/dash");
+                                        if (router.query.redirect != undefined) {
+                                            push(router.query.redirect);
+                                        } else {
+                                            push("/dash");
+                                        }
                                     }
                                 }).catch((err) => {
                                     animateBackground("in");
@@ -495,6 +524,12 @@ export default function Accounts() {
                     })
                 }, 500)
             }
+
+            if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+                setTrackerUUID(uuid());
+            } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+                setTrackerUUID(Cookies.get("trackerUUID"));
+            }
         }
     }, [router.isReady]);
 
@@ -549,8 +584,8 @@ export default function Accounts() {
                                     <input required style={{ display: "none" }} className={styles.input} type="text" onInput={() => clearErrors("name")} id="name" placeholder="Full Name"></input>
                                     <input required style={{ display: "none" }} className={styles.input} type="tel" onInput={() => clearErrors("phone")} id="phone" placeholder="Phone Number"></input>
                                 </div>
-                                <div className={styles.doublegrid} style={{gridTemplateColumns: "75px auto", display: (actionType == "Sign Up") ? "grid" : "none"}}>
-                                    <p style={{fontSize: "25px", margin: "0px", marginTop: "5px", textAlign: "right"}}>Area</p>
+                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "75px auto", display: (actionType == "Sign Up") ? "grid" : "none" }}>
+                                    <p style={{ fontSize: "25px", margin: "0px", marginTop: "5px", textAlign: "right" }}>Area</p>
                                     <select className={styles.input} id="area">
                                         <option>D.C.</option>
                                         <option>Maryland</option>
