@@ -295,6 +295,73 @@
     grid-gap: 25px;
 }
 
+.viewnavbar {
+    display: grid;
+    grid-template-columns: auto 230px;
+    grid-gap: 15px;
+}
+
+.viewbentobox {
+    border-radius: 25px;
+    width: 250px;
+    height: 100px;
+    background-color: #e3ab4a;
+    position: relative;
+    font-family: 'Outfit', sans-serif;
+    font-size: 50px;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 20px;
+    color: #ffe5b9;
+    transition: ease 0.5s all;
+}
+
+.viewbentobox p {
+    margin: 0px;
+    text-align: center;
+}
+
+.eventsTodayBento {
+    float: inline-start;
+    width: 500px;
+    height: 98px;
+    margin-right: 10px;
+    padding: 20px;
+    margin-bottom: 10px;
+    border: dashed 1px rgb(214, 164, 78);
+    background-color: rgba(255, 208, 128, 0.692);
+    border-radius: 25px;
+    position: relative;
+}
+
+.bentoboxCont {
+    margin: 20px;
+}
+
+@media(max-width: 1055px) {
+    .viewbentobox {
+        min-height: 50px;
+        height: auto;
+        min-width: 150px;
+        width: auto;
+        padding: 15px;
+    }
+
+    .viewbentobox p {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .eventsTodayBento {
+        height: 48px;
+    }
+    .bentoboxCont {
+        margin: 20px 0px;
+    }
+}
+
 .managebutton {
     height: 45px;
     width: 100%;
@@ -644,11 +711,10 @@
 
 @media (max-width: 800px) {
     .eventsoverlay {
-        width: 100%;
+        width: 95%;
         position: absolute;
         transform: translate(50%, 50%);
         height: 95%;
-        margin-top: 50px;
         padding: 5% 1%;
     }
 

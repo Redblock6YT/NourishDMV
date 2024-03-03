@@ -22,7 +22,7 @@ export default function Accounts() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8443/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Accounts",
@@ -278,7 +278,7 @@ export default function Accounts() {
                             if (actionType == "Sign In") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: 'https://nourishapi.rygb.tech/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
+                                    url: 'http://localhost:8443/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
                                     method: 'get',
                                 }).then((result) => {
                                     if (result.data.status == "Sign In approved.") {
@@ -372,7 +372,7 @@ export default function Accounts() {
                             } else if (actionType == "Sign Up") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: "https://nourishapi.rygb.tech/createAccount",
+                                    url: "http://localhost:8443/createAccount",
                                     method: 'post',
                                     data: {
                                         email: document.getElementById("email").value,
@@ -490,10 +490,12 @@ export default function Accounts() {
                 window.scrollTo(0, 0);
                 if (window.innerWidth <= 600) {
                     setMobile(true);
-                    document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_mobile.mp4";
-                    document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_mobile.mp4";
                     document.getElementById("smallervidintro").src = "accounts_animatedbackground_intro_mobile.mp4";
                     document.getElementById("smallervidoutro").src = "accounts_animatedbackground_outro_mobile.mp4";
+                }
+                if (window.innerWidth <= 1450) {
+                    document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_notext.mp4";
+                    document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_notext.mp4";
                 }
 
                 document.getElementById("splashscreenOutro").play().catch((err) => {

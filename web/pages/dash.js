@@ -55,8 +55,10 @@ export default function Dash() {
         if (isLeftSwipe || isRightSwipe) console.log('swipe', isLeftSwipe ? 'left' : 'right')
         if (isLeftSwipe) {
             hideSidebar();
+            setUserSidebarOpen(false);
         } else if (isRightSwipe) {
             showSidebar();
+            setUserSidebarOpen(true);
         }
         // add your conditional logic here
     }
@@ -78,7 +80,7 @@ export default function Dash() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8443/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -199,7 +201,7 @@ export default function Dash() {
         const exitFunction = () => {
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8443/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Inactive",
@@ -231,7 +233,7 @@ export default function Dash() {
                 if (view == "accounts") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getAccounts",
+                        url: "http://localhost:8443/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -289,7 +291,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getEvents"
+                        url: "http://localhost:8443/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         //sort the events array based on the event start date time
@@ -356,6 +358,7 @@ export default function Dash() {
                             icon.style.margin = "auto"
                             icon.style.marginRight = "0px"
                             eventItem.className = [styles.itemEvents, styles.doublegrid].join(" ");
+                            eventItem.style.gridTemplateColumns = "auto 50px";
 
                             var registrationStatus = calculateEventStatus(event.registrationStartDateTime, event.registrationEndDateTime);
                             if (registrationStatus == "Pending") {
@@ -440,7 +443,7 @@ export default function Dash() {
                 } else if (view == "donations") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getDonations"
+                        url: "http://localhost:8443/getDonations"
                     }).then((res) => {
                         const accounts = res.data.reverse();
                         var amount = 0;
@@ -513,7 +516,7 @@ export default function Dash() {
                 } else if (view == "aag") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getTotalUsers"
+                        url: "http://localhost:8443/getTotalUsers"
                     }).then((res) => {
                         var users = res.data;
                         document.getElementById("totaluserstd").innerHTML = users.today;
@@ -557,7 +560,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "https://nourishapi.rygb.tech/getEvent?id=" + id
+                url: "http://localhost:8443/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -578,7 +581,7 @@ export default function Dash() {
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "https://nourishapi.rygb.tech/registerEvent",
+                                    url: "http://localhost:8443/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -620,7 +623,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "https://nourishapi.rygb.tech/unregisterEvent",
+                                url: "http://localhost:8443/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -715,7 +718,7 @@ export default function Dash() {
             complete: function (anim) {
                 document.getElementById(overlayId).style.display = "none";
                 document.getElementById("events").style.overflowY = "auto";
-                if (!mobileRef.current) {
+                if (!mobileRef.current && userSidebarOpen) {
                     showSidebar();
                 }
             }
@@ -735,6 +738,40 @@ export default function Dash() {
         return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
 
+    function collapse(element, collapseHeight, icon, force) {
+        console.log(document.getElementById(element).style.height);
+        if (force != undefined) {
+            if (!force) {
+                //expand
+                console.log("expand");
+                document.getElementById(element).style.height = "auto";
+                document.getElementById(icon).innerHTML = "expand_circle_up";
+                document.getElementById(element).style.overflow = "auto";
+            } else {
+                console.log("collapse");
+                document.getElementById(element).style.height = collapseHeight + "px";
+                document.getElementById(icon).innerHTML = "expand_circle_down";
+                document.getElementById(element).style.overflow = "hidden";
+            }
+        } else {
+            if (document.getElementById(element).style.height == collapseHeight + "px") {
+                //expand
+                console.log("expand");
+                document.getElementById(element).style.height = "auto";
+                document.getElementById(icon).innerHTML = "expand_circle_up";
+                document.getElementById(element).style.overflow = "auto";
+            } else {
+                //collapse
+                console.log("collapse");
+                document.getElementById(element).style.height = collapseHeight + "px";
+                document.getElementById(icon).innerHTML = "expand_circle_down";
+                document.getElementById(element).style.overflow = "hidden";
+            }
+        }
+
+
+    }
+
     useEffect(() => {
         anime({
             targets: "#v" + step + currentOverlayType,
@@ -751,7 +788,7 @@ export default function Dash() {
                 // "process" the donation
                 axios({
                     method: "post",
-                    url: "https://nourishapi.rygb.tech/addDonation",
+                    url: "http://localhost:8443/addDonation",
                     data: {
                         amount: parseFloat(document.getElementById("v1damt").value).toFixed(2),
                     }
@@ -831,7 +868,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "https://nourishapi.rygb.tech/getEvent?id=" + selectedEvent
+                    url: "http://localhost:8443/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost + " to register for " + res.data.event.title;
                 }).catch((err) => {
@@ -840,7 +877,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "https://nourishapi.rygb.tech/registerEvent",
+                    url: "http://localhost:8443/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -946,7 +983,7 @@ export default function Dash() {
             donate.style.display = "block";
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8443/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -958,7 +995,7 @@ export default function Dash() {
             volunteer.style.display = "block";
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8443/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1017,7 +1054,7 @@ export default function Dash() {
         setStep(0);
         axios({
             method: "post",
-            url: "https://nourishapi.rygb.tech/track",
+            url: "http://localhost:8443/track",
             data: {
                 uuid: trackerUUID,
                 page: "Dashboard",
@@ -1110,7 +1147,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "https://nourishapi.rygb.tech/getAccount?uuid=" + account
+                url: "http://localhost:8443/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1120,7 +1157,7 @@ export default function Dash() {
                         if (viewState == "aag") {
                             axios({
                                 method: "get",
-                                url: "https://nourishapi.rygb.tech/getTrackerStats"
+                                url: "http://localhost:8443/getTrackerStats"
                             }).then((res) => {
                                 const stats = res.data;
                                 console.log(stats);
@@ -1322,31 +1359,79 @@ export default function Dash() {
     }
 
     useEffect(() => {
-        if (router.isReady) {
-            //once the page is fully loaded, play the splashscreen outro
-            if (window.innerWidth <= 600) {
-                setMobile(true);
-                console.log("mobile")
-                document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_mobile.mp4";
-                document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_mobile.mp4";
+        //once the page is fully loaded, play the splashscreen outro
+
+        if (Cookies.get("account") != undefined) {
+            setAccount(Cookies.get("account"));
+        }
+
+        if (window.innerWidth <= 1060) {
+            hideSidebar();
+            collapse("dashboarduam", 53, "dashuamico", true);
+            collapse("accountsuam", 53, "accuamcico", true);
+            collapse("homepageuam", 53, "hpuamcico", true);
+        } else {
+            showSidebar();
+            collapse("dashboarduam", 53, "dashuamico", false);
+            collapse("accountsuam", 53, "accuamcico", false);
+            collapse("homepageuam", 53, "hpuamcico", false);
+        }
+
+        window.addEventListener("resize", () => {
+            if (window.innerWidth <= 1060) {
                 hideSidebar();
+                collapse("dashboarduam", 53, "dashuamico", true);
+                collapse("accountsuam", 53, "accuamcico", true);
+                collapse("homepageuam", 53, "hpuamcico", true);
+            } else {
+                showSidebar();
+                collapse("dashboarduam", 53, "dashuamico", false);
+                collapse("accountsuam", 53, "accuamcico", false);
+                collapse("homepageuam", 53, "hpuamcico", false);
             }
+        });
 
-            if (Cookies.get("account") != undefined) {
-                setAccount(Cookies.get("account"));
+        refresh("accounts");
+        refresh("events");
+        refresh("donations");
+
+        if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+            setTrackerUUID(uuid());
+        } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+            setTrackerUUID(Cookies.get("trackerUUID"));
+        }
+
+        window.scrollTo(0, 0);
+        if (window.innerWidth <= 600) {
+            setMobile(true);
+            console.log("mobile")
+            document.getElementById("splashscreenOutro").style.display = "none";
+            document.body.style.overflowY = "hidden"
+            if (router.query.view != undefined) {
+                if (router.query.view == "volunteer") {
+                    openOverlay("v");
+                } else if (router.query.view == "donate") {
+                    openOverlay("d");
+                } else {
+                    if (router.query.eventid != undefined) {
+                        openEventOverlay("vieweventsoverlay", router.query.eventid);
+                    }
+                    switchView(router.query.view);
+                }
             }
-
-            refresh("accounts");
-            refresh("events");
-            refresh("donations");
-
-            if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
-                setTrackerUUID(uuid());
-            } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
-                setTrackerUUID(Cookies.get("trackerUUID"));
+            anime({
+                targets: '#content',
+                opacity: 1,
+                duration: 200,
+                delay: 500,
+                easing: 'linear'
+            })
+        } else {
+            document.getElementById("splashscreenOutro").style.display = "block";
+            if (window.innerWidth <= 1450) {
+                document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_notext.mp4";
+                document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_notext.mp4";
             }
-
-            window.scrollTo(0, 0);
             document.getElementById("splashscreenOutro").play().catch((err) => {
                 console.log(err)
             });
@@ -1385,7 +1470,7 @@ export default function Dash() {
                 })
             }, 500)
         }
-    }, [router.isReady])
+    }, [])
 
     return (
         <>
@@ -1394,7 +1479,7 @@ export default function Dash() {
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
             </Head>
             <main id="mainelem" style={{ overflow: 'hidden' }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-                <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen"><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
+                <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen" style={{display: "none"}}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
                 <video id="splashscreenIntro" playsInline muted className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
                 <div id="content" style={{ opacity: 0, overflow: "visible", transition: "all ease 0.5s" }} className={styles.sidebarContent}>
                     <div style={{ padding: "15px", width: "100%" }}>
@@ -1434,50 +1519,57 @@ export default function Dash() {
                     }}>
                         <div id="aag" className={styles.screen} style={{ marginTop: "0px" }}>
                             <div style={{ padding: "20px" }}>
-                                <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: (mobile) ? "auto" : "70px auto" }}>
+                                <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: "70px auto", gridGap: (mobile) ? "0px" : "25px" }}>
                                     <button style={{ margin: (mobile) ? "0" : "auto" }} className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                     <h3 className={styles.screenheading}>At a glance</h3>
                                 </div>
                                 <div className={styles.divider}></div>
                                 <div id="admin" style={{ display: (adminView) ? "block" : "none" }}>
                                     <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>Today</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter} style={{ float: "inline-start", width: "500px", height: "98px", border: "dashed 1px rgb(214, 164, 78)", backgroundColor: "rgba(255, 208, 128, 0.692)" }}>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.eventsTodayBento}>
                                             <div className={styles.fullycenter} style={{ width: "100%" }}>
                                                 <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
                                             </div>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "250px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="tdonsnum">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }} id="tdonssub">donations</p>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
+                                            <p id="tdonsnum">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }} id="tdonssub">donations</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "250px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="tdonsamt">$0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
+                                            <p id="tdonsamt">$0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="totaluserstd">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="totaluserstd">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>total users</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>new users</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>returning users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>returning users</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div style={{ position: "relative" }}>
-                                        <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>Real-time User Activity Monitor</h4>
-                                        <div style={{ margin: "20px" }}>
-                                            <div className={styles.bentoboxShorter} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }} id="activeusersnum">0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total active users</p>
+                                        <h3 className={styles.screensubheading} style={{ fontSize: "25px", color: "rgb(183 137 58)" }}>REAL-TIME</h3>
+                                        <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>User Activity Monitor</h4>
+                                        <div className={styles.bentoboxCont}>
+                                            <div className={styles.viewbentobox} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <p id="activeusersnum">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>total active users</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px", float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}><a id="homepagenum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
+                                            <div id="homepageuam" className={styles.bentoboxShorter} style={{ width: "280px", overflow: "hidden", height: "auto", float: "inline-start", marginBottom: "10px", marginRight: "10px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
+                                                    <p style={{ margin: "0px", textAlign: "center" }}><a id="homepagenum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
+                                                    <div className={styles.collapse} onClick={() => collapse("homepageuam", 53, "hpuamcico")} style={{ cursor: "pointer" }}>
+                                                        <span className='material-symbols-rounded' id="hpuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
+                                                    </div>
+                                                </div>
+
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="heronum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Hero</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="goalgridnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Statistics/Goal</a></p>
@@ -1486,15 +1578,26 @@ export default function Dash() {
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="getintouchnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Get In Touch</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="footernum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Footer</a></p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "auto", float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}><a id="accountsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
+                                            <div id="accountsuam" className={styles.bentoboxShorter} style={{ width: "230px", height: "auto", overflow: "hidden", float: "inline-start", marginBottom: "10px", marginRight: "10px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
+                                                    <p style={{ margin: "0px", textAlign: "center" }}><a id="accountsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
+                                                    <div className={styles.collapse} onClick={() => collapse("accountsuam", 53, "accuamcico")} style={{ cursor: "pointer" }}>
+                                                        <span className='material-symbols-rounded' id="accuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
+                                                    </div>
+                                                </div>
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="landingnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Landing</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="innum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign In</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="upnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign Up</a></p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}><a id="dashboardnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
+                                            <div className={styles.bentoboxShorter} id="dashboarduam" style={{ width: "250px", marginBottom: "10px", marginRight: "10px", height: "350px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
+                                                    <p style={{ margin: "0px", textAlign: "center" }}><a id="dashboardnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
+                                                    <div className={styles.collapse} onClick={() => collapse("dashboarduam", 53, "dashuamico")} style={{ cursor: "pointer" }}>
+                                                        <span className='material-symbols-rounded' id="dashuamico" style={{ fontSize: "40px" }}>expand_circle_up</span>
+                                                    </div>
+                                                </div>
+
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="aagnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>At a glance</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="eventsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Events</a></p>
@@ -1507,80 +1610,80 @@ export default function Dash() {
                                     </div>
                                     <div className={styles.divider}></div>
                                     <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>{new Date().toLocaleString('default', { month: 'long' })}</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="maagdonsamt">$0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p id="maagdonsamt">$0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="maagdonsnum">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donations</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="maagdonsnum">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donations</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>{accounts.length}</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new accounts</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>{accounts.length}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>new accounts</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>event attendees</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>event attendees</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="totalusersm">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="totalusersm">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>total users</p>
                                         </div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Retention</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>5,554</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new users</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p>5,554</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>new users</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>2,345</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>returning users</p>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p>2,345</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>returning users</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>All Time</h4>
-                                    <div style={{ margin: "20px" }}>
+                                    <div className={styles.bentoboxCont}>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">$0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                            <p id="aagdonsamt" style={{ margin: "0px", textAlign: "center" }}>$0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px", margin: "0px", textAlign: "center" }}>donated</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>volunteers</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteers</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>{accounts.length}</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>accounts</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>{accounts.length}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="totalusers">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="totalusers">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>total users</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>homepage views</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>homepage views</p>
                                         </div>
                                     </div>
 
                                     <h4 className={styles.screensubheading}>Demographics</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">40%</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Maryland</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="aagdonsamt">40%</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">30%</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from DC</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="aagdonsamt">30%</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from DC</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">30%</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="aagdonsamt">30%</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Virginia</p>
                                         </div>
                                         <br />
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px", marginBottom: "10px" }}>
                                             <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">77%</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a mobile device</p>
                                         </div>
@@ -1590,21 +1693,21 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Events</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>{eventsLength}</p>
-                                            <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>events</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox}>
+                                            <p>{eventsLength}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>events</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="vacount" style={{ margin: "0px", textAlign: "center" }}>{eventAttendees}</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>event attendees</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="vacount">{eventAttendees}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>event attendees</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div id="non-admin" style={{ display: (!adminView) ? "block" : "none" }}>
                                     <div id="youSection" style={{ display: (account == "") ? "none" : "block" }}>
                                         <h4 className={styles.screensubheading}>You</h4>
-                                        <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxCont}>
                                             <div className={styles.bentoboxShorter} style={{ width: "350px" }}>
                                                 <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>role</p>
                                                 <p style={{ margin: "0px", textAlign: "center" }}>SUPPORTER</p>
@@ -1648,7 +1751,7 @@ export default function Dash() {
 
                                     <div>
                                         <h4 className={styles.screensubheading}>Recent Events</h4>
-                                        <div id="othereventsl" style={{ margin: "20px", overflowX: "auto" }}>
+                                        <div id="othereventsl" className={styles.bentoboxCont} style={{ overflowX: "auto" }}>
                                             <div className={styles.card}>
                                                 <div className={styles.fullycenter} style={{ width: "100%" }}>
                                                     <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>
@@ -1701,43 +1804,6 @@ export default function Dash() {
                                 </div>
                             </div>
                         </div>
-                        <div id="blog" className={styles.screen} style={{ display: "none" }}>
-                            <div style={{ padding: "20px" }}>
-                                <div id="v1b">
-                                    <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
-                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                        <h3 className={styles.screenheading}>Blog</h3>
-                                        <div className={styles.loading} id="blogloading"></div>
-                                    </div>
-
-                                    <div id="blogcontent">
-                                        <div style={{ margin: "20px" }}>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p id="blogpostsnum" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>posts</p>
-                                            </div>
-                                        </div>
-                                        <div className={styles.divider}></div>
-                                        <div style={{ width: "80%", margin: "auto" }}>
-                                            <div id="eventsnavbar" style={{ gridTemplateColumns: (mobile) ? "60% auto" : "75% auto" }} className={styles.doublegrid}>
-                                                <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="blogsearch" placeholder="Search with title"></input>
-                                                <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openBlogPostViewer()}>New Post</button>
-                                            </div>
-                                            <div id="bloglist">
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="v2b" style={{ display: "none", transform: "scale(0.5)", opacity: 0, filter: "blur(50px)" }}>
-                                    <div className={styles.doublegrid} style={{ width: "600px", gridTemplateColumns: "70px auto 50px" }}>
-                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => closeBlogPostViewer()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">arrow_back</span></button>
-                                        <h3 className={styles.screenheading}>Blog Post Viewer</h3>
-                                        <div className={styles.loading} id="blogpostloading"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <div id="events" className={styles.screen} style={{ position: "relative" }}>
                             <div style={{ padding: "20px" }}>
                                 <div id="affectbyeoverlay">
@@ -1747,26 +1813,26 @@ export default function Dash() {
                                         <div className={styles.loading} id="eventsloading"></div>
                                     </div>
                                     <div id="eventscontent">
-                                        <div style={{ margin: "20px" }}>
-                                            <div className={styles.bentoboxShorter} style={{ display: (adminView) ? "inline-block" : "none" }}>
-                                                <p id="attcount" style={{ margin: "0px", textAlign: "center" }}>{eventAttendees}</p>
-                                                <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>total attendees</p>
+                                        <div className={styles.bentoboxCont}>
+                                            <div className={styles.viewbentobox}>
+                                                <p id="eventsamt">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>events</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p id="eventsamt" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>events</p>
+                                            <div className={styles.viewbentobox} style={{ display: (adminView) ? "inline-block" : "none" }}>
+                                                <p id="attcount">{eventAttendees}</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>total attendees</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#ffff0072", color: "black" }}>
-                                                <p id="pendingcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>pending</p>
+                                            <div className={styles.viewbentobox} style={{ backgroundColor: "#ffff0072", color: "black" }}>
+                                                <p id="pendingcount">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>pending</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#fbac29ff", animation: styles.pulse + " 3s infinite linear" }}>
-                                                <p id="inprogcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>in progress</p>
+                                            <div className={styles.viewbentobox} style={{ backgroundColor: "#fbac29ff", animation: styles.pulse + " 3s infinite linear" }}>
+                                                <p id="inprogcount">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>in progress</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#f66d4bff" }}>
-                                                <p id="endedcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>ended</p>
+                                            <div className={styles.viewbentobox} style={{ backgroundColor: "#f66d4bff" }}>
+                                                <p id="endedcount">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>ended</p>
                                             </div>
                                         </div>
                                         <div className={styles.divider}></div>
@@ -1776,8 +1842,8 @@ export default function Dash() {
                                             <div className={styles.divider}></div>
                                         </div>
 
-                                        <div style={{ width: "80%", margin: "auto" }}>
-                                            <div id="eventsnavbar" style={{ gridTemplateColumns: (mobile) ? "auto 200px" : "auto 230px", gridGap: "15px", display: (adminView) ? "grid" : "block" }} className={styles.doublegrid}>
+                                        <div style={{ width: (mobile) ? "100%" : "80%", margin: "auto" }}>
+                                            <div id="eventsnavbar" style={{ display: (mobile) ? "block" : (adminView) ? "grid" : "block" }} className={styles.viewnavbar}>
                                                 <input onInput={() => {
                                                     const children = document.getElementById("eventslist").children;
                                                     for (let i = 0; i < children.length; i++) {
@@ -1861,7 +1927,7 @@ export default function Dash() {
                                     <button id="eregistertbtn" className={styles.managebutton}>Register</button>
                                 </div>
 
-                                <div id="editeventsoverlay" style={{ transform: "translateX(-50%) translateY(-50%) scale(1.2)", marginTop: (mobile) ? "220px" : "0px", filter: "blur(10px)", opacity: 0 }} className={[styles.fullycenter, styles.eventsoverlay].join(" ")}>
+                                <div id="editeventsoverlay" style={{ transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={[styles.fullycenter, styles.eventsoverlay].join(" ")}>
                                     <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("editeventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
                                     <div id="eestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
                                         <div className={styles.fullycenter} style={{ width: "100%" }}>
@@ -1947,7 +2013,7 @@ export default function Dash() {
                                             if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                                 axios({
                                                     method: "post",
-                                                    url: "https://nourishapi.rygb.tech/createEvent",
+                                                    url: "http://localhost:8443/createEvent",
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -1971,7 +2037,7 @@ export default function Dash() {
                                                 console.log(selectedEvent)
                                                 axios({
                                                     method: "post",
-                                                    url: "https://nourishapi.rygb.tech/updateEvent?id=" + selectedEvent,
+                                                    url: "http://localhost:8443/updateEvent?id=" + selectedEvent,
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -1997,7 +2063,7 @@ export default function Dash() {
                                         <button onClick={() => {
                                             axios({
                                                 method: "post",
-                                                url: "https://nourishapi.rygb.tech/deleteEvent?id=" + selectedEvent,
+                                                url: "http://localhost:8443/deleteEvent?id=" + selectedEvent,
                                             }).then((res) => {
                                                 closeEventOverlay("editeventsoverlay");
                                                 refresh("events")
