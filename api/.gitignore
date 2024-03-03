@@ -1,2 +1,4 @@
 .env
 creds
+node_modules
+app.yaml
