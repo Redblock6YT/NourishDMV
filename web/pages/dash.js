@@ -80,7 +80,7 @@ export default function Dash() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "http://localhost:8443/track",
+                url: "https://nourishapi.rygb.tech/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -201,7 +201,7 @@ export default function Dash() {
         const exitFunction = () => {
             axios({
                 method: "post",
-                url: "http://localhost:8443/track",
+                url: "https://nourishapi.rygb.tech/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Inactive",
@@ -233,7 +233,7 @@ export default function Dash() {
                 if (view == "accounts") {
                     axios({
                         method: "get",
-                        url: "http://localhost:8443/getAccounts",
+                        url: "https://nourishapi.rygb.tech/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -291,7 +291,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "http://localhost:8443/getEvents"
+                        url: "https://nourishapi.rygb.tech/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         //sort the events array based on the event start date time
@@ -443,7 +443,7 @@ export default function Dash() {
                 } else if (view == "donations") {
                     axios({
                         method: "get",
-                        url: "http://localhost:8443/getDonations"
+                        url: "https://nourishapi.rygb.tech/getDonations"
                     }).then((res) => {
                         const accounts = res.data.reverse();
                         var amount = 0;
@@ -464,6 +464,7 @@ export default function Dash() {
                             accountName.className = styles.font;
                             accountItem.style.cursor = "default";
                             accountItem.className = styles.item;
+                            accountItem.setAttribute("name", account.date);
                             if (new Date(account.date).toDateString() == new Date().toDateString()) {
                                 donationsToday++;
                                 amountToday += account.amount;
@@ -516,7 +517,7 @@ export default function Dash() {
                 } else if (view == "aag") {
                     axios({
                         method: "get",
-                        url: "http://localhost:8443/getTotalUsers"
+                        url: "https://nourishapi.rygb.tech/getTotalUsers"
                     }).then((res) => {
                         var users = res.data;
                         document.getElementById("totaluserstd").innerHTML = users.today;
@@ -560,7 +561,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "http://localhost:8443/getEvent?id=" + id
+                url: "https://nourishapi.rygb.tech/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -581,7 +582,7 @@ export default function Dash() {
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "http://localhost:8443/registerEvent",
+                                    url: "https://nourishapi.rygb.tech/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -623,7 +624,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "http://localhost:8443/unregisterEvent",
+                                url: "https://nourishapi.rygb.tech/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -739,16 +740,13 @@ export default function Dash() {
     }
 
     function collapse(element, collapseHeight, icon, force) {
-        console.log(document.getElementById(element).style.height);
         if (force != undefined) {
             if (!force) {
                 //expand
-                console.log("expand");
                 document.getElementById(element).style.height = "auto";
                 document.getElementById(icon).innerHTML = "expand_circle_up";
                 document.getElementById(element).style.overflow = "auto";
             } else {
-                console.log("collapse");
                 document.getElementById(element).style.height = collapseHeight + "px";
                 document.getElementById(icon).innerHTML = "expand_circle_down";
                 document.getElementById(element).style.overflow = "hidden";
@@ -756,13 +754,11 @@ export default function Dash() {
         } else {
             if (document.getElementById(element).style.height == collapseHeight + "px") {
                 //expand
-                console.log("expand");
                 document.getElementById(element).style.height = "auto";
                 document.getElementById(icon).innerHTML = "expand_circle_up";
                 document.getElementById(element).style.overflow = "auto";
             } else {
                 //collapse
-                console.log("collapse");
                 document.getElementById(element).style.height = collapseHeight + "px";
                 document.getElementById(icon).innerHTML = "expand_circle_down";
                 document.getElementById(element).style.overflow = "hidden";
@@ -788,7 +784,7 @@ export default function Dash() {
                 // "process" the donation
                 axios({
                     method: "post",
-                    url: "http://localhost:8443/addDonation",
+                    url: "https://nourishapi.rygb.tech/addDonation",
                     data: {
                         amount: parseFloat(document.getElementById("v1damt").value).toFixed(2),
                     }
@@ -802,6 +798,7 @@ export default function Dash() {
                             document.getElementById("dsc" + i).style.transform = "translate(" + (-50 - randomNumber(-30, 30)) + "%, " + (-50 - randomNumber(-30, 30)) + "%)"
                         }
                         document.getElementById("dscamttextval").innerHTML = formatUSD(document.getElementById("v1damt").value);
+                        switchView("donations");
                         anime({
                             targets: donationSuccessful,
                             opacity: 1,
@@ -868,7 +865,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "http://localhost:8443/getEvent?id=" + selectedEvent
+                    url: "https://nourishapi.rygb.tech/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost + " to register for " + res.data.event.title;
                 }).catch((err) => {
@@ -877,7 +874,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "http://localhost:8443/registerEvent",
+                    url: "https://nourishapi.rygb.tech/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -907,14 +904,19 @@ export default function Dash() {
     function nextStep(type) {
         if (step == 0) {
             setStep(1);
+            document.getElementById("v1" + type).style.display = "block";
         } else {
             anime({
                 targets: "#v" + step + type,
                 left: "-100%",
                 opacity: 0,
                 easing: 'easeInOutQuad',
+                complete: function (anim) {
+                    document.getElementById("v" + step + type).style.display = "none";
+                    document.getElementById("v" + (step + 1) + type).style.display = "block";
+                    setStep(step + 1);
+                }
             })
-            setStep(step + 1);
         }
     }
 
@@ -983,7 +985,7 @@ export default function Dash() {
             donate.style.display = "block";
             axios({
                 method: "post",
-                url: "http://localhost:8443/track",
+                url: "https://nourishapi.rygb.tech/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -995,7 +997,7 @@ export default function Dash() {
             volunteer.style.display = "block";
             axios({
                 method: "post",
-                url: "http://localhost:8443/track",
+                url: "https://nourishapi.rygb.tech/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1022,12 +1024,11 @@ export default function Dash() {
             easing: 'easeInOutQuad',
         })
         if (mobile) {
-            document.getElementById("differenceOverlay").style.display = "block";
             document.getElementById("closeZigZag").style.display = "none"
-            document.getElementById("differenceOverlay").style.width = "115%";
+            document.getElementById("differenceOverlay").style.display = "block"
             anime({
                 targets: "#zigZag",
-                left: "-10%",
+                left: "0%",
                 duration: 1000,
                 easing: 'easeInOutQuad',
                 complete: function (anim) {
@@ -1054,7 +1055,7 @@ export default function Dash() {
         setStep(0);
         axios({
             method: "post",
-            url: "http://localhost:8443/track",
+            url: "https://nourishapi.rygb.tech/track",
             data: {
                 uuid: trackerUUID,
                 page: "Dashboard",
@@ -1087,25 +1088,34 @@ export default function Dash() {
     function push(path) {
         if (router.isReady) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            document.getElementById("splashscreenIntro").style.display = "block";
             document.body.style.overflowY = "hidden"
-            setTimeout(() => {
-                document.getElementById("splashscreenIntro").playbackRate = 0.5;
-                document.getElementById("splashscreenIntro").play().catch((err) => {
-                    console.log(err)
-                });
-                anime({
-                    targets: '#splashscreenIntro',
-                    opacity: 1,
-                    duration: 500,
-                    easing: 'easeInOutQuad',
-                    complete: function (anim) {
-                        if (path != "") {
-                            router.push(path);
-                        }
+            if (mobile) {
+                setTimeout(() => {
+                    if (path != "") {
+                        router.push(path);
                     }
-                })
-            }, 100)
+                }, 1000)
+            } else {
+                document.getElementById("splashscreenIntro").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("splashscreenIntro").playbackRate = 0.5;
+                    document.getElementById("splashscreenIntro").play().catch((err) => {
+                        console.log(err)
+                    });
+                    anime({
+                        targets: '#splashscreenIntro',
+                        opacity: 1,
+                        duration: 500,
+                        easing: 'easeInOutQuad',
+                        complete: function (anim) {
+                            if (path != "") {
+                                router.push(path);
+                            }
+                        }
+                    })
+                }, 100)
+            }
+
             anime({
                 targets: '#content',
                 opacity: 0,
@@ -1147,7 +1157,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "http://localhost:8443/getAccount?uuid=" + account
+                url: "https://nourishapi.rygb.tech/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1157,7 +1167,7 @@ export default function Dash() {
                         if (viewState == "aag") {
                             axios({
                                 method: "get",
-                                url: "http://localhost:8443/getTrackerStats"
+                                url: "https://nourishapi.rygb.tech/getTrackerStats"
                             }).then((res) => {
                                 const stats = res.data;
                                 console.log(stats);
@@ -1406,26 +1416,28 @@ export default function Dash() {
             setMobile(true);
             console.log("mobile")
             document.getElementById("splashscreenOutro").style.display = "none";
-            document.body.style.overflowY = "hidden"
-            if (router.query.view != undefined) {
-                if (router.query.view == "volunteer") {
-                    openOverlay("v");
-                } else if (router.query.view == "donate") {
-                    openOverlay("d");
-                } else {
-                    if (router.query.eventid != undefined) {
-                        openEventOverlay("vieweventsoverlay", router.query.eventid);
+            setTimeout(() => {
+                document.body.style.overflowY = "hidden"
+                if (router.query.view != undefined) {
+                    if (router.query.view == "volunteer") {
+                        openOverlay("v");
+                    } else if (router.query.view == "donate") {
+                        openOverlay("d");
+                    } else {
+                        if (router.query.eventid != undefined) {
+                            openEventOverlay("vieweventsoverlay", router.query.eventid);
+                        }
+                        switchView(router.query.view);
                     }
-                    switchView(router.query.view);
                 }
-            }
-            anime({
-                targets: '#content',
-                opacity: 1,
-                duration: 200,
-                delay: 500,
-                easing: 'linear'
-            })
+                anime({
+                    targets: '#content',
+                    opacity: 1,
+                    duration: 200,
+                    delay: 500,
+                    easing: 'linear'
+                })
+            }, 500);
         } else {
             document.getElementById("splashscreenOutro").style.display = "block";
             if (window.innerWidth <= 1450) {
@@ -1448,6 +1460,7 @@ export default function Dash() {
                     complete: function (anim) {
                         document.getElementById("splashscreenOutro").style.display = "none";
                         document.body.style.overflowY = "hidden"
+                        console.log(router.query)
                         if (router.query.view != undefined) {
                             if (router.query.view == "volunteer") {
                                 openOverlay("v");
@@ -1479,7 +1492,7 @@ export default function Dash() {
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
             </Head>
             <main id="mainelem" style={{ overflow: 'hidden' }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-                <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen" style={{display: "none"}}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
+                <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen" style={{ display: "none" }}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
                 <video id="splashscreenIntro" playsInline muted className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
                 <div id="content" style={{ opacity: 0, overflow: "visible", transition: "all ease 0.5s" }} className={styles.sidebarContent}>
                     <div style={{ padding: "15px", width: "100%" }}>
@@ -1493,9 +1506,9 @@ export default function Dash() {
                                     <button id="donationsbtn" className={styles.sidebarItem} onClick={() => switchView("donations")}>Donations</button>
                                 </div>
                                 <button className={styles.sidebarItem} onClick={() => push("/accounts?view=Sign+In")} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: (mobileRef.current) ? "230px" : "280px", display: (account == "") ? "block" : "none" }}>Sign In</button>
-                                <div className={styles.sidebarItem} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: "280px", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
-                                    <div style={{ display: "grid", gridTemplateColumns: "60px auto 50px", padding: "10px", height: "50px" }}>
-                                        <div id="picture" style={{ backgroundColor: "#e3ab4a", width: "50px", height: "100%", borderRadius: "15px" }}>
+                                <div className={styles.sidebarItem} style={{ position: "absolute", left: "50%", width: (mobile) ? "230px" : "280px", transform: "translateX(-50%)", bottom: 50, zIndex: "100", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: (mobile) ? "auto 50px" : "60px auto 50px", padding: "10px", height: "50px" }}>
+                                        <div id="picture" style={{ backgroundColor: "#e3ab4a", width: "50px", height: "100%", borderRadius: "15px", display: (mobile) ? "none" : "block" }}>
                                         </div>
                                         <h3 style={{ margin: "auto", marginLeft: "0px", color: "#e3ab4a", textAlign: "left" }} id="acctName">Name</h3>
                                         <div id="logout" className={styles.hover} onClick={() => {
@@ -1671,24 +1684,24 @@ export default function Dash() {
                                     <h4 className={styles.screensubheading}>Demographics</h4>
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
-                                            <p id="aagdonsamt">40%</p>
+                                            <p>40%</p>
                                             <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
-                                            <p id="aagdonsamt">30%</p>
+                                            <p>30%</p>
                                             <p style={{ fontWeight: "normal", fontSize: "30px" }}>from DC</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
-                                            <p id="aagdonsamt">30%</p>
+                                            <p>30%</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Virginia</p>
                                         </div>
                                         <br />
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px", marginBottom: "10px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">77%</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>77%</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a mobile device</p>
                                         </div>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">23%</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>23%</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a desktop device</p>
                                         </div>
                                     </div>
@@ -1712,30 +1725,47 @@ export default function Dash() {
                                                 <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>role</p>
                                                 <p style={{ margin: "0px", textAlign: "center" }}>SUPPORTER</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>joined</p>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>2/23/24</p>
+                                            <div className={styles.viewbentobox}>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>joined</p>
+                                                <p>2/23/24</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>$0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                            <div className={styles.viewbentobox}>
+                                                <p>$0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>volunteer hours</p>
+                                            <div className={styles.viewbentobox}>
+                                                <p>0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteer hours</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>events attended</p>
+                                            <div className={styles.viewbentobox}>
+                                                <p>0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>events attended</p>
                                             </div>
                                         </div>
                                         <div className={styles.divider}></div>
                                     </div>
 
                                     <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", marginTop: "10px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
-                                    <div className={styles.doublegrid} style={{ width: (mobile) ? "100%" : "70%", margin: "auto", display: (mobile) ? "block" : "grid" }}>
-                                        <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block", width: "100%" }} onClick={() => openOverlay("d")}>Donate</button>
-                                        <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#fbe85dff", color: "black", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block", width: "100%" }} onClick={() => openOverlay("v")}>Join our team</button>
+                                    <div className={styles.makeDifferenceCont}>
+                                        <button
+                                            className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
+                                            style={{
+                                                backgroundColor: "#f66d4bff",
+                                            }}
+                                            onClick={() => openOverlay("d")}
+                                        >
+                                            Donate
+                                        </button>
+                                        <button
+                                            className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
+                                            style={{
+                                                backgroundColor: "#fbe85dff",
+                                                color: "black",
+                                            }}
+                                            onClick={() => openOverlay("v")}
+                                        >
+                                            Join our team
+                                        </button>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div style={{ display: "none" }}>
@@ -1771,34 +1801,34 @@ export default function Dash() {
                                     <div className={styles.loading} id="accountsloading"></div>
                                 </div>
                                 <div id="accountscontent">
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>{accounts.length}</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>accounts</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox}>
+                                            <p>{accounts.length}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>volunteers</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteers</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donators</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donators</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="dccount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from DC</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="dccount">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from DC</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="mdcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="mdcount">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="vacount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Virginia</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="vacount">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Virginia</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <div id="accountslist" style={{ width: "70%", margin: "auto" }}>
+                                    <div id="accountslist" className={styles.viewlist}>
 
                                     </div>
                                 </div>
@@ -1838,11 +1868,11 @@ export default function Dash() {
                                         <div className={styles.divider}></div>
                                         <div id="eventsattend">
                                             <h3 className={styles.screenheading} style={{ fontSize: "40px", marginLeft: "5px" }}>Your Events</h3>
-                                            <div id="eventsattendlist" style={{ width: "80%", margin: "auto", marginTop: "20px" }}></div>
+                                            <div id="eventsattendlist" className={styles.viewlist} style={{ marginTop: "10px" }}></div>
                                             <div className={styles.divider}></div>
                                         </div>
 
-                                        <div style={{ width: (mobile) ? "100%" : "80%", margin: "auto" }}>
+                                        <div className={styles.viewlist}>
                                             <div id="eventsnavbar" style={{ display: (mobile) ? "block" : (adminView) ? "grid" : "block" }} className={styles.viewnavbar}>
                                                 <input onInput={() => {
                                                     const children = document.getElementById("eventslist").children;
@@ -1955,11 +1985,11 @@ export default function Dash() {
                                         </div>
                                         <div className={styles.divider}></div>
                                     </div>
-                                    <div id="eldoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto" }}>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Location</h3>
-                                        <input id="eloc" placeholder="Location" className={styles.input}></input>
+                                    <div id="eldoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "250px auto" }}>
+                                        <h3 className={[styles.font, styles.evDGItem].join(" ")} style={{ fontSize: "30px", margin: "10px" }}>Event Location</h3>
+                                        <input id="eloc" placeholder="Location" className={[styles.input, styles.evDGItem].join(" ")}></input>
                                     </div>
-                                    <div id="evdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "150px auto" }}>
+                                    <div id="evdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "150px auto" }}>
                                         <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Visibility</h3>
                                         <select id="evselect" className={styles.input}>
                                             <option>Visible</option>
@@ -2013,7 +2043,7 @@ export default function Dash() {
                                             if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                                 axios({
                                                     method: "post",
-                                                    url: "http://localhost:8443/createEvent",
+                                                    url: "https://nourishapi.rygb.tech/createEvent",
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -2037,7 +2067,7 @@ export default function Dash() {
                                                 console.log(selectedEvent)
                                                 axios({
                                                     method: "post",
-                                                    url: "http://localhost:8443/updateEvent?id=" + selectedEvent,
+                                                    url: "https://nourishapi.rygb.tech/updateEvent?id=" + selectedEvent,
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -2063,7 +2093,7 @@ export default function Dash() {
                                         <button onClick={() => {
                                             axios({
                                                 method: "post",
-                                                url: "http://localhost:8443/deleteEvent?id=" + selectedEvent,
+                                                url: "https://nourishapi.rygb.tech/deleteEvent?id=" + selectedEvent,
                                             }).then((res) => {
                                                 closeEventOverlay("editeventsoverlay");
                                                 refresh("events")
@@ -2085,20 +2115,29 @@ export default function Dash() {
                                 </div>
 
                                 <div id="donationscontent">
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="donationsnumber">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }} id="donationssub">donations</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="donationsnumber">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }} id="donationssub">donations</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "250px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="donationsamt">$0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>raised</p>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
+                                            <p id="donationsamt">$0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>raised</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <div style={{ width: (mobile) ? "100%" : "80%", margin: "auto" }}>
+                                    <div className={styles.viewlist}>
                                         <div id="donationsnavbar" style={{ gridTemplateColumns: (mobile) ? "auto 200px" : "auto 250px", }} className={styles.doublegrid}>
-                                            <input className={styles.inputScreen} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" type="date" placeholder="Search with date"></input>
+                                            <input className={styles.inputScreen} onInput={() => {
+                                                const donatelist = document.getElementById("donatelist").children;
+                                                for (let i = 0; i < donatelist.length; i++) {
+                                                    if (donatelist[i].getAttribute("name").toLowerCase().includes(document.getElementById("donatesearch").value.toLowerCase())) {
+                                                        donatelist[i].style.display = "block";
+                                                    } else {
+                                                        donatelist[i].style.display = "none";
+                                                    }
+                                                }
+                                            }} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" type="date" placeholder="Search with date"></input>
                                             <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openOverlay("d")}>New Donation</button>
                                         </div>
                                         <div id="donatelist">
@@ -2109,11 +2148,9 @@ export default function Dash() {
                             </div>
                         </div>
                     </div>
-
-
                 </div>
 
-                <div id="differenceOverlay" className={styles.doublegrid} style={{ gridTemplateColumns: "auto 85%", position: "absolute", zIndex: "100", width: "100%", height: "100%", display: "none" }}>
+                <div id="differenceOverlay" className={styles.overlayGrid}>
                     <div id="closeZigZag" style={{ position: "relative", opacity: "0" }}>
                         <div className={styles.fullycenter}>
                             <h1 style={{ margin: "auto", marginBottom: "100px", fontSize: "40px", color: "#ce8400ff" }} className={styles.font}>Close</h1>
@@ -2126,7 +2163,7 @@ export default function Dash() {
                     <div id="zigZag" className={styles.zigZag} style={{ '--lighterColor': "#ffe7bf", backgroundColor: "#ce8400ff", height: "100%", left: "100%", overflowY: "auto" }}>
                         <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeOverlay()} style={{ margin: "auto", marginTop: "10px", display: (mobile) ? "block" : "none" }}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
                         <div id="donate" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1d" className={styles.fullycenter} style={{ width: "85%", left: "150%", opacity: 0 }}>
+                            <div id="v1d" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
                                 <h1 className={styles.header}>Select donation amount</h1>
                                 <p className={styles.subheader}>Your donation contributes to our goal of ensuring everyone in the DMV has food and shelter.</p>
                                 <div className={styles.doublegrid} style={{ width: "250px", margin: "auto", marginTop: "100px", marginBottom: "100px", gridTemplateColumns: "50px auto", gridGap: "0px" }}>
@@ -2153,7 +2190,7 @@ export default function Dash() {
                                 </div>
                                 <button id="v1dcont" onClick={() => nextStep("d")} className={[styles.minibutton, styles.hover].join(" ")} style={{ backgroundColor: "rgba(0, 0, 0, 0.281)", opacity: 0, visibility: "hidden" }}>Continue</button>
                             </div>
-                            <div id="v2d" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
+                            <div id="v2d" className={styles.zigZagView} style={{ "--maxWidth": "55%" }}>
                                 <h1 id="v2dh" className={styles.header}>Donate $0.00</h1>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px" }}>
                                     <input className={styles.input} type='text' placeholder="Name"></input>
@@ -2184,8 +2221,8 @@ export default function Dash() {
                             </div>
                         </div>
                         <div id="volunteer" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1v" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "60%", left: "150%", opacity: 0 }}>
-                                <h1 className={styles.header}>NourishDMV Volunteer Application</h1>
+                            <div id="v1v" className={styles.zigZagView} style={{ "--maxWidth": "60%" }}>
+                                <h1 className={styles.header}>Volunteer with Us</h1>
                                 <p className={styles.subheader}>Thank you for your interest in being a NourishDMV Volunteer! Please fill out this application and we'll get back to you as soon as possible.</p>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px", gridTemplateColumns: "auto auto auto" }}>
                                     <input className={styles.input} type='text' placeholder="Name"></input>
@@ -2193,13 +2230,13 @@ export default function Dash() {
                                     <input className={styles.input} type="text" placeholder="Email"></input>
                                 </div>
 
-                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "150px auto 150px", gridGap: "15px" }}>
-                                    <select className={styles.input} placeholder="Name">
-                                        <option>Area</option>
-                                        <option>D.C.</option>
-                                        <option>Maryland</option>
-                                        <option>Virginia</option>
-                                    </select>
+                                <select className={styles.input} placeholder="Name">
+                                    <option>Area</option>
+                                    <option>D.C.</option>
+                                    <option>Maryland</option>
+                                    <option>Virginia</option>
+                                </select>
+                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto 150px", gridGap: "15px" }}>
                                     <input className={styles.input} type='text' placeholder="Address"></input>
                                     <input className={styles.input} type='text' placeholder="City"></input>
                                 </div>
@@ -2207,15 +2244,15 @@ export default function Dash() {
                                 <textarea className={styles.textarea} placeholder="Why do you want to volunteer with us?"></textarea>
                                 <textarea className={styles.input} placeholder="What tasks are your favorite to complete?"></textarea>
                                 <input className={styles.input} placeholder="How did you hear about us?"></input>
-                                <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
+                                <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", marginBottom: "20px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
                             </div>
-                            <div id="v2v" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
+                            <div id="v2v" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
                                 <h1 className={styles.header}>Thank you!</h1>
-                                <p className={styles.subheader}>Your application has been processed, we'll be in touch soon! You can close this by clicking the close button on the left.</p>
+                                <p className={styles.subheader}>Your application has been processed, we'll be in touch soon! You can close this by clicking the close button {(mobile) ? "at the top" : "on the left"}.</p>
                             </div>
                         </div>
-                        <div id="registerEvent" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1re" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
+                        <div id="registerEvent" style={{ position: "relative", height: "100%", display: "none" }}>
+                            <div id="v1re" className={styles.zigZagView} style={{ "--maxWidth": "50%" }}>
                                 <h1 id="v1rehead" className={styles.header}>Pay $0.00 to register for Event</h1>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px" }}>
                                     <input className={styles.input} type='text' placeholder="Name"></input>

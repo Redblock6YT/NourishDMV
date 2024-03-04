@@ -337,7 +337,7 @@ app.get("/getTotalUsers", async (req, res) => {
     Tracker.find({}).then((trackers) => {
         var response = { today: 0, month: 0, all: 0 };
         for (var i = 0; i < trackers.length; i++) {
-            var trackerDate = new Date(trackers[i].date);   
+            var trackerDate = new Date(trackers[i].date);
             if (trackerDate.getDate() == new Date().getDate()) {
                 response.today++;
             }

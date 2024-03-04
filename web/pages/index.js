@@ -46,23 +46,33 @@ export default function Home() {
     if (router.isReady) {
       closeSidebar();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      document.getElementById("splashscreenIntro").style.display = "block";
       document.body.style.overflowY = "hidden"
-      setTimeout(() => {
-        document.getElementById("splashscreenIntro").playbackRate = 0.5;
-        document.getElementById("splashscreenIntro").play().catch((e) => {
-          console.log(e)
-        });
-        anime({
-          targets: '#splashscreenIntro',
-          opacity: 1,
-          duration: 500,
-          easing: 'easeInOutQuad',
-          complete: function (anim) {
+      if (mobile) {
+        setTimeout(() => {
+          if (path != "") {
             router.push(path);
           }
-        })
-      }, 100)
+        }, 1000)
+      } else {
+        document.getElementById("splashscreenIntro").style.display = "block";
+        setTimeout(() => {
+          document.getElementById("splashscreenIntro").playbackRate = 0.5;
+          document.getElementById("splashscreenIntro").play().catch((err) => {
+            console.log(err)
+          });
+          anime({
+            targets: '#splashscreenIntro',
+            opacity: 1,
+            duration: 500,
+            easing: 'easeInOutQuad',
+            complete: function (anim) {
+              if (path != "") {
+                router.push(path);
+              }
+            }
+          })
+        }, 100)
+      }
       anime({
         targets: '#content',
         opacity: 0,
@@ -94,7 +104,7 @@ export default function Home() {
 
     axios({
       method: "get",
-      url: "https://nourishapi.rygb.tech/getEvents"
+      url: "http://localhost:8080/getEvents"
     }).then((res) => {
       if (res.status == 200) {
         console.log("got events")
@@ -259,15 +269,15 @@ export default function Home() {
           icon.style.marginRight = "0px"
 
           if (mobile) {
+            /*
             eventcontentcontainer.style.gridTemplateColumns = "auto"
-            eventcard.style.height = "300px"
-            eventcard.style.width = "93%"
             eventdetailscontainer.style.gridTemplateColumns = "auto 30px"
             eventdetailscontainer.style.display = "grid"
             eventdetailscontainer.style.padding = "0px 20px"
-            eventdetailscontainer.appendChild(eventcontent)
-            eventdetailscontainer.appendChild(icon)
-            eventcontentcontainer.appendChild(eventdetailscontainer);
+            */
+            eventcontentcontainer.appendChild(eventcontent);
+            eventcontentcontainer.appendChild(icon);
+            //eventcontentcontainer.appendChild(eventdetailscontainer);
           } else {
             eventcontentcontainer.appendChild(eventcontent);
             eventcontentcontainer.appendChild(icon);
@@ -384,7 +394,7 @@ export default function Home() {
       Cookies.set("trackerUUID", trackerUUID);
       axios({
         method: "post",
-        url: "https://nourishapi.rygb.tech/track",
+        url: "http://localhost:8080/track",
         data: {
           uuid: trackerUUID,
           page: "Homepage",
@@ -436,13 +446,18 @@ export default function Home() {
   useEffect(() => {
     if (router.isReady) {
       //once the page is fully loaded, play the splashscreen outro
-      if (window.innerWidth <= 600) {
-        setMobile(true);
-        document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_mobile.mp4";
-        document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_mobile.mp4";
-        document.getElementById("menuicon").style.display = "block";
-        document.getElementById("menulogogrid").style.display = "grid"
-        document.getElementById("goalgrid").style.gridTemplateColumns = "auto";
+      if (Cookies.get("account") != undefined) {
+        setAccount(Cookies.get("account"));
+      }
+
+      setLoadContent(true);
+      //window.scrollTo(0, 0);
+      //playing the splashscreen is not essential, if it errors, just fade
+
+      if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+        setTrackerUUID(uuid());
+      } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+        setTrackerUUID(Cookies.get("trackerUUID"));
       }
 
       if (window.innerWidth <= 1300) {
@@ -464,47 +479,56 @@ export default function Home() {
         document.getElementById("buttons").style.display = "none"
       }
 
-      if (Cookies.get("account") != undefined) {
-        setAccount(Cookies.get("account"));
-      }
+      if (window.innerWidth <= 600) {
+        setMobile(true);
+        document.getElementById("splashscreenOutro").style.display = "none"
+        document.getElementById("menuicon").style.display = "block";
+        document.getElementById("menulogogrid").style.display = "grid"
+        document.getElementById("goalgrid").style.gridTemplateColumns = "auto";
+        setTimeout(() => {
+          anime({
+            targets: '#content',
+            opacity: 1,
+            duration: 500,
+            easing: 'easeInOutQuad',
+            complete: function (anim) {
+              document.body.style.overflowY = "auto"
+            }
+          })
+        }, 500)
+      } else {
+        if (window.innerWidth <= 1450) {
+          document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_notext.mp4";
+          document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_notext.mp4";
+        }
 
-      setLoadContent(true);
-      //window.scrollTo(0, 0);
-      //playing the splashscreen is not essential, if it errors, just fade
-
-      if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
-        setTrackerUUID(uuid());
-      } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
-        setTrackerUUID(Cookies.get("trackerUUID"));
-      }
-
-      document.getElementById("splashscreenOutro").play().catch((e) => {
-        console.log(e)
-      });
-      document.getElementById("splashscreenOutro").pause();
-      setTimeout(() => {
         document.getElementById("splashscreenOutro").play().catch((e) => {
           console.log(e)
         });
+        document.getElementById("splashscreenOutro").pause();
+        setTimeout(() => {
+          document.getElementById("splashscreenOutro").play().catch((e) => {
+            console.log(e)
+          });
 
-        anime({
-          targets: '#splashscreenOutro',
-          opacity: 0,
-          duration: 500,
-          easing: 'easeInOutQuad',
-          complete: function (anim) {
-            document.getElementById("splashscreenOutro").style.display = "none";
-            document.body.style.overflowY = "auto"
-          }
-        })
-        anime({
-          targets: '#content',
-          opacity: 1,
-          duration: 500,
-          easing: 'easeInOutQuad'
-        })
-      }, 500)
-
+          anime({
+            targets: '#splashscreenOutro',
+            opacity: 0,
+            duration: 500,
+            easing: 'easeInOutQuad',
+            complete: function (anim) {
+              document.getElementById("splashscreenOutro").style.display = "none";
+              document.body.style.overflowY = "auto"
+            }
+          })
+          anime({
+            targets: '#content',
+            opacity: 1,
+            duration: 500,
+            easing: 'easeInOutQuad'
+          })
+        }, 500)
+      }
     }
   }, [router.isReady])
   return (

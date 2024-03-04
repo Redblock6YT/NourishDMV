@@ -318,6 +318,12 @@
     transition: ease 0.5s all;
 }
 
+.viewlist {
+    width: 80%;
+    margin: auto;
+    transition: all 0.5s ease;
+}
+
 .viewbentobox p {
     margin: 0px;
     text-align: center;
@@ -623,8 +629,8 @@
     font-size: 50px;
     font-weight: bold;
     display: inline-block;
-    margin-right: 20px;
-    margin-bottom: 20px;
+    margin-right: 10px;
+    margin-bottom: 10px;
     padding: 20px;
     color: #ffe5b9;
     transition: ease 0.5s all;
@@ -703,22 +709,94 @@
     opacity: 0;
 }
 
+.makeDifferenceCont {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    margin: auto;
+    width: 70%;
+    transition: 0.5s ease all;
+}
+
+.makeDifferenceBtn {
+    margin: auto;
+    margin-bottom: 10px;
+    font-size: 40px;
+    font-weight: bold;
+    width: 48%;
+}
+
+.zigZagView {
+    width: var(--maxWidth);
+    left: 150%;
+    opacity: 0;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.overlayGrid {
+    display: grid;
+    grid-template-columns: auto 85%;
+    position: absolute;
+    z-index: 100;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
 @media(max-width: 1400px) {
     .eventsoverlay {
         width: 80%;
     }
 }
 
+@media (max-width: 1200px) {
+    .zigZag {
+        padding-left: 0px;
+    }
+
+    .zigZag:before {
+        background: rgb(206, 132, 0);
+    }
+}
+
 @media (max-width: 800px) {
+    .header {
+        font-size: 45px;
+    }
+
     .eventsoverlay {
         width: 95%;
-        position: absolute;
-        transform: translate(50%, 50%);
-        height: 95%;
-        padding: 5% 1%;
+    }
+
+    .zigZagView {
+        width: 95%;
+        position: relative;
+        top: 0;
+        transform: translate(-50%, 0%);
+    }
+
+    .viewlist {
+        width: 100%;
+    }
+
+    .makeDifferenceBtn {
+        width: 100%;
+    }
+
+    .makeDifferenceCont {
+        flex-direction: column;
+        width: 100%;
     }
 
     .sidebarContent {
         grid-template-columns: 250px 100%;
     }
 }
+
+@media (max-width: 630px) {
+    .eventsTodayBento {
+        width: 87%;
+    }
+} 
