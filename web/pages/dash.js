@@ -55,8 +55,10 @@ export default function Dash() {
         if (isLeftSwipe || isRightSwipe) console.log('swipe', isLeftSwipe ? 'left' : 'right')
         if (isLeftSwipe) {
             hideSidebar();
+            setUserSidebarOpen(false);
         } else if (isRightSwipe) {
             showSidebar();
+            setUserSidebarOpen(true);
         }
         // add your conditional logic here
     }
@@ -356,6 +358,7 @@ export default function Dash() {
                             icon.style.margin = "auto"
                             icon.style.marginRight = "0px"
                             eventItem.className = [styles.itemEvents, styles.doublegrid].join(" ");
+                            eventItem.style.gridTemplateColumns = "auto 50px";
 
                             var registrationStatus = calculateEventStatus(event.registrationStartDateTime, event.registrationEndDateTime);
                             if (registrationStatus == "Pending") {
@@ -461,6 +464,7 @@ export default function Dash() {
                             accountName.className = styles.font;
                             accountItem.style.cursor = "default";
                             accountItem.className = styles.item;
+                            accountItem.setAttribute("name", account.date);
                             if (new Date(account.date).toDateString() == new Date().toDateString()) {
                                 donationsToday++;
                                 amountToday += account.amount;
@@ -715,7 +719,7 @@ export default function Dash() {
             complete: function (anim) {
                 document.getElementById(overlayId).style.display = "none";
                 document.getElementById("events").style.overflowY = "auto";
-                if (!mobileRef.current) {
+                if (!mobileRef.current && userSidebarOpen) {
                     showSidebar();
                 }
             }
@@ -733,6 +737,35 @@ export default function Dash() {
 
     function formatNumber(amount) {
         return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+
+    function collapse(element, collapseHeight, icon, force) {
+        if (force != undefined) {
+            if (!force) {
+                //expand
+                document.getElementById(element).style.height = "auto";
+                document.getElementById(icon).innerHTML = "expand_circle_up";
+                document.getElementById(element).style.overflow = "auto";
+            } else {
+                document.getElementById(element).style.height = collapseHeight + "px";
+                document.getElementById(icon).innerHTML = "expand_circle_down";
+                document.getElementById(element).style.overflow = "hidden";
+            }
+        } else {
+            if (document.getElementById(element).style.height == collapseHeight + "px") {
+                //expand
+                document.getElementById(element).style.height = "auto";
+                document.getElementById(icon).innerHTML = "expand_circle_up";
+                document.getElementById(element).style.overflow = "auto";
+            } else {
+                //collapse
+                document.getElementById(element).style.height = collapseHeight + "px";
+                document.getElementById(icon).innerHTML = "expand_circle_down";
+                document.getElementById(element).style.overflow = "hidden";
+            }
+        }
+
+
     }
 
     useEffect(() => {
@@ -765,6 +798,7 @@ export default function Dash() {
                             document.getElementById("dsc" + i).style.transform = "translate(" + (-50 - randomNumber(-30, 30)) + "%, " + (-50 - randomNumber(-30, 30)) + "%)"
                         }
                         document.getElementById("dscamttextval").innerHTML = formatUSD(document.getElementById("v1damt").value);
+                        switchView("donations");
                         anime({
                             targets: donationSuccessful,
                             opacity: 1,
@@ -870,14 +904,19 @@ export default function Dash() {
     function nextStep(type) {
         if (step == 0) {
             setStep(1);
+            document.getElementById("v1" + type).style.display = "block";
         } else {
             anime({
                 targets: "#v" + step + type,
                 left: "-100%",
                 opacity: 0,
                 easing: 'easeInOutQuad',
+                complete: function (anim) {
+                    document.getElementById("v" + step + type).style.display = "none";
+                    document.getElementById("v" + (step + 1) + type).style.display = "block";
+                    setStep(step + 1);
+                }
             })
-            setStep(step + 1);
         }
     }
 
@@ -985,12 +1024,11 @@ export default function Dash() {
             easing: 'easeInOutQuad',
         })
         if (mobile) {
-            document.getElementById("differenceOverlay").style.display = "block";
             document.getElementById("closeZigZag").style.display = "none"
-            document.getElementById("differenceOverlay").style.width = "115%";
+            document.getElementById("differenceOverlay").style.display = "block"
             anime({
                 targets: "#zigZag",
-                left: "-10%",
+                left: "0%",
                 duration: 1000,
                 easing: 'easeInOutQuad',
                 complete: function (anim) {
@@ -1050,25 +1088,34 @@ export default function Dash() {
     function push(path) {
         if (router.isReady) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            document.getElementById("splashscreenIntro").style.display = "block";
             document.body.style.overflowY = "hidden"
-            setTimeout(() => {
-                document.getElementById("splashscreenIntro").playbackRate = 0.5;
-                document.getElementById("splashscreenIntro").play().catch((err) => {
-                    console.log(err)
-                });
-                anime({
-                    targets: '#splashscreenIntro',
-                    opacity: 1,
-                    duration: 500,
-                    easing: 'easeInOutQuad',
-                    complete: function (anim) {
-                        if (path != "") {
-                            router.push(path);
-                        }
+            if (mobile) {
+                setTimeout(() => {
+                    if (path != "") {
+                        router.push(path);
                     }
-                })
-            }, 100)
+                }, 1000)
+            } else {
+                document.getElementById("splashscreenIntro").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("splashscreenIntro").playbackRate = 0.5;
+                    document.getElementById("splashscreenIntro").play().catch((err) => {
+                        console.log(err)
+                    });
+                    anime({
+                        targets: '#splashscreenIntro',
+                        opacity: 1,
+                        duration: 500,
+                        easing: 'easeInOutQuad',
+                        complete: function (anim) {
+                            if (path != "") {
+                                router.push(path);
+                            }
+                        }
+                    })
+                }, 100)
+            }
+
             anime({
                 targets: '#content',
                 opacity: 0,
@@ -1322,31 +1369,81 @@ export default function Dash() {
     }
 
     useEffect(() => {
-        if (router.isReady) {
-            //once the page is fully loaded, play the splashscreen outro
-            if (window.innerWidth <= 600) {
-                setMobile(true);
-                console.log("mobile")
-                document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_mobile.mp4";
-                document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_mobile.mp4";
+        //once the page is fully loaded, play the splashscreen outro
+
+        if (Cookies.get("account") != undefined) {
+            setAccount(Cookies.get("account"));
+        }
+
+        if (window.innerWidth <= 1060) {
+            hideSidebar();
+            collapse("dashboarduam", 53, "dashuamico", true);
+            collapse("accountsuam", 53, "accuamcico", true);
+            collapse("homepageuam", 53, "hpuamcico", true);
+        } else {
+            showSidebar();
+            collapse("dashboarduam", 53, "dashuamico", false);
+            collapse("accountsuam", 53, "accuamcico", false);
+            collapse("homepageuam", 53, "hpuamcico", false);
+        }
+
+        window.addEventListener("resize", () => {
+            if (window.innerWidth <= 1060) {
                 hideSidebar();
+                collapse("dashboarduam", 53, "dashuamico", true);
+                collapse("accountsuam", 53, "accuamcico", true);
+                collapse("homepageuam", 53, "hpuamcico", true);
+            } else {
+                showSidebar();
+                collapse("dashboarduam", 53, "dashuamico", false);
+                collapse("accountsuam", 53, "accuamcico", false);
+                collapse("homepageuam", 53, "hpuamcico", false);
             }
+        });
 
-            if (Cookies.get("account") != undefined) {
-                setAccount(Cookies.get("account"));
+        refresh("accounts");
+        refresh("events");
+        refresh("donations");
+
+        if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+            setTrackerUUID(uuid());
+        } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+            setTrackerUUID(Cookies.get("trackerUUID"));
+        }
+
+        window.scrollTo(0, 0);
+        if (window.innerWidth <= 600) {
+            setMobile(true);
+            console.log("mobile")
+            document.getElementById("splashscreenOutro").style.display = "none";
+            setTimeout(() => {
+                document.body.style.overflowY = "hidden"
+                if (router.query.view != undefined) {
+                    if (router.query.view == "volunteer") {
+                        openOverlay("v");
+                    } else if (router.query.view == "donate") {
+                        openOverlay("d");
+                    } else {
+                        if (router.query.eventid != undefined) {
+                            openEventOverlay("vieweventsoverlay", router.query.eventid);
+                        }
+                        switchView(router.query.view);
+                    }
+                }
+                anime({
+                    targets: '#content',
+                    opacity: 1,
+                    duration: 200,
+                    delay: 500,
+                    easing: 'linear'
+                })
+            }, 500);
+        } else {
+            document.getElementById("splashscreenOutro").style.display = "block";
+            if (window.innerWidth <= 1450) {
+                document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_notext.mp4";
+                document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_notext.mp4";
             }
-
-            refresh("accounts");
-            refresh("events");
-            refresh("donations");
-
-            if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
-                setTrackerUUID(uuid());
-            } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
-                setTrackerUUID(Cookies.get("trackerUUID"));
-            }
-
-            window.scrollTo(0, 0);
             document.getElementById("splashscreenOutro").play().catch((err) => {
                 console.log(err)
             });
@@ -1363,6 +1460,7 @@ export default function Dash() {
                     complete: function (anim) {
                         document.getElementById("splashscreenOutro").style.display = "none";
                         document.body.style.overflowY = "hidden"
+                        console.log(router.query)
                         if (router.query.view != undefined) {
                             if (router.query.view == "volunteer") {
                                 openOverlay("v");
@@ -1385,7 +1483,7 @@ export default function Dash() {
                 })
             }, 500)
         }
-    }, [router.isReady])
+    }, [])
 
     return (
         <>
@@ -1394,7 +1492,7 @@ export default function Dash() {
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
             </Head>
             <main id="mainelem" style={{ overflow: 'hidden' }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-                <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen"><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
+                <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen" style={{ display: "none" }}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
                 <video id="splashscreenIntro" playsInline muted className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
                 <div id="content" style={{ opacity: 0, overflow: "visible", transition: "all ease 0.5s" }} className={styles.sidebarContent}>
                     <div style={{ padding: "15px", width: "100%" }}>
@@ -1408,9 +1506,9 @@ export default function Dash() {
                                     <button id="donationsbtn" className={styles.sidebarItem} onClick={() => switchView("donations")}>Donations</button>
                                 </div>
                                 <button className={styles.sidebarItem} onClick={() => push("/accounts?view=Sign+In")} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: (mobileRef.current) ? "230px" : "280px", display: (account == "") ? "block" : "none" }}>Sign In</button>
-                                <div className={styles.sidebarItem} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: "280px", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
-                                    <div style={{ display: "grid", gridTemplateColumns: "60px auto 50px", padding: "10px", height: "50px" }}>
-                                        <div id="picture" style={{ backgroundColor: "#e3ab4a", width: "50px", height: "100%", borderRadius: "15px" }}>
+                                <div className={styles.sidebarItem} style={{ position: "absolute", left: "50%", width: (mobile) ? "230px" : "280px", transform: "translateX(-50%)", bottom: 50, zIndex: "100", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: (mobile) ? "auto 50px" : "60px auto 50px", padding: "10px", height: "50px" }}>
+                                        <div id="picture" style={{ backgroundColor: "#e3ab4a", width: "50px", height: "100%", borderRadius: "15px", display: (mobile) ? "none" : "block" }}>
                                         </div>
                                         <h3 style={{ margin: "auto", marginLeft: "0px", color: "#e3ab4a", textAlign: "left" }} id="acctName">Name</h3>
                                         <div id="logout" className={styles.hover} onClick={() => {
@@ -1434,50 +1532,57 @@ export default function Dash() {
                     }}>
                         <div id="aag" className={styles.screen} style={{ marginTop: "0px" }}>
                             <div style={{ padding: "20px" }}>
-                                <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: (mobile) ? "auto" : "70px auto" }}>
+                                <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: "70px auto", gridGap: (mobile) ? "0px" : "25px" }}>
                                     <button style={{ margin: (mobile) ? "0" : "auto" }} className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                     <h3 className={styles.screenheading}>At a glance</h3>
                                 </div>
                                 <div className={styles.divider}></div>
                                 <div id="admin" style={{ display: (adminView) ? "block" : "none" }}>
                                     <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>Today</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter} style={{ float: "inline-start", width: "500px", height: "98px", border: "dashed 1px rgb(214, 164, 78)", backgroundColor: "rgba(255, 208, 128, 0.692)" }}>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.eventsTodayBento}>
                                             <div className={styles.fullycenter} style={{ width: "100%" }}>
                                                 <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
                                             </div>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "250px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="tdonsnum">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }} id="tdonssub">donations</p>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
+                                            <p id="tdonsnum">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }} id="tdonssub">donations</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "250px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="tdonsamt">$0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
+                                            <p id="tdonsamt">$0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="totaluserstd">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="totaluserstd">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>total users</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>new users</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>returning users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>returning users</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div style={{ position: "relative" }}>
-                                        <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>Real-time User Activity Monitor</h4>
-                                        <div style={{ margin: "20px" }}>
-                                            <div className={styles.bentoboxShorter} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }} id="activeusersnum">0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total active users</p>
+                                        <h3 className={styles.screensubheading} style={{ fontSize: "25px", color: "rgb(183 137 58)" }}>REAL-TIME</h3>
+                                        <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>User Activity Monitor</h4>
+                                        <div className={styles.bentoboxCont}>
+                                            <div className={styles.viewbentobox} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <p id="activeusersnum">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>total active users</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px", float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}><a id="homepagenum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
+                                            <div id="homepageuam" className={styles.bentoboxShorter} style={{ width: "280px", overflow: "hidden", height: "auto", float: "inline-start", marginBottom: "10px", marginRight: "10px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
+                                                    <p style={{ margin: "0px", textAlign: "center" }}><a id="homepagenum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
+                                                    <div className={styles.collapse} onClick={() => collapse("homepageuam", 53, "hpuamcico")} style={{ cursor: "pointer" }}>
+                                                        <span className='material-symbols-rounded' id="hpuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
+                                                    </div>
+                                                </div>
+
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="heronum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Hero</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="goalgridnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Statistics/Goal</a></p>
@@ -1486,15 +1591,26 @@ export default function Dash() {
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="getintouchnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Get In Touch</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="footernum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Footer</a></p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "auto", float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}><a id="accountsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
+                                            <div id="accountsuam" className={styles.bentoboxShorter} style={{ width: "230px", height: "auto", overflow: "hidden", float: "inline-start", marginBottom: "10px", marginRight: "10px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
+                                                    <p style={{ margin: "0px", textAlign: "center" }}><a id="accountsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
+                                                    <div className={styles.collapse} onClick={() => collapse("accountsuam", 53, "accuamcico")} style={{ cursor: "pointer" }}>
+                                                        <span className='material-symbols-rounded' id="accuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
+                                                    </div>
+                                                </div>
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="landingnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Landing</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="innum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign In</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="upnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign Up</a></p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ width: "300px", height: "350px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}><a id="dashboardnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
+                                            <div className={styles.bentoboxShorter} id="dashboarduam" style={{ width: "250px", marginBottom: "10px", marginRight: "10px", height: "350px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
+                                                    <p style={{ margin: "0px", textAlign: "center" }}><a id="dashboardnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
+                                                    <div className={styles.collapse} onClick={() => collapse("dashboarduam", 53, "dashuamico")} style={{ cursor: "pointer" }}>
+                                                        <span className='material-symbols-rounded' id="dashuamico" style={{ fontSize: "40px" }}>expand_circle_up</span>
+                                                    </div>
+                                                </div>
+
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="aagnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>At a glance</a></p>
                                                 <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="eventsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Events</a></p>
@@ -1507,132 +1623,149 @@ export default function Dash() {
                                     </div>
                                     <div className={styles.divider}></div>
                                     <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>{new Date().toLocaleString('default', { month: 'long' })}</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="maagdonsamt">$0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p id="maagdonsamt">$0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="maagdonsnum">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donations</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="maagdonsnum">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donations</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>{accounts.length}</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new accounts</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>{accounts.length}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>new accounts</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>event attendees</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>event attendees</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="totalusersm">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="totalusersm">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>total users</p>
                                         </div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Retention</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>5,554</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>new users</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p>5,554</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>new users</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>2,345</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>returning users</p>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "300px" }}>
+                                            <p>2,345</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>returning users</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>All Time</h4>
-                                    <div style={{ margin: "20px" }}>
+                                    <div className={styles.bentoboxCont}>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">$0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                            <p id="aagdonsamt" style={{ margin: "0px", textAlign: "center" }}>$0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px", margin: "0px", textAlign: "center" }}>donated</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>volunteers</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteers</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>{accounts.length}</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>accounts</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>{accounts.length}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="totalusers">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>total users</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="totalusers">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>total users</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>homepage views</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>homepage views</p>
                                         </div>
                                     </div>
 
                                     <h4 className={styles.screensubheading}>Demographics</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">40%</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Maryland</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox}>
+                                            <p>40%</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">30%</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from DC</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>30%</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from DC</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">30%</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>30%</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Virginia</p>
                                         </div>
                                         <br />
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">77%</p>
+                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px", marginBottom: "10px" }}>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>77%</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a mobile device</p>
                                         </div>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="aagdonsamt">23%</p>
+                                            <p style={{ margin: "0px", textAlign: "center" }}>23%</p>
                                             <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a desktop device</p>
                                         </div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Events</h4>
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>{eventsLength}</p>
-                                            <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>events</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox}>
+                                            <p>{eventsLength}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>events</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="vacount" style={{ margin: "0px", textAlign: "center" }}>{eventAttendees}</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>event attendees</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="vacount">{eventAttendees}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>event attendees</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div id="non-admin" style={{ display: (!adminView) ? "block" : "none" }}>
                                     <div id="youSection" style={{ display: (account == "") ? "none" : "block" }}>
                                         <h4 className={styles.screensubheading}>You</h4>
-                                        <div style={{ margin: "20px" }}>
+                                        <div className={styles.bentoboxCont}>
                                             <div className={styles.bentoboxShorter} style={{ width: "350px" }}>
                                                 <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>role</p>
                                                 <p style={{ margin: "0px", textAlign: "center" }}>SUPPORTER</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>joined</p>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>2/23/24</p>
+                                            <div className={styles.viewbentobox}>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>joined</p>
+                                                <p>2/23/24</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>$0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donated</p>
+                                            <div className={styles.viewbentobox}>
+                                                <p>$0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>volunteer hours</p>
+                                            <div className={styles.viewbentobox}>
+                                                <p>0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteer hours</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>events attended</p>
+                                            <div className={styles.viewbentobox}>
+                                                <p>0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>events attended</p>
                                             </div>
                                         </div>
                                         <div className={styles.divider}></div>
                                     </div>
 
                                     <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", marginTop: "10px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
-                                    <div className={styles.doublegrid} style={{ width: (mobile) ? "100%" : "70%", margin: "auto", display: (mobile) ? "block" : "grid" }}>
-                                        <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block", width: "100%" }} onClick={() => openOverlay("d")}>Donate</button>
-                                        <button className={[styles.button, styles.hover].join(" ")} style={{ margin: "auto", backgroundColor: "#fbe85dff", color: "black", marginBottom: "15px", fontSize: "40px", fontWeight: "bold", display: "block", width: "100%" }} onClick={() => openOverlay("v")}>Join our team</button>
+                                    <div className={styles.makeDifferenceCont}>
+                                        <button
+                                            className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
+                                            style={{
+                                                backgroundColor: "#f66d4bff",
+                                            }}
+                                            onClick={() => openOverlay("d")}
+                                        >
+                                            Donate
+                                        </button>
+                                        <button
+                                            className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
+                                            style={{
+                                                backgroundColor: "#fbe85dff",
+                                                color: "black",
+                                            }}
+                                            onClick={() => openOverlay("v")}
+                                        >
+                                            Join our team
+                                        </button>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div style={{ display: "none" }}>
@@ -1648,7 +1781,7 @@ export default function Dash() {
 
                                     <div>
                                         <h4 className={styles.screensubheading}>Recent Events</h4>
-                                        <div id="othereventsl" style={{ margin: "20px", overflowX: "auto" }}>
+                                        <div id="othereventsl" className={styles.bentoboxCont} style={{ overflowX: "auto" }}>
                                             <div className={styles.card}>
                                                 <div className={styles.fullycenter} style={{ width: "100%" }}>
                                                     <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>
@@ -1668,72 +1801,35 @@ export default function Dash() {
                                     <div className={styles.loading} id="accountsloading"></div>
                                 </div>
                                 <div id="accountscontent">
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>{accounts.length}</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>accounts</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox}>
+                                            <p>{accounts.length}</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>volunteers</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteers</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>donators</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donators</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="dccount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from DC</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="dccount">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from DC</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="mdcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="mdcount">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p id="vacount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Virginia</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="vacount">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Virginia</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <div id="accountslist" style={{ width: "70%", margin: "auto" }}>
+                                    <div id="accountslist" className={styles.viewlist}>
 
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="blog" className={styles.screen} style={{ display: "none" }}>
-                            <div style={{ padding: "20px" }}>
-                                <div id="v1b">
-                                    <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
-                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                        <h3 className={styles.screenheading}>Blog</h3>
-                                        <div className={styles.loading} id="blogloading"></div>
-                                    </div>
-
-                                    <div id="blogcontent">
-                                        <div style={{ margin: "20px" }}>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p id="blogpostsnum" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>posts</p>
-                                            </div>
-                                        </div>
-                                        <div className={styles.divider}></div>
-                                        <div style={{ width: "80%", margin: "auto" }}>
-                                            <div id="eventsnavbar" style={{ gridTemplateColumns: (mobile) ? "60% auto" : "75% auto" }} className={styles.doublegrid}>
-                                                <input className={styles.input} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="blogsearch" placeholder="Search with title"></input>
-                                                <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openBlogPostViewer()}>New Post</button>
-                                            </div>
-                                            <div id="bloglist">
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="v2b" style={{ display: "none", transform: "scale(0.5)", opacity: 0, filter: "blur(50px)" }}>
-                                    <div className={styles.doublegrid} style={{ width: "600px", gridTemplateColumns: "70px auto 50px" }}>
-                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => closeBlogPostViewer()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">arrow_back</span></button>
-                                        <h3 className={styles.screenheading}>Blog Post Viewer</h3>
-                                        <div className={styles.loading} id="blogpostloading"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1747,37 +1843,37 @@ export default function Dash() {
                                         <div className={styles.loading} id="eventsloading"></div>
                                     </div>
                                     <div id="eventscontent">
-                                        <div style={{ margin: "20px" }}>
-                                            <div className={styles.bentoboxShorter} style={{ display: (adminView) ? "inline-block" : "none" }}>
-                                                <p id="attcount" style={{ margin: "0px", textAlign: "center" }}>{eventAttendees}</p>
-                                                <p style={{ margin: "0px", textAlign: "center", fontWeight: "normal", fontSize: "30px" }}>total attendees</p>
+                                        <div className={styles.bentoboxCont}>
+                                            <div className={styles.viewbentobox}>
+                                                <p id="eventsamt">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>events</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter}>
-                                                <p id="eventsamt" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>events</p>
+                                            <div className={styles.viewbentobox} style={{ display: (adminView) ? "inline-block" : "none" }}>
+                                                <p id="attcount">{eventAttendees}</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>total attendees</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#ffff0072", color: "black" }}>
-                                                <p id="pendingcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>pending</p>
+                                            <div className={styles.viewbentobox} style={{ backgroundColor: "#ffff0072", color: "black" }}>
+                                                <p id="pendingcount">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>pending</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#fbac29ff", animation: styles.pulse + " 3s infinite linear" }}>
-                                                <p id="inprogcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>in progress</p>
+                                            <div className={styles.viewbentobox} style={{ backgroundColor: "#fbac29ff", animation: styles.pulse + " 3s infinite linear" }}>
+                                                <p id="inprogcount">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>in progress</p>
                                             </div>
-                                            <div className={styles.bentoboxShorter} style={{ backgroundColor: "#f66d4bff" }}>
-                                                <p id="endedcount" style={{ margin: "0px", textAlign: "center" }}>0</p>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>ended</p>
+                                            <div className={styles.viewbentobox} style={{ backgroundColor: "#f66d4bff" }}>
+                                                <p id="endedcount">0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>ended</p>
                                             </div>
                                         </div>
                                         <div className={styles.divider}></div>
                                         <div id="eventsattend">
                                             <h3 className={styles.screenheading} style={{ fontSize: "40px", marginLeft: "5px" }}>Your Events</h3>
-                                            <div id="eventsattendlist" style={{ width: "80%", margin: "auto", marginTop: "20px" }}></div>
+                                            <div id="eventsattendlist" className={styles.viewlist} style={{ marginTop: "10px" }}></div>
                                             <div className={styles.divider}></div>
                                         </div>
 
-                                        <div style={{ width: "80%", margin: "auto" }}>
-                                            <div id="eventsnavbar" style={{ gridTemplateColumns: (mobile) ? "auto 200px" : "auto 230px", gridGap: "15px", display: (adminView) ? "grid" : "block" }} className={styles.doublegrid}>
+                                        <div className={styles.viewlist}>
+                                            <div id="eventsnavbar" style={{ display: (mobile) ? "block" : (adminView) ? "grid" : "block" }} className={styles.viewnavbar}>
                                                 <input onInput={() => {
                                                     const children = document.getElementById("eventslist").children;
                                                     for (let i = 0; i < children.length; i++) {
@@ -1861,7 +1957,7 @@ export default function Dash() {
                                     <button id="eregistertbtn" className={styles.managebutton}>Register</button>
                                 </div>
 
-                                <div id="editeventsoverlay" style={{ transform: "translateX(-50%) translateY(-50%) scale(1.2)", marginTop: (mobile) ? "220px" : "0px", filter: "blur(10px)", opacity: 0 }} className={[styles.fullycenter, styles.eventsoverlay].join(" ")}>
+                                <div id="editeventsoverlay" style={{ transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={[styles.fullycenter, styles.eventsoverlay].join(" ")}>
                                     <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("editeventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
                                     <div id="eestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
                                         <div className={styles.fullycenter} style={{ width: "100%" }}>
@@ -1889,11 +1985,11 @@ export default function Dash() {
                                         </div>
                                         <div className={styles.divider}></div>
                                     </div>
-                                    <div id="eldoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "300px auto" }}>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Location</h3>
-                                        <input id="eloc" placeholder="Location" className={styles.input}></input>
+                                    <div id="eldoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "250px auto" }}>
+                                        <h3 className={[styles.font, styles.evDGItem].join(" ")} style={{ fontSize: "30px", margin: "10px" }}>Event Location</h3>
+                                        <input id="eloc" placeholder="Location" className={[styles.input, styles.evDGItem].join(" ")}></input>
                                     </div>
-                                    <div id="evdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "150px auto" }}>
+                                    <div id="evdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "150px auto" }}>
                                         <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Visibility</h3>
                                         <select id="evselect" className={styles.input}>
                                             <option>Visible</option>
@@ -2019,20 +2115,29 @@ export default function Dash() {
                                 </div>
 
                                 <div id="donationscontent">
-                                    <div style={{ margin: "20px" }}>
-                                        <div className={styles.bentoboxShorter}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="donationsnumber">0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }} id="donationssub">donations</p>
+                                    <div className={styles.bentoboxCont}>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="donationsnumber">0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }} id="donationssub">donations</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "250px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }} id="donationsamt">$0</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>raised</p>
+                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
+                                            <p id="donationsamt">$0</p>
+                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>raised</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <div style={{ width: (mobile) ? "100%" : "80%", margin: "auto" }}>
+                                    <div className={styles.viewlist}>
                                         <div id="donationsnavbar" style={{ gridTemplateColumns: (mobile) ? "auto 200px" : "auto 250px", }} className={styles.doublegrid}>
-                                            <input className={styles.inputScreen} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" type="date" placeholder="Search with date"></input>
+                                            <input className={styles.inputScreen} onInput={() => {
+                                                const donatelist = document.getElementById("donatelist").children;
+                                                for (let i = 0; i < donatelist.length; i++) {
+                                                    if (donatelist[i].getAttribute("name").toLowerCase().includes(document.getElementById("donatesearch").value.toLowerCase())) {
+                                                        donatelist[i].style.display = "block";
+                                                    } else {
+                                                        donatelist[i].style.display = "none";
+                                                    }
+                                                }
+                                            }} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" type="date" placeholder="Search with date"></input>
                                             <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openOverlay("d")}>New Donation</button>
                                         </div>
                                         <div id="donatelist">
@@ -2043,11 +2148,9 @@ export default function Dash() {
                             </div>
                         </div>
                     </div>
-
-
                 </div>
 
-                <div id="differenceOverlay" className={styles.doublegrid} style={{ gridTemplateColumns: "auto 85%", position: "absolute", zIndex: "100", width: "100%", height: "100%", display: "none" }}>
+                <div id="differenceOverlay" className={styles.overlayGrid}>
                     <div id="closeZigZag" style={{ position: "relative", opacity: "0" }}>
                         <div className={styles.fullycenter}>
                             <h1 style={{ margin: "auto", marginBottom: "100px", fontSize: "40px", color: "#ce8400ff" }} className={styles.font}>Close</h1>
@@ -2060,7 +2163,7 @@ export default function Dash() {
                     <div id="zigZag" className={styles.zigZag} style={{ '--lighterColor': "#ffe7bf", backgroundColor: "#ce8400ff", height: "100%", left: "100%", overflowY: "auto" }}>
                         <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeOverlay()} style={{ margin: "auto", marginTop: "10px", display: (mobile) ? "block" : "none" }}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
                         <div id="donate" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1d" className={styles.fullycenter} style={{ width: "85%", left: "150%", opacity: 0 }}>
+                            <div id="v1d" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
                                 <h1 className={styles.header}>Select donation amount</h1>
                                 <p className={styles.subheader}>Your donation contributes to our goal of ensuring everyone in the DMV has food and shelter.</p>
                                 <div className={styles.doublegrid} style={{ width: "250px", margin: "auto", marginTop: "100px", marginBottom: "100px", gridTemplateColumns: "50px auto", gridGap: "0px" }}>
@@ -2087,7 +2190,7 @@ export default function Dash() {
                                 </div>
                                 <button id="v1dcont" onClick={() => nextStep("d")} className={[styles.minibutton, styles.hover].join(" ")} style={{ backgroundColor: "rgba(0, 0, 0, 0.281)", opacity: 0, visibility: "hidden" }}>Continue</button>
                             </div>
-                            <div id="v2d" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
+                            <div id="v2d" className={styles.zigZagView} style={{ "--maxWidth": "55%" }}>
                                 <h1 id="v2dh" className={styles.header}>Donate $0.00</h1>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px" }}>
                                     <input className={styles.input} type='text' placeholder="Name"></input>
@@ -2118,8 +2221,8 @@ export default function Dash() {
                             </div>
                         </div>
                         <div id="volunteer" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1v" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "60%", left: "150%", opacity: 0 }}>
-                                <h1 className={styles.header}>NourishDMV Volunteer Application</h1>
+                            <div id="v1v" className={styles.zigZagView} style={{ "--maxWidth": "60%" }}>
+                                <h1 className={styles.header}>Volunteer with Us</h1>
                                 <p className={styles.subheader}>Thank you for your interest in being a NourishDMV Volunteer! Please fill out this application and we'll get back to you as soon as possible.</p>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px", gridTemplateColumns: "auto auto auto" }}>
                                     <input className={styles.input} type='text' placeholder="Name"></input>
@@ -2127,13 +2230,13 @@ export default function Dash() {
                                     <input className={styles.input} type="text" placeholder="Email"></input>
                                 </div>
 
-                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "150px auto 150px", gridGap: "15px" }}>
-                                    <select className={styles.input} placeholder="Name">
-                                        <option>Area</option>
-                                        <option>D.C.</option>
-                                        <option>Maryland</option>
-                                        <option>Virginia</option>
-                                    </select>
+                                <select className={styles.input} placeholder="Name">
+                                    <option>Area</option>
+                                    <option>D.C.</option>
+                                    <option>Maryland</option>
+                                    <option>Virginia</option>
+                                </select>
+                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto 150px", gridGap: "15px" }}>
                                     <input className={styles.input} type='text' placeholder="Address"></input>
                                     <input className={styles.input} type='text' placeholder="City"></input>
                                 </div>
@@ -2141,15 +2244,15 @@ export default function Dash() {
                                 <textarea className={styles.textarea} placeholder="Why do you want to volunteer with us?"></textarea>
                                 <textarea className={styles.input} placeholder="What tasks are your favorite to complete?"></textarea>
                                 <input className={styles.input} placeholder="How did you hear about us?"></input>
-                                <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
+                                <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", marginBottom: "20px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
                             </div>
-                            <div id="v2v" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
+                            <div id="v2v" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
                                 <h1 className={styles.header}>Thank you!</h1>
-                                <p className={styles.subheader}>Your application has been processed, we'll be in touch soon! You can close this by clicking the close button on the left.</p>
+                                <p className={styles.subheader}>Your application has been processed, we'll be in touch soon! You can close this by clicking the close button {(mobile) ? "at the top" : "on the left"}.</p>
                             </div>
                         </div>
-                        <div id="registerEvent" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1re" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
+                        <div id="registerEvent" style={{ position: "relative", height: "100%", display: "none" }}>
+                            <div id="v1re" className={styles.zigZagView} style={{ "--maxWidth": "50%" }}>
                                 <h1 id="v1rehead" className={styles.header}>Pay $0.00 to register for Event</h1>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px" }}>
                                     <input className={styles.input} type='text' placeholder="Name"></input>

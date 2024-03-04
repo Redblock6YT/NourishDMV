@@ -35,27 +35,32 @@ export default function Accounts() {
     function push(path) {
         if (router.isReady) {
             //window.scrollTo({ top: 0, behavior: 'smooth' });
-            document.getElementById("splashscreenIntro").play().catch((err) => {
-                console.log(err)
-            });
-            document.getElementById("splashscreenIntro").pause();
-            document.getElementById("splashscreenIntro").style.display = "block";
-            setTimeout(() => {
-                document.getElementById("splashscreenIntro").playbackRate = 0.5;
-                document.getElementById("splashscreenIntro").play().catch((err) => {
-                    document.getElementById("splashscreenIntro").style.display = "none";
-                    console.log(err)
-                });
-                anime({
-                    targets: '#splashscreenIntro',
-                    opacity: 1,
-                    duration: 500,
-                    easing: 'easeInOutQuad',
-                    complete: function (anim) {
+            if (mobile) {
+                setTimeout(() => {
+                    if (path != "") {
                         router.push(path);
                     }
-                })
-            }, 100)
+                }, 1000)
+            } else {
+                document.getElementById("splashscreenIntro").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("splashscreenIntro").playbackRate = 0.5;
+                    document.getElementById("splashscreenIntro").play().catch((err) => {
+                        console.log(err)
+                    });
+                    anime({
+                        targets: '#splashscreenIntro',
+                        opacity: 1,
+                        duration: 500,
+                        easing: 'easeInOutQuad',
+                        complete: function (anim) {
+                            if (path != "") {
+                                router.push(path);
+                            }
+                        }
+                    })
+                }, 100)
+            }
             anime({
                 targets: "#maincontent",
                 opacity: 0,
@@ -490,39 +495,54 @@ export default function Accounts() {
                 window.scrollTo(0, 0);
                 if (window.innerWidth <= 600) {
                     setMobile(true);
-                    document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_mobile.mp4";
-                    document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_mobile.mp4";
                     document.getElementById("smallervidintro").src = "accounts_animatedbackground_intro_mobile.mp4";
                     document.getElementById("smallervidoutro").src = "accounts_animatedbackground_outro_mobile.mp4";
-                }
+                    document.getElementById("splashscreenOutro").style.display = "none"
+                    setTimeout(() => {
+                        if (router.query.view != undefined) {
+                            switchView("action", router.query.view);
+                        }
+                        anime({
+                            targets: '#maincontent',
+                            opacity: 1,
+                            duration: 500,
+                            easing: 'easeInOutQuad'
+                        })
+                    }, 500)
+                } else {
+                    if (window.innerWidth <= 1450) {
+                        document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_notext.mp4";
+                        document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_notext.mp4";
+                    }
 
-                document.getElementById("splashscreenOutro").play().catch((err) => {
-                    console.log(err)
-                });
-                document.getElementById("splashscreenOutro").pause();
-                setTimeout(() => {
                     document.getElementById("splashscreenOutro").play().catch((err) => {
                         console.log(err)
                     });
-                    if (router.query.view != undefined) {
-                        switchView("action", router.query.view);
-                    }
-                    anime({
-                        targets: '#splashscreenOutro',
-                        opacity: 0,
-                        duration: 500,
-                        easing: 'easeInOutQuad',
-                        complete: function (anim) {
-                            document.getElementById("splashscreenOutro").style.display = "none";
+                    document.getElementById("splashscreenOutro").pause();
+                    setTimeout(() => {
+                        document.getElementById("splashscreenOutro").play().catch((err) => {
+                            console.log(err)
+                        });
+                        if (router.query.view != undefined) {
+                            switchView("action", router.query.view);
                         }
-                    })
-                    anime({
-                        targets: '#maincontent',
-                        opacity: 1,
-                        duration: 500,
-                        easing: 'easeInOutQuad'
-                    })
-                }, 500)
+                        anime({
+                            targets: '#splashscreenOutro',
+                            opacity: 0,
+                            duration: 500,
+                            easing: 'easeInOutQuad',
+                            complete: function (anim) {
+                                document.getElementById("splashscreenOutro").style.display = "none";
+                            }
+                        })
+                        anime({
+                            targets: '#maincontent',
+                            opacity: 1,
+                            duration: 500,
+                            easing: 'easeInOutQuad'
+                        })
+                    }, 500)
+                }
             }
 
             if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
