@@ -80,7 +80,7 @@ export default function Dash() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -204,7 +204,7 @@ export default function Dash() {
         const exitFunction = () => {
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Inactive",
@@ -239,7 +239,7 @@ export default function Dash() {
                 if (view == "accounts") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getAccounts",
+                        url: "http://localhost:8080/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -297,7 +297,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getEvents"
+                        url: "http://localhost:8080/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         //sort the events array based on the event start date time
@@ -449,7 +449,7 @@ export default function Dash() {
                 } else if (view == "donations") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getDonations"
+                        url: "http://localhost:8080/getDonations"
                     }).then((res) => {
                         const accounts = res.data.reverse();
                         var amount = 0;
@@ -523,7 +523,7 @@ export default function Dash() {
                 } else if (view == "aag") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getTotalUsers"
+                        url: "http://localhost:8080/getTotalUsers"
                     }).then((res) => {
                         var users = res.data;
                         document.getElementById("totaluserstd").innerHTML = users.today;
@@ -567,7 +567,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "https://nourishapi.rygb.tech/getEvent?id=" + id
+                url: "http://localhost:8080/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -588,7 +588,7 @@ export default function Dash() {
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "https://nourishapi.rygb.tech/registerEvent",
+                                    url: "http://localhost:8080/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -630,7 +630,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "https://nourishapi.rygb.tech/unregisterEvent",
+                                url: "http://localhost:8080/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -790,7 +790,7 @@ export default function Dash() {
                 // "process" the donation
                 axios({
                     method: "post",
-                    url: "https://nourishapi.rygb.tech/addDonation",
+                    url: "http://localhost:8080/addDonation",
                     data: {
                         amount: parseFloat(document.getElementById("v1damt").value).toFixed(2),
                     }
@@ -871,7 +871,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "https://nourishapi.rygb.tech/getEvent?id=" + selectedEvent
+                    url: "http://localhost:8080/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost + " to register for " + res.data.event.title;
                 }).catch((err) => {
@@ -880,7 +880,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "https://nourishapi.rygb.tech/registerEvent",
+                    url: "http://localhost:8080/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -941,7 +941,7 @@ export default function Dash() {
             //mobile
             document.getElementById("content").style.gridTemplateColumns = "245px 100%";
         } else {
-            document.getElementById("content").style.gridTemplateColumns = "300px auto";
+            document.getElementById("content").style.gridTemplateColumns = "280px auto";
         }
         document.getElementById("content").style.left = "50%";
         document.getElementById("errorCard").style.display = "none"
@@ -952,12 +952,12 @@ export default function Dash() {
     function hideSidebar() {
         console.log(mobileRef.current)
         const parentWidth = document.getElementById("mainelem").clientWidth;
-        var left = (parentWidth / 2) - 325;
+        var left = (parentWidth / 2) - 305;
         if (window.innerWidth <= 600) {
             document.getElementById("content").style.gridTemplateColumns = "245px 100%";
             left = (parentWidth / 2) - 270;
         } else {
-            document.getElementById("content").style.gridTemplateColumns = "300px 100%";
+            document.getElementById("content").style.gridTemplateColumns = "280px 100%";
         }
 
 
@@ -991,7 +991,7 @@ export default function Dash() {
             donate.style.display = "block";
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1006,7 +1006,7 @@ export default function Dash() {
             volunteer.style.display = "block";
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1067,7 +1067,7 @@ export default function Dash() {
         setStep(0);
         axios({
             method: "post",
-            url: "https://nourishapi.rygb.tech/track",
+            url: "http://localhost:8080/track",
             data: {
                 uuid: trackerUUID,
                 page: "Dashboard",
@@ -1180,7 +1180,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "https://nourishapi.rygb.tech/getAccount?uuid=" + account
+                url: "http://localhost:8080/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1190,7 +1190,7 @@ export default function Dash() {
                         if (viewState == "aag") {
                             axios({
                                 method: "get",
-                                url: "https://nourishapi.rygb.tech/getTrackerStats"
+                                url: "http://localhost:8080/getTrackerStats"
                             }).then((res) => {
                                 const stats = res.data;
                                 console.log(stats);
@@ -1279,6 +1279,10 @@ export default function Dash() {
                             })
                         }
                     }, 1000)
+                } else {
+                    console.log("not admin")
+                    //prevent access to admin view by setting admin display to block (discovered 3/5/24)
+                    document.getElementById("admin").remove();
                 }
             }).catch((err) => {
                 console.log(err);
@@ -1807,7 +1811,7 @@ export default function Dash() {
                                         <div id="othereventsl" className={styles.bentoboxCont} style={{ overflowX: "auto" }}>
                                             <div className={styles.card}>
                                                 <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                    <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>
+                                                    <p className={styles.font} style={{ fontSize: "25px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -2066,7 +2070,7 @@ export default function Dash() {
                                             if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                                 axios({
                                                     method: "post",
-                                                    url: "https://nourishapi.rygb.tech/createEvent",
+                                                    url: "http://localhost:8080/createEvent",
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -2090,7 +2094,7 @@ export default function Dash() {
                                                 console.log(selectedEvent)
                                                 axios({
                                                     method: "post",
-                                                    url: "https://nourishapi.rygb.tech/updateEvent?id=" + selectedEvent,
+                                                    url: "http://localhost:8080/updateEvent?id=" + selectedEvent,
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -2116,7 +2120,7 @@ export default function Dash() {
                                         <button onClick={() => {
                                             axios({
                                                 method: "post",
-                                                url: "https://nourishapi.rygb.tech/deleteEvent?id=" + selectedEvent,
+                                                url: "http://localhost:8080/deleteEvent?id=" + selectedEvent,
                                             }).then((res) => {
                                                 closeEventOverlay("editeventsoverlay");
                                                 refresh("events")

@@ -214,19 +214,6 @@
     z-index: 10000;
 }
 
-.sidebar::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 200px;
-    /* Adjust the height as desired */
-    z-index: 1;
-    border-radius: 35px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.103), transparent 50%);
-}
-
 .zigZag {
     position: relative;
     padding-left: 32px;
@@ -732,7 +719,7 @@
 .makeDifferenceBtn {
     margin: auto;
     margin-bottom: 10px;
-    font-size: 40px;
+    font-size: 35px;
     font-weight: bold;
     width: 48%;
 }
