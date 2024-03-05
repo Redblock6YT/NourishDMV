@@ -28,6 +28,9 @@ export default function Accounts() {
                     page: "Accounts",
                     view: (view == "norm") ? "Landing" : actionType,
                 }
+            }).catch((err) => {
+                console.log(err)
+                console.log("Tracking failed.")
             })
         }
     }, [view, trackerUUID]);
@@ -36,11 +39,17 @@ export default function Accounts() {
         if (router.isReady) {
             //window.scrollTo({ top: 0, behavior: 'smooth' });
             if (mobile) {
-                setTimeout(() => {
-                    if (path != "") {
-                        router.push(path);
+                anime({
+                    targets: "#maincontent",
+                    opacity: 0,
+                    duration: 500,
+                    easing: 'easeInOutQuad',
+                    complete: function (anim) {
+                        if (path != "") {
+                            router.push(path);
+                        }
                     }
-                }, 1000)
+                })
             } else {
                 document.getElementById("splashscreenIntro").style.display = "block";
                 setTimeout(() => {
@@ -60,13 +69,14 @@ export default function Accounts() {
                         }
                     })
                 }, 100)
+                anime({
+                    targets: "#maincontent",
+                    opacity: 0,
+                    duration: 1000,
+                    easing: 'easeInOutQuad'
+                })
             }
-            anime({
-                targets: "#maincontent",
-                opacity: 0,
-                duration: 1000,
-                easing: 'easeInOutQuad'
-            })
+
         }
     }
 

@@ -247,6 +247,17 @@
     height: 100%;
 }
 
+.sidebarContainer {
+    padding: 15px;
+    width: 100%;
+}
+
+.screensContainer {
+    overflow-x: hidden;
+    overflow-y: hidden;
+    padding: 15px;
+}
+
 .sidebarItem {
     font-family: 'Outfit', sans-serif;
     font-size: 25px;
@@ -762,8 +773,24 @@
 }
 
 @media (max-width: 800px) {
+    .sidebarContainer {
+        padding: 10px;
+    }
+
+    .screensContainer {
+        padding: 10px;
+    }
+
+    .screenheading {
+        font-size: 40px;
+    }
+
     .header {
         font-size: 45px;
+    }
+
+    .sidebarItem {
+        height: 60px;
     }
 
     .eventsoverlay {

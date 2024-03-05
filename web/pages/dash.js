@@ -86,6 +86,9 @@ export default function Dash() {
                     page: "Dashboard",
                     view: viewState
                 }
+            }).catch((err) => {
+                console.log(err);
+                console.log("Tracking issue")
             })
         }
     }, [viewState, trackerUUID]);
@@ -207,6 +210,9 @@ export default function Dash() {
                     page: "Inactive",
                     view: ""
                 }
+            }).catch((err) => {
+                console.log(err);
+                console.log("Tracking error")
             })
         }
 
@@ -991,6 +997,9 @@ export default function Dash() {
                     page: "Dashboard",
                     view: "donationFlow"
                 }
+            }).catch((err) => {
+                console.log(err);
+                console.log("Tracking error")
             })
             volunteer.style.display = "none";
         } else if (type == "v") {
@@ -1003,6 +1012,9 @@ export default function Dash() {
                     page: "Dashboard",
                     view: "volunteerFlow"
                 }
+            }).catch((err) => {
+                console.log(err);
+                console.log("Tracking error")
             })
             donate.style.display = "none";
         } else if (type == "re") {
@@ -1061,6 +1073,9 @@ export default function Dash() {
                 page: "Dashboard",
                 view: viewState
             }
+        }).catch((err) => {
+            console.log(err);
+            console.log("Tracking error")
         })
         anime({
             targets: "#closeZigZag",
@@ -1090,11 +1105,18 @@ export default function Dash() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             document.body.style.overflowY = "hidden"
             if (mobile) {
-                setTimeout(() => {
-                    if (path != "") {
-                        router.push(path);
+                anime({
+                    targets: '#content',
+                    opacity: 0,
+                    filter: "blur(20px)",
+                    duration: 500,
+                    easing: 'easeInOutQuad',
+                    complete: function (anim) {
+                        if (path != "") {
+                            router.push(path);
+                        }
                     }
-                }, 1000)
+                })
             } else {
                 document.getElementById("splashscreenIntro").style.display = "block";
                 setTimeout(() => {
@@ -1114,15 +1136,16 @@ export default function Dash() {
                         }
                     })
                 }, 100)
+                anime({
+                    targets: '#content',
+                    opacity: 0,
+                    filter: "blur(20px)",
+                    duration: 1000,
+                    easing: 'easeInOutQuad'
+                })
             }
 
-            anime({
-                targets: '#content',
-                opacity: 0,
-                filter: "blur(20px)",
-                duration: 1000,
-                easing: 'easeInOutQuad'
-            })
+
         }
     }
 
@@ -1495,7 +1518,7 @@ export default function Dash() {
                 <video id="splashscreenOutro" playsInline preload="auto" muted className="splashScreen" style={{ display: "none" }}><source src="anim_ss_ndmv_outro.mp4" type="video/mp4" /></video>
                 <video id="splashscreenIntro" playsInline muted className="splashScreen" style={{ display: "none", opacity: 0 }}><source src="anim_ss_ndmv_intro.mp4" type="video/mp4" /></video>
                 <div id="content" style={{ opacity: 0, overflow: "visible", transition: "all ease 0.5s" }} className={styles.sidebarContent}>
-                    <div style={{ padding: "15px", width: "100%" }}>
+                    <div className={styles.sidebarContainer}>
                         <div className={styles.sidebar}>
                             <div style={{ padding: "15px" }}>
                                 <div id="navbtns">
@@ -1520,11 +1543,11 @@ export default function Dash() {
                                         </div>
                                     </div>
                                 </div>
-                                <Image style={{ bottom: 10, position: "absolute", left: "50%", transform: "translateX(-50%)" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={200} />
+                                <Image style={{ bottom: 10, position: "absolute", left: "50%", transform: "translateX(-50%)" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={(mobile) ? 190 : 200} />
                             </div>
                         </div>
                     </div>
-                    <div id="screens" style={{ overflowX: "hidden", overflowY: "hidden", padding: "15px" }} onClick={() => {
+                    <div id="screens" className={styles.screensContainer} onClick={() => {
                         if (mobile && sidebarOpen) {
                             hideSidebar();
                             setUserSidebarOpen(false);

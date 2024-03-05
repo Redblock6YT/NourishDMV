@@ -25,7 +25,7 @@ export default function Home() {
     anime({
       targets: "#sidebar",
       left: "50%",
-      duration: 500,
+      duration: 300,
       easing: 'easeInOutQuad',
     })
   }
@@ -36,7 +36,7 @@ export default function Home() {
     anime({
       targets: "#sidebar",
       left: "-50%",
-      duration: 500,
+      duration: 300,
       easing: 'easeInOutQuad',
     })
   }
@@ -48,11 +48,20 @@ export default function Home() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       document.body.style.overflowY = "hidden"
       if (mobile) {
-        setTimeout(() => {
-          if (path != "") {
-            router.push(path);
+        anime({
+          targets: '#content',
+          opacity: 0,
+          filter: "blur(20px)",
+          duration: 500,
+          delay: 200,
+          easing: 'easeInOutQuad',
+          complete: function (anim) {
+            if (path != "") {
+              router.push(path);
+            }
           }
-        }, 1000)
+        })
+
       } else {
         document.getElementById("splashscreenIntro").style.display = "block";
         setTimeout(() => {
@@ -72,14 +81,15 @@ export default function Home() {
             }
           })
         }, 100)
+        anime({
+          targets: '#content',
+          opacity: 0,
+          filter: "blur(20px)",
+          duration: 1000,
+          easing: 'easeInOutQuad'
+        })
       }
-      anime({
-        targets: '#content',
-        opacity: 0,
-        filter: "blur(20px)",
-        duration: 1000,
-        easing: 'easeInOutQuad'
-      })
+
     }
   }
 
@@ -400,20 +410,30 @@ export default function Home() {
           page: "Homepage",
           view: viewingContent,
         }
-      })
+      }).catch((err) => {
+        console.log(err);
+        console.log("Failed to track.")
+      });
     }
   }, [trackerUUID, viewingContent]);
 
 
   //from https://gist.github.com/jjmu15/8646226
   function isInViewport(ele) {
-    const { top, bottom } = ele.getBoundingClientRect();
-    const vHeight = (window.innerHeight || document.documentElement.clientHeight);
+    try {
+      const { top, bottom } = ele.getBoundingClientRect();
+      const vHeight = (window.innerHeight || document.documentElement.clientHeight);
 
-    return (
-      (top > 0 || bottom > 0) &&
-      top < vHeight
-    );
+      return (
+        (top > 0 || bottom > 0) &&
+        top < vHeight
+      );
+    } catch (e) {
+      console.log(e)
+
+      return false;
+    }
+
   }
 
   function handleScroll() {
@@ -446,20 +466,6 @@ export default function Home() {
   useEffect(() => {
     if (router.isReady) {
       //once the page is fully loaded, play the splashscreen outro
-      if (Cookies.get("account") != undefined) {
-        setAccount(Cookies.get("account"));
-      }
-
-      setLoadContent(true);
-      //window.scrollTo(0, 0);
-      //playing the splashscreen is not essential, if it errors, just fade
-
-      if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
-        setTrackerUUID(uuid());
-      } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
-        setTrackerUUID(Cookies.get("trackerUUID"));
-      }
-
       if (window.innerWidth <= 1300) {
         document.getElementById("eventsbtn").style.display = "none";
         document.getElementById("buttons").style.gridTemplateColumns = "200px 280px 170px"
@@ -477,6 +483,7 @@ export default function Home() {
 
       if (window.innerWidth <= 800) {
         document.getElementById("buttons").style.display = "none"
+        document.getElementById("eventsContainer").prepend(document.getElementById("eventsImage"));
       }
 
       if (window.innerWidth <= 600) {
@@ -528,6 +535,19 @@ export default function Home() {
             easing: 'easeInOutQuad'
           })
         }, 500)
+      }
+      if (Cookies.get("account") != undefined) {
+        setAccount(Cookies.get("account"));
+      }
+
+      setLoadContent(true);
+      //window.scrollTo(0, 0);
+      //playing the splashscreen is not essential, if it errors, just fade
+
+      if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+        setTrackerUUID(uuid());
+      } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+        setTrackerUUID(Cookies.get("trackerUUID"));
       }
     }
   }, [router.isReady])
@@ -586,7 +606,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div id="bodyContent" style={{ marginTop: "47px", padding: "10px 5%" }}>
+          <div id="bodyContent" className={styles.bodyContent}>
             <div id="herosContainer" style={{ position: "relative" }}>
               <img src="shelter.jpg" className={styles.blurredHero} />
               <div id="hero" className={styles.hero}>
@@ -607,43 +627,42 @@ export default function Home() {
               <div className={styles.divider} style={{ marginTop: "240px" }}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto" }}>
-                <button className={styles.button} style={{ margin: "auto", height: "300px", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
-                <button className={styles.button} style={{ margin: "auto", height: "300px", color: "black", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "15px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
+                <button className={styles.diffbutton} style={{ backgroundColor: "#f66d4bff" }} onClick={() => push("/dash?view=donate")}>Donate</button>
+                <button className={styles.diffbutton} style={{ color: "black", backgroundColor: "#fbe85dff" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
               </div>
               <div style={{ position: "relative" }}>
                 <div className={styles.divider}></div>
-                <div className={styles.blurredCircle} style={{ position: "absolute", top: "-5%", backgroundColor: "#f66d4bff" }}></div>
 
-                <h3 className={styles.header} style={{ color: "black", textAlign: "center", marginBottom: "40px" }}><a style={{ backgroundColor: "#fbac29ff" }}>21,808</a> people need your help</h3>
-                <div className={styles.tripplegrid}>
-                  <div className={styles.card} style={{ margin: "auto", textAlign: "center" }}>
-                    <h1 className={styles.header} style={{ color: "rgba(0, 0, 0, 0.504)" }}>District of Columbia</h1>
-                    <p className={styles.description}>According to Homelessness in Metropolitan: Results and Analysis from the Annual Point-in-Time (PIT) Count of Persons Experiencing Homelessness, 8,944 total people in the District of Columbia (DC) are homeless.</p>
-                    <div className={styles.fullycenter} style={{ top: "initial", bottom: "0px", width: "100%", zIndex: "10" }}>
-                      <h3 className={styles.header}><a style={{ backgroundColor: "#fbac29ff", color: "black" }}>8,944</a></h3>
-                      <h4 style={{ margin: "0px", color: "rgba(0, 0, 0, 0.504)" }}>total homeless count</h4>
-                    </div>
-                  </div>
-                  <div className={styles.card} style={{ margin: "auto", textAlign: "center" }}>
-                    <h1 className={styles.header} style={{ color: "rgba(0, 0, 0, 0.504)" }}>Maryland</h1>
-                    <p className={styles.description}>According to 2020/2021 Report on Homelessness - The Maryland Interagency Council on Homelessness: 6,337 people are experiencing homelessness across the state of Maryland.</p>
-                    <div className={styles.fullycenter} style={{ top: "initial", bottom: "0px", width: "100%", zIndex: "10" }}>
-                      <h3 className={styles.header}><a style={{ backgroundColor: "#fbac29ff", color: "black" }}>6,337</a></h3>
-                      <h4 style={{ margin: "0px", color: "rgba(0, 0, 0, 0.504)" }}>total homeless count</h4>
-                    </div>
-                  </div>
+                <h3 className={styles.header} style={{ color: "black", textAlign: "center", marginBottom: "40px" }}><a style={{ backgroundColor: "#fbac29ff" }}>21,808</a> homeless individiuals need your help</h3>
 
-                  <div className={styles.card} style={{ margin: "auto", textAlign: "center" }}>
-                    <h1 className={styles.header} style={{ color: "rgba(0, 0, 0, 0.504)" }}>Virginia</h1>
-                    <p className={styles.description}>According to The Center Square | Virginia: 6,527 people in the state of Virginia are currently experiencing homelessness (September 25th, 2023)</p>
-                    <div className={styles.fullycenter} style={{ top: "initial", bottom: "0px", width: "100%", zIndex: "10" }}>
-                      <h3 className={styles.header}><a style={{ backgroundColor: "#fbac29ff", color: "black" }}>6,527</a></h3>
-                      <h4 style={{ margin: "0px", color: "rgba(0, 0, 0, 0.504)" }}>total homeless count</h4>
+                <div className={styles.tripplegrid} style={{ textAlign: "center", marginTop: "100px" }}>
+                  <div>
+                    <div style={{ position: "relative" }}>
+                      <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ backgroundColor: "#f66d4bff", margin: "0", transform: "translateX(-50%) translateY(-10%)" }}></div>
                     </div>
+
+                    <h1 className={styles.header} style={{ fontSize: "100px" }}>8,944</h1>
+                    <h2 className={styles.description} style={{ fontSize: "30px" }}>in District of Columbia</h2>
+                  </div>
+                  <div>
+                    <div style={{ position: "relative" }}>
+                      <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ backgroundColor: "rgb(247 168 18)", margin: "auto", transform: "translateX(-50%) translateY(-10%)" }}></div>
+                    </div>
+
+                    <h1 className={styles.header} style={{ fontSize: "100px" }}>6,337</h1>
+                    <h2 className={styles.description} style={{ fontSize: "30px" }}>in Maryland</h2>
+                  </div>
+                  <div>
+                    <div style={{ position: "relative" }}>
+                      <div className={[styles.blurredCircle, styles.fullycenter].join(" ")} style={{ backgroundColor: "#fbe85dff", margin: "auto", transform: "translateX(-50%) translateY(-10%)" }}></div>
+                    </div>
+                    <h1 className={styles.header} style={{ fontSize: "100px" }}>6,527</h1>
+                    <h2 className={styles.description} style={{ fontSize: "30px" }}>in Virginia</h2>
                   </div>
                 </div>
+
                 <div className={styles.divider} style={{ marginTop: "100px" }}></div>
-                <div className={styles.blurredCircle} style={{ position: "absolute", bottom: "-5%", right: "0", backgroundColor: "#fbe85dff", zIndex: "-1" }}></div>
+
               </div>
               <div id="goalgrid" className={styles.doublegrid} style={{ gridTemplateColumns: "1.2fr 0.8fr", gridGap: "100px" }}>
                 <div>
@@ -680,7 +699,7 @@ export default function Home() {
 
                   </div>
                 </div>
-                <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
+                <div id="eventsContainer" className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
                   <div>
                     <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Events</h3>
                     <p className={styles.description} style={{ fontSize: "25px" }}>
@@ -688,7 +707,7 @@ export default function Home() {
                     </p>
                     <button className={styles.minibutton} onClick={() => push("/dash?view=events")} style={{ width: "100%", marginTop: "10px" }}>View Events</button>
                   </div>
-                  <div style={{ position: "relative" }}>
+                  <div style={{ position: "relative" }} id="eventsImage">
                     <img className={styles.blurredHero} alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", filter: "blur(40px)", }}></img>
                     <img alt="people laying on beds in a homeless shelter" src="fundraisingevents.png" style={{ objectFit: "cover", height: "100%", width: "100%", borderRadius: "25px", zIndex: "20", position: 'relative' }}></img>
                   </div>
@@ -717,8 +736,8 @@ export default function Home() {
                   <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Teamwork</a></h3>
                   <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>Be a part of a team that works together to save lives and create a better DMV.</p>
                 </div>
-                <div style={{ borderLeft: "1px solid rgba(0, 0, 0, 0.104)", padding: "20px 0px 20px 50px", display: "grid", gap: "30px", gridTemplateRows: "1fr 1fr" }}>
-                  <button className={styles.button} style={{ margin: "auto", height: "100%", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "30px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
+                <div className={styles.differenceButtons}>
+                  <button className={styles.button} style={{ margin: "auto", height: "100%", width: "100%", backgroundColor: "#f66d4bff", marginBottom: "40px", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=donate")}>Donate</button>
                   <button className={styles.button} style={{ margin: "auto", height: "100%", width: '100%', backgroundColor: "#fbe85dff", marginBottom: "0px", color: "black", fontSize: "40px", fontWeight: "bold" }} onClick={() => push("/dash?view=volunteer")}>Join our team</button>
                 </div>
               </div>
@@ -727,42 +746,35 @@ export default function Home() {
                 <div className={styles.blurredCircle} style={{ position: "absolute", top: "-100%", left: "50%", height: "500px", width: "500px", zIndex: "-1", filter: "blur(150px)", transform: "translateX(-50%)", backgroundColor: "rgb(227, 171, 74)" }}></div>
                 <h3 className={styles.header} style={{ color: "black", marginBottom: "40px", textAlign: "center" }}>Get in touch</h3>
                 <div className={styles.contactgrid}>
-                  <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "tel:4101234567"}>
-                    <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
-                      (410) 123-4567
-                    </div>
-                    <div style={{ position: "relative" }}>
-                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                        <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                          call
-                        </span>
-                      </div>
+                  <div className={styles.item} style={{ margin: "auto", marginRight: "0px", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => window.location.href = "tel:4104567890"}>
+                    <p className={styles.header} style={{ margin: 0 }}>
+                      (410) 456-7890
+                    </p>
+                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")} style={{ filter: "blur(5px)", fontSize: "130px", opacity: 0.2 }}>
+                        call
+                      </span>
                     </div>
                   </div>
-                  <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginLeft: "0px", gridTemplateColumns: "30% auto", display: "grid" }} onClick={() => window.location.href = "mailto:contact@nourishdmv.com"}>
-                    <div style={{ position: "relative" }}>
-                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                        <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                          email
-                        </span>
-                      </div>
-
+                  <div className={styles.item} style={{ margin: "auto", marginLeft: "0px", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => window.location.href = "mailto:contact@nourishdmv.com"}>
+                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")} style={{ filter: "blur(5px)", fontSize: "130px", opacity: 0.2 }}>
+                        email
+                      </span>
                     </div>
-                    <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "30px" }}>
+                    <p className={styles.header} style={{ textAlign: "center", margin: "0" }}>
                       contact<br />@nourishdmv.com
-                    </div>
+                    </p>
                   </div>
-                  <div className={[styles.item, styles.doublegrid].join(" ")} style={{ margin: "auto", marginRight: "0px", gridTemplateColumns: "auto 30%", display: "grid" }} onClick={() => window.location.href = "https://www.google.com/maps/dir//16701+Melford+Blvd+%23421,+Bowie,+MD+20715/@38.9611344,-76.7158268,19z/data=!4m9!4m8!1m0!1m5!1m1!1s0x89b7ec1769408c5f:0x5e0035c97d3c3f24!2m2!1d-76.7146091!2d38.9611344!3e0?entry=ttu"}>
-                    <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "25px" }}>
+                  <div className={styles.item} style={{ margin: "auto", marginRight: "0px", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => window.location.href = "https://www.google.com/maps/dir//16701+Melford+Blvd+%23421,+Bowie,+MD+20715/@38.9611344,-76.7158268,19z/data=!4m9!4m8!1m0!1m5!1m1!1s0x89b7ec1769408c5f:0x5e0035c97d3c3f24!2m2!1d-76.7146091!2d38.9611344!3e0?entry=ttu"}>
+                    <div className={styles.header} style={{ textAlign: "center", margin: "0", fontSize: "25px" }}>
                       16701 Melford Blvd, Bowie, MD 20715
                       <h2 className={styles.subheader} style={{ fontSize: "20px" }}>headquarters</h2>
                     </div>
-                    <div style={{ position: "relative" }}>
-                      <div style={{ zIndex: "5" }} className={styles.fullycenter}>
-                        <span className={["material-symbols-rounded", styles.iconCircle].join(" ")}>
-                          pin_drop
-                        </span>
-                      </div>
+                    <div style={{ zIndex: "5" }} className={styles.fullycenter}>
+                      <span className={["material-symbols-rounded", styles.iconCircle].join(" ")} style={{ filter: "blur(5px)", fontSize: "130px", opacity: 0.2 }}>
+                        pin_drop
+                      </span>
                     </div>
                   </div>
                   <div className={styles.item} style={{ margin: "auto", marginLeft: "0px", cursor: "default" }}>
