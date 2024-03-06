@@ -521,15 +521,20 @@ export default function Dash() {
                         })
                     })
                 } else if (view == "aag") {
-                    axios({
-                        method: "get",
-                        url: "http://localhost:8080/getTotalUsers"
-                    }).then((res) => {
-                        var users = res.data;
-                        document.getElementById("totaluserstd").innerHTML = users.today;
-                        document.getElementById("totalusersm").innerHTML = users.month;
-                        document.getElementById("totalusers").innerHTML = users.all;
-                    })
+                    if (adminViewRef.current) {
+                        refresh("accounts");
+                        refresh("events");
+                        refresh("donations");
+                        axios({
+                            method: "get",
+                            url: "http://localhost:8080/getTotalUsers"
+                        }).then((res) => {
+                            var users = res.data;
+                            document.getElementById("totaluserstd").innerHTML = users.today;
+                            document.getElementById("totalusersm").innerHTML = users.month;
+                            document.getElementById("totalusers").innerHTML = users.all;
+                        })
+                    }
                 }
             }
         })
@@ -919,10 +924,11 @@ export default function Dash() {
                 easing: 'easeInOutQuad',
                 complete: function (anim) {
                     document.getElementById("v" + step + type).style.display = "none";
-                    document.getElementById("v" + (step + 1) + type).style.display = "block";
-                    setStep(step + 1);
                 }
             })
+
+            document.getElementById("v" + (step + 1) + type).style.display = "block";
+            setStep(step + 1);
         }
     }
 
@@ -1396,25 +1402,13 @@ export default function Dash() {
     }
 
     useEffect(() => {
-        //once the page is fully loaded, play the splashscreen outro
+        if (router.isReady) {
+            //once the page is fully loaded, play the splashscreen outro
 
-        if (Cookies.get("account") != undefined) {
-            setAccount(Cookies.get("account"));
-        }
+            if (Cookies.get("account") != undefined) {
+                setAccount(Cookies.get("account"));
+            }
 
-        if (window.innerWidth <= 1060) {
-            hideSidebar();
-            collapse("dashboarduam", 53, "dashuamico", true);
-            collapse("accountsuam", 53, "accuamcico", true);
-            collapse("homepageuam", 53, "hpuamcico", true);
-        } else {
-            showSidebar();
-            collapse("dashboarduam", 53, "dashuamico", false);
-            collapse("accountsuam", 53, "accuamcico", false);
-            collapse("homepageuam", 53, "hpuamcico", false);
-        }
-
-        window.addEventListener("resize", () => {
             if (window.innerWidth <= 1060) {
                 hideSidebar();
                 collapse("dashboarduam", 53, "dashuamico", true);
@@ -1426,91 +1420,107 @@ export default function Dash() {
                 collapse("accountsuam", 53, "accuamcico", false);
                 collapse("homepageuam", 53, "hpuamcico", false);
             }
-        });
 
-        refresh("accounts");
-        refresh("events");
-        refresh("donations");
-
-        if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
-            setTrackerUUID(uuid());
-        } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
-            setTrackerUUID(Cookies.get("trackerUUID"));
-        }
-
-        window.scrollTo(0, 0);
-        if (window.innerWidth <= 600) {
-            setMobile(true);
-            console.log("mobile")
-            document.getElementById("splashscreenOutro").style.display = "none";
-            setTimeout(() => {
-                document.body.style.overflowY = "hidden"
-                if (router.query.view != undefined) {
-                    if (router.query.view == "volunteer") {
-                        openOverlay("v");
-                    } else if (router.query.view == "donate") {
-                        openOverlay("d");
-                    } else {
-                        if (router.query.eventid != undefined) {
-                            openEventOverlay("vieweventsoverlay", router.query.eventid);
-                        }
-                        switchView(router.query.view);
-                    }
+            window.addEventListener("resize", () => {
+                if (window.innerWidth <= 1060) {
+                    hideSidebar();
+                    collapse("dashboarduam", 53, "dashuamico", true);
+                    collapse("accountsuam", 53, "accuamcico", true);
+                    collapse("homepageuam", 53, "hpuamcico", true);
+                } else {
+                    showSidebar();
+                    collapse("dashboarduam", 53, "dashuamico", false);
+                    collapse("accountsuam", 53, "accuamcico", false);
+                    collapse("homepageuam", 53, "hpuamcico", false);
                 }
-                anime({
-                    targets: '#content',
-                    opacity: 1,
-                    duration: 200,
-                    delay: 500,
-                    easing: 'linear'
-                })
-            }, 500);
-        } else {
-            document.getElementById("splashscreenOutro").style.display = "block";
-            if (window.innerWidth <= 1450) {
-                document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_notext.mp4";
-                document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_notext.mp4";
-            }
-            document.getElementById("splashscreenOutro").play().catch((err) => {
-                console.log(err)
             });
-            document.getElementById("splashscreenOutro").pause();
-            setTimeout(() => {
+
+            //switchView("aag");
+
+            if (Cookies.get("trackerUUID") == undefined && trackerUUID == "") {
+                setTrackerUUID(uuid());
+            } else if (Cookies.get("trackerUUID") != undefined && trackerUUID == "") {
+                setTrackerUUID(Cookies.get("trackerUUID"));
+            }
+
+            window.scrollTo(0, 0);
+            if (window.innerWidth <= 600) {
+                setMobile(true);
+                console.log("mobile")
+                document.getElementById("splashscreenOutro").style.display = "none";
+                setTimeout(() => {
+                    document.body.style.overflowY = "hidden"
+                    if (router.query.view != undefined) {
+                        if (router.query.view == "volunteer") {
+                            openOverlay("v");
+                        } else if (router.query.view == "donate") {
+                            openOverlay("d");
+                        } else {
+                            if (router.query.eventid != undefined) {
+                                openEventOverlay("vieweventsoverlay", router.query.eventid);
+                            }
+                            switchView(router.query.view);
+                        }
+                    } else {
+                        switchView("aag");
+                    }
+                    anime({
+                        targets: '#content',
+                        opacity: 1,
+                        duration: 200,
+                        delay: 500,
+                        easing: 'linear'
+                    })
+                }, 500);
+            } else {
+                document.getElementById("splashscreenOutro").style.display = "block";
+                if (window.innerWidth <= 1450) {
+                    document.getElementById("splashscreenIntro").src = "anim_ss_ndmv_intro_notext.mp4";
+                    document.getElementById("splashscreenOutro").src = "anim_ss_ndmv_outro_notext.mp4";
+                }
                 document.getElementById("splashscreenOutro").play().catch((err) => {
                     console.log(err)
                 });
-                anime({
-                    targets: '#splashscreenOutro',
-                    opacity: 0,
-                    duration: 200,
-                    easing: 'linear',
-                    complete: function (anim) {
-                        document.getElementById("splashscreenOutro").style.display = "none";
-                        document.body.style.overflowY = "hidden"
-                        console.log(router.query)
-                        if (router.query.view != undefined) {
-                            if (router.query.view == "volunteer") {
-                                openOverlay("v");
-                            } else if (router.query.view == "donate") {
-                                openOverlay("d");
-                            } else {
-                                if (router.query.eventid != undefined) {
-                                    openEventOverlay("vieweventsoverlay", router.query.eventid);
+                document.getElementById("splashscreenOutro").pause();
+                setTimeout(() => {
+                    document.getElementById("splashscreenOutro").play().catch((err) => {
+                        console.log(err)
+                    });
+                    anime({
+                        targets: '#splashscreenOutro',
+                        opacity: 0,
+                        duration: 200,
+                        easing: 'linear',
+                        complete: function (anim) {
+                            document.getElementById("splashscreenOutro").style.display = "none";
+                            document.body.style.overflowY = "hidden"
+                            console.log(router.query)
+                            if (router.query.view != undefined) {
+                                if (router.query.view == "volunteer") {
+                                    openOverlay("v");
+                                } else if (router.query.view == "donate") {
+                                    openOverlay("d");
+                                } else {
+                                    if (router.query.eventid != undefined) {
+                                        openEventOverlay("vieweventsoverlay", router.query.eventid);
+                                    }
+                                    switchView(router.query.view);
                                 }
-                                switchView(router.query.view);
+                            } else {
+                                switchView("aag");
                             }
                         }
-                    }
-                })
-                anime({
-                    targets: '#content',
-                    opacity: 1,
-                    duration: 200,
-                    easing: 'linear'
-                })
-            }, 500)
+                    })
+                    anime({
+                        targets: '#content',
+                        opacity: 1,
+                        duration: 200,
+                        easing: 'linear'
+                    })
+                }, 500)
+            }
         }
-    }, [])
+    }, [router.isReady])
 
     return (
         <>
@@ -1532,21 +1542,22 @@ export default function Dash() {
                                     <button id="eventsbtn" className={styles.sidebarItem} onClick={() => switchView("events")}>Events</button>
                                     <button id="donationsbtn" className={styles.sidebarItem} onClick={() => switchView("donations")}>Donations</button>
                                 </div>
-                                <button className={styles.sidebarItem} onClick={() => push("/accounts?view=Sign+In")} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: "100", width: (mobileRef.current) ? "230px" : "280px", display: (account == "") ? "block" : "none" }}>Sign In</button>
-                                <div className={styles.sidebarItem} style={{ position: "absolute", left: "50%", width: (mobile) ? "230px" : "280px", transform: "translateX(-50%)", bottom: 50, zIndex: "100", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
-                                    <div style={{ display: "grid", gridTemplateColumns: (mobile) ? "auto 50px" : "60px auto 50px", padding: "10px", height: "50px" }}>
-                                        <div id="picture" style={{ backgroundColor: "#e3ab4a", width: "50px", height: "100%", borderRadius: "15px", display: (mobile) ? "none" : "block" }}>
-                                        </div>
-                                        <h3 style={{ margin: "auto", marginLeft: "0px", color: "#e3ab4a", textAlign: "left" }} id="acctName">Name</h3>
-                                        <div id="logout" className={styles.hover} onClick={() => {
-                                            Cookies.remove("account");
-                                            setAccount("");
-                                            push("/accounts?view=Sign+In")
-                                        }} style={{ backgroundColor: "#e3ab4a", position: "relative", width: "40px", height: "40px", borderRadius: "15px", margin: "auto", marginRight: "0px" }}>
-                                            <span className={["material-symbols-rounded", styles.fullycenter].join(" ")} style={{ fontSize: "30px", margin: "auto" }}>logout</span>
+                                <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: 100, width: "90%" }}>
+                                    <button className={styles.sidebarItem} onClick={() => push("/accounts?view=Sign+In")} style={{ display: (account == "") ? "block" : "none" }}>Sign In</button>
+                                    <div className={styles.sidebarItem} style={{ width: "100%", zIndex: "100", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
+                                        <div style={{ display: "grid", gridTemplateColumns: "auto 50px", padding: "10px", height: "50px" }}>
+                                            <h3 style={{ margin: "auto", marginLeft: "0px", color: "#e3ab4a", textAlign: "left" }} id="acctName">Name</h3>
+                                            <div id="logout" className={styles.hover} onClick={() => {
+                                                Cookies.remove("account");
+                                                setAccount("");
+                                                push("/accounts?view=Sign+In")
+                                            }} style={{ backgroundColor: "#e3ab4a", position: "relative", width: "40px", height: "40px", borderRadius: "15px", margin: "auto", marginRight: "0px" }}>
+                                                <span className={["material-symbols-rounded", styles.fullycenter].join(" ")} style={{ fontSize: "30px", margin: "auto" }}>logout</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
                                 <Image style={{ bottom: 10, position: "absolute", left: "50%", transform: "translateX(-50%)" }} src="logo.svg" alt="NourishDMV Logo" height={45} width={(mobile) ? 190 : 200} />
                             </div>
                         </div>
