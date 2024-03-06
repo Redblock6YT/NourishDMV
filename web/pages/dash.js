@@ -80,7 +80,7 @@ export default function Dash() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -204,7 +204,7 @@ export default function Dash() {
         const exitFunction = () => {
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Inactive",
@@ -239,7 +239,7 @@ export default function Dash() {
                 if (view == "accounts") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getAccounts",
+                        url: "http://localhost:8080/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -297,7 +297,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getEvents"
+                        url: "http://localhost:8080/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         //sort the events array based on the event start date time
@@ -449,7 +449,7 @@ export default function Dash() {
                 } else if (view == "donations") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getDonations"
+                        url: "http://localhost:8080/getDonations"
                     }).then((res) => {
                         const accounts = res.data.reverse();
                         var amount = 0;
@@ -486,18 +486,27 @@ export default function Dash() {
                         }
                         if (accounts.length == 1) {
                             document.getElementById("donationssub").innerHTML = "donation"
-                            document.getElementById("tdonssub").innerHTML = "donation"
+                            //tdonssub is the subtext for an analytic of the admin view, so if it's undefined, it means the user doesn't have access to the view, and it shouldn't be updated
+                            try {
+                                document.getElementById("tdonssub").innerHTML = "donation"
+                            } catch (ignored) { }
                         } else {
                             document.getElementById("donationssub").innerHTML = "donations"
-                            document.getElementById("tdonssub").innerHTML = "donations"
+                            try {
+                                document.getElementById("tdonssub").innerHTML = "donations"
+                            } catch (ignored) { }
                         }
-                        document.getElementById("tdonsnum").innerHTML = donationsToday;
+                        try {
+                            document.getElementById("tdonsnum").innerHTML = donationsToday;
+                            document.getElementById("tdonsamt").innerHTML = formatUSD(amountToday);
+                            document.getElementById("aagdonsamt").innerHTML = formatUSD(amount);
+                            document.getElementById("maagdonsamt").innerHTML = formatUSD(amountThisMonth);
+                            document.getElementById("maagdonsnum").innerHTML = donationsThisMonth;
+                        } catch (ignored) {}
+                        
                         document.getElementById("donationsnumber").innerHTML = accounts.length;
                         document.getElementById("donationsamt").innerHTML = formatUSD(amount);
-                        document.getElementById("aagdonsamt").innerHTML = formatUSD(amount);
-                        document.getElementById("tdonsamt").innerHTML = formatUSD(amountToday);
-                        document.getElementById("maagdonsamt").innerHTML = formatUSD(amountThisMonth);
-                        document.getElementById("maagdonsnum").innerHTML = donationsThisMonth;
+                        
                         anime({
                             targets: "#donationsloading",
                             opacity: 0,
@@ -527,7 +536,7 @@ export default function Dash() {
                         refresh("donations");
                         axios({
                             method: "get",
-                            url: "https://nourishapi.rygb.tech/getTotalUsers"
+                            url: "http://localhost:8080/getTotalUsers"
                         }).then((res) => {
                             var users = res.data;
                             document.getElementById("totaluserstd").innerHTML = users.today;
@@ -572,7 +581,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "https://nourishapi.rygb.tech/getEvent?id=" + id
+                url: "http://localhost:8080/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -593,7 +602,7 @@ export default function Dash() {
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "https://nourishapi.rygb.tech/registerEvent",
+                                    url: "http://localhost:8080/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -635,7 +644,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "https://nourishapi.rygb.tech/unregisterEvent",
+                                url: "http://localhost:8080/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -784,6 +793,7 @@ export default function Dash() {
             targets: "#v" + step + currentOverlayType,
             left: "50%",
             opacity: 1,
+            duration: 800,
             easing: 'easeInOutQuad'
         })
 
@@ -795,7 +805,7 @@ export default function Dash() {
                 // "process" the donation
                 axios({
                     method: "post",
-                    url: "https://nourishapi.rygb.tech/addDonation",
+                    url: "http://localhost:8080/addDonation",
                     data: {
                         amount: parseFloat(document.getElementById("v1damt").value).toFixed(2),
                     }
@@ -876,7 +886,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "https://nourishapi.rygb.tech/getEvent?id=" + selectedEvent
+                    url: "http://localhost:8080/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost + " to register for " + res.data.event.title;
                 }).catch((err) => {
@@ -885,7 +895,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "https://nourishapi.rygb.tech/registerEvent",
+                    url: "http://localhost:8080/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -921,14 +931,16 @@ export default function Dash() {
                 targets: "#v" + step + type,
                 left: "-100%",
                 opacity: 0,
+                duration: 800,
                 easing: 'easeInOutQuad',
                 complete: function (anim) {
                     document.getElementById("v" + step + type).style.display = "none";
+                    document.getElementById("v" + (step + 1) + type).style.display = "block";
+                    setStep(step + 1);
                 }
             })
 
-            document.getElementById("v" + (step + 1) + type).style.display = "block";
-            setStep(step + 1);
+            
         }
     }
 
@@ -997,7 +1009,7 @@ export default function Dash() {
             donate.style.display = "block";
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1012,7 +1024,7 @@ export default function Dash() {
             volunteer.style.display = "block";
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1073,7 +1085,7 @@ export default function Dash() {
         setStep(0);
         axios({
             method: "post",
-            url: "https://nourishapi.rygb.tech/track",
+            url: "http://localhost:8080/track",
             data: {
                 uuid: trackerUUID,
                 page: "Dashboard",
@@ -1186,7 +1198,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "https://nourishapi.rygb.tech/getAccount?uuid=" + account
+                url: "http://localhost:8080/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1196,7 +1208,7 @@ export default function Dash() {
                         if (viewState == "aag") {
                             axios({
                                 method: "get",
-                                url: "https://nourishapi.rygb.tech/getTrackerStats"
+                                url: "http://localhost:8080/getTrackerStats"
                             }).then((res) => {
                                 const stats = res.data;
                                 console.log(stats);
@@ -1288,7 +1300,12 @@ export default function Dash() {
                 } else {
                     console.log("not admin")
                     //prevent access to admin view by setting admin display to block (discovered 3/5/24)
-                    document.getElementById("admin").remove();
+                    try {
+                        document.getElementById("admin").remove();
+                    } catch (err) {
+                        console.log("admin view not removed, but the account doesn't have acces to admin")
+                    }
+                    
                 }
             }).catch((err) => {
                 console.log(err);
@@ -1303,8 +1320,14 @@ export default function Dash() {
                 }
 
             })
+        } else {
+            try {
+                document.getElementById("admin").remove();
+                console.log("admin view removed")
+            } catch (err) {
+                console.log("admin view not removed, but the account doesn't have acces to admin")
+            }
         }
-
     }, [account])
 
     function updateEventStatus(view, registrationStartDateTime, registrationEndDateTime, startDateTime, endDateTime) {
@@ -1411,27 +1434,35 @@ export default function Dash() {
 
             if (window.innerWidth <= 1060) {
                 hideSidebar();
-                collapse("dashboarduam", 53, "dashuamico", true);
-                collapse("accountsuam", 53, "accuamcico", true);
-                collapse("homepageuam", 53, "hpuamcico", true);
+                try {
+                    collapse("dashboarduam", 53, "dashuamico", true);
+                    collapse("accountsuam", 53, "accuamcico", true);
+                    collapse("homepageuam", 53, "hpuamcico", true);
+                } catch (ignored) { }
             } else {
                 showSidebar();
-                collapse("dashboarduam", 53, "dashuamico", false);
-                collapse("accountsuam", 53, "accuamcico", false);
-                collapse("homepageuam", 53, "hpuamcico", false);
+                try {
+                    collapse("dashboarduam", 53, "dashuamico", false);
+                    collapse("accountsuam", 53, "accuamcico", false);
+                    collapse("homepageuam", 53, "hpuamcico", false);
+                } catch (ignored) { }
             }
 
             window.addEventListener("resize", () => {
                 if (window.innerWidth <= 1060) {
                     hideSidebar();
-                    collapse("dashboarduam", 53, "dashuamico", true);
-                    collapse("accountsuam", 53, "accuamcico", true);
-                    collapse("homepageuam", 53, "hpuamcico", true);
+                    try {
+                        collapse("dashboarduam", 53, "dashuamico", true);
+                        collapse("accountsuam", 53, "accuamcico", true);
+                        collapse("homepageuam", 53, "hpuamcico", true);
+                    } catch (ignored) { }
                 } else {
                     showSidebar();
-                    collapse("dashboarduam", 53, "dashuamico", false);
-                    collapse("accountsuam", 53, "accuamcico", false);
-                    collapse("homepageuam", 53, "hpuamcico", false);
+                    try {
+                        collapse("dashboarduam", 53, "dashuamico", false);
+                        collapse("accountsuam", 53, "accuamcico", false);
+                        collapse("homepageuam", 53, "hpuamcico", false);
+                    } catch (ignored) { }
                 }
             });
 
@@ -2081,7 +2112,7 @@ export default function Dash() {
                                             if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                                 axios({
                                                     method: "post",
-                                                    url: "https://nourishapi.rygb.tech/createEvent",
+                                                    url: "http://localhost:8080/createEvent",
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -2105,7 +2136,7 @@ export default function Dash() {
                                                 console.log(selectedEvent)
                                                 axios({
                                                     method: "post",
-                                                    url: "https://nourishapi.rygb.tech/updateEvent?id=" + selectedEvent,
+                                                    url: "http://localhost:8080/updateEvent?id=" + selectedEvent,
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -2131,7 +2162,7 @@ export default function Dash() {
                                         <button onClick={() => {
                                             axios({
                                                 method: "post",
-                                                url: "https://nourishapi.rygb.tech/deleteEvent?id=" + selectedEvent,
+                                                url: "http://localhost:8080/deleteEvent?id=" + selectedEvent,
                                             }).then((res) => {
                                                 closeEventOverlay("editeventsoverlay");
                                                 refresh("events")
@@ -2165,7 +2196,7 @@ export default function Dash() {
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div className={styles.viewlist}>
-                                        <div id="donationsnavbar" style={{ gridTemplateColumns: (mobile) ? "auto 200px" : "auto 250px", }} className={styles.doublegrid}>
+                                        <div id="donationsnavbar" style={{ display: (mobile) ? "block" : "grid" }} className={styles.viewnavbar}>
                                             <input className={styles.inputScreen} onInput={() => {
                                                 const donatelist = document.getElementById("donatelist").children;
                                                 for (let i = 0; i < donatelist.length; i++) {
