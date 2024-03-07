@@ -23,7 +23,7 @@ export default function Dash() {
     const [accounts, setAccounts] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [userSidebarOpen, setUserSidebarOpen] = useState(true);
-
+    const [contentReady, setContentReady] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState("");
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
 
@@ -31,6 +31,18 @@ export default function Dash() {
     const [trackerEnabled, setTrackerEnabled] = useState(false);
     const [trackerUUID, setTrackerUUID] = useState("");
     const [viewState, setViewState] = useState("aag")
+
+    useEffect(() => {
+        if (contentReady) {
+            if (account == "") {
+                try {
+                    document.getElementById("admin").remove();
+                } catch (err) {
+                    console.log("admin view not removed, but the account doesn't have acces to admin")
+                }
+            }
+        }
+    }, [contentReady])
 
     //from https://stackoverflow.com/questions/70612769/how-do-i-recognize-swipe-events-in-react
     //used to detect a swipe on mobile for showing and hiding the sidebar
@@ -502,11 +514,11 @@ export default function Dash() {
                             document.getElementById("aagdonsamt").innerHTML = formatUSD(amount);
                             document.getElementById("maagdonsamt").innerHTML = formatUSD(amountThisMonth);
                             document.getElementById("maagdonsnum").innerHTML = donationsThisMonth;
-                        } catch (ignored) {}
-                        
+                        } catch (ignored) { }
+
                         document.getElementById("donationsnumber").innerHTML = accounts.length;
                         document.getElementById("donationsamt").innerHTML = formatUSD(amount);
-                        
+
                         anime({
                             targets: "#donationsloading",
                             opacity: 0,
@@ -759,6 +771,20 @@ export default function Dash() {
         return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
 
+    //modified, but originally from https://stackoverflow.com/a/54534797
+    //for creating a input where you input a dollar amount and it automatically formats it
+    function onFocus(e) {
+        var value = e.target.value;
+        e.target.value = value ? value.replace(/[$,]/g, "") : ''
+    }
+
+    function onBlur(e) {
+        var value = e.target.value
+
+        //replace just in case the user types in a dollar sign or comma
+        e.target.value = (value == "") ? "" : formatUSD(value.replace(/[$,]/g, ""))
+    }
+
     function collapse(element, collapseHeight, icon, force) {
         if (force != undefined) {
             if (!force) {
@@ -799,7 +825,7 @@ export default function Dash() {
 
         if (currentOverlayType == "d") {
             if (step == 2) {
-                var amount = formatUSD(document.getElementById("v1damt").value);
+                var amount = document.getElementById("v1damt").value;
                 document.getElementById("v2dh").innerHTML = "Donate " + amount;
             } else if (step == 3) {
                 // "process" the donation
@@ -807,7 +833,7 @@ export default function Dash() {
                     method: "post",
                     url: "http://localhost:8080/addDonation",
                     data: {
-                        amount: parseFloat(document.getElementById("v1damt").value).toFixed(2),
+                        amount: parseFloat(document.getElementById("v1damt").value.replace(/[$,]/g, "")).toFixed(2),
                     }
                 })
                 setTimeout(() => {
@@ -818,7 +844,7 @@ export default function Dash() {
                         for (var i = 1; i < 4; i++) {
                             document.getElementById("dsc" + i).style.transform = "translate(" + (-50 - randomNumber(-30, 30)) + "%, " + (-50 - randomNumber(-30, 30)) + "%)"
                         }
-                        document.getElementById("dscamttextval").innerHTML = formatUSD(document.getElementById("v1damt").value);
+                        document.getElementById("dscamttextval").innerHTML = document.getElementById("v1damt").value;
                         switchView("donations");
                         anime({
                             targets: donationSuccessful,
@@ -888,7 +914,8 @@ export default function Dash() {
                     method: "get",
                     url: "http://localhost:8080/getEvent?id=" + selectedEvent
                 }).then((res) => {
-                    document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost + " to register for " + res.data.event.title;
+                    document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost;
+                    document.getElementById("v1resubhead").innerHTML = "to register for " + res.data.event.title;
                 }).catch((err) => {
                     apiError(err);
                 })
@@ -940,7 +967,7 @@ export default function Dash() {
                 }
             })
 
-            
+
         }
     }
 
@@ -1305,7 +1332,7 @@ export default function Dash() {
                     } catch (err) {
                         console.log("admin view not removed, but the account doesn't have acces to admin")
                     }
-                    
+
                 }
             }).catch((err) => {
                 console.log(err);
@@ -1320,13 +1347,6 @@ export default function Dash() {
                 }
 
             })
-        } else {
-            try {
-                document.getElementById("admin").remove();
-                console.log("admin view removed")
-            } catch (err) {
-                console.log("admin view not removed, but the account doesn't have acces to admin")
-            }
         }
     }, [account])
 
@@ -1448,6 +1468,9 @@ export default function Dash() {
                 } catch (ignored) { }
             }
 
+            document.getElementById("v1damt").addEventListener("focus", onFocus);
+            document.getElementById("v1damt").addEventListener("blur", onBlur);
+
             window.addEventListener("resize", () => {
                 if (window.innerWidth <= 1060) {
                     hideSidebar();
@@ -1500,7 +1523,10 @@ export default function Dash() {
                         opacity: 1,
                         duration: 200,
                         delay: 500,
-                        easing: 'linear'
+                        easing: 'linear',
+                        complete: function (anim) {
+                            setContentReady(true);
+                        }
                     })
                 }, 500);
             } else {
@@ -1546,7 +1572,10 @@ export default function Dash() {
                         targets: '#content',
                         opacity: 1,
                         duration: 200,
-                        easing: 'linear'
+                        easing: 'linear',
+                        complete: function (anim) {
+                            setContentReady(true);
+                        }
                     })
                 }, 500)
             }
@@ -1790,9 +1819,9 @@ export default function Dash() {
                                     <div id="youSection" style={{ display: (account == "") ? "none" : "block" }}>
                                         <h4 className={styles.screensubheading}>You</h4>
                                         <div className={styles.bentoboxCont}>
-                                            <div className={styles.bentoboxShorter} style={{ width: "350px" }}>
-                                                <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>role</p>
-                                                <p style={{ margin: "0px", textAlign: "center" }}>SUPPORTER</p>
+                                            <div className={styles.viewbentobox} style={{ minWidth: "350px" }}>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>role</p>
+                                                <p>SUPPORTER</p>
                                             </div>
                                             <div className={styles.viewbentobox}>
                                                 <p style={{ fontWeight: "normal", fontSize: "30px" }}>joined</p>
@@ -2235,28 +2264,29 @@ export default function Dash() {
                             <div id="v1d" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
                                 <h1 className={styles.header}>Select donation amount</h1>
                                 <p className={styles.subheader}>Your donation contributes to our goal of ensuring everyone in the DMV has food and shelter.</p>
-                                <div className={styles.doublegrid} style={{ width: "250px", margin: "auto", marginTop: "100px", marginBottom: "100px", gridTemplateColumns: "50px auto", gridGap: "0px" }}>
-                                    <h3 className={styles.header}>$</h3>
-                                    <input id="v1damt" type="number" placeholder="5" className={styles.biginput} onInput={() => {
-                                        if (document.getElementById("v1damt").value == "" || document.getElementById("v1damt").value == 0) {
-                                            document.getElementById("v1dcont").style.visibility = "hidden";
-                                            anime({
-                                                targets: "#v1dcont",
-                                                opacity: 0,
-                                                duration: 300,
-                                                easing: 'linear',
-                                            })
-                                        } else {
-                                            document.getElementById("v1dcont").style.visibility = "visible";
-                                            anime({
-                                                targets: "#v1dcont",
-                                                opacity: 1,
-                                                duration: 300,
-                                                easing: 'linear',
-                                            })
-                                        }
-                                    }}></input>
-                                </div>
+                                <input id="v1damt" type="currency" pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" placeholder="5" className={styles.biginput} onInput={() => {
+                                    //replace all non-numeric characters
+                                    var actvalue = document.getElementById("v1damt").value.replace(/[^0-9.]/g, "");
+                                    
+                                    if (actvalue == "" || parseFloat(actvalue) == 0) {
+                                        document.getElementById("v1dcont").style.visibility = "hidden";
+                                        anime({
+                                            targets: "#v1dcont",
+                                            opacity: 0,
+                                            duration: 300,
+                                            easing: 'linear',
+                                        })
+                                    } else {
+                                        document.getElementById("v1dcont").style.visibility = "visible";
+                                        anime({
+                                            targets: "#v1dcont",
+                                            opacity: 1,
+                                            duration: 300,
+                                            easing: 'linear',
+                                        })
+                                    }
+                                }}></input>
+
                                 <button id="v1dcont" onClick={() => nextStep("d")} className={[styles.minibutton, styles.hover].join(" ")} style={{ backgroundColor: "rgba(0, 0, 0, 0.281)", opacity: 0, visibility: "hidden" }}>Continue</button>
                             </div>
                             <div id="v2d" className={styles.zigZagView} style={{ "--maxWidth": "55%" }}>
@@ -2322,21 +2352,16 @@ export default function Dash() {
                         </div>
                         <div id="registerEvent" style={{ position: "relative", height: "100%", display: "none" }}>
                             <div id="v1re" className={styles.zigZagView} style={{ "--maxWidth": "50%" }}>
-                                <h1 id="v1rehead" className={styles.header}>Pay $0.00 to register for Event</h1>
-                                <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px" }}>
-                                    <input className={styles.input} type='text' placeholder="Name"></input>
-                                    <input className={styles.input} type="tel" placeholder="Phone Number"></input>
-                                </div>
+                                <h1 id="v1rehead" className={styles.header}>Pay $0.00</h1>
+                                <h1 id="v1resubhead" className={styles.subheader}>to register for Event</h1>
 
-                                <input className={styles.input} type='text' placeholder="Email"></input>
-
-                                <input className={styles.input} type="number" placeholder="Card Number"></input>
+                                <input className={styles.input} type="number" style={{ marginTop: "50px" }} placeholder="Card Number"></input>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
                                     <input className={styles.input} type="" placeholder="CVV"></input>
                                     <input className={styles.input} placeholder="Exp Date"></input>
                                 </div>
                                 <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
-                                    <select className={styles.input} placeholder="Name">
+                                    <select className={styles.input} placeholder="Name" disabed>
                                         <option>United States</option>
                                     </select>
                                     <input className={styles.input} placeholder="Zip Code"></input>
