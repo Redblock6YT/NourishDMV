@@ -14,7 +14,6 @@ export default function Home() {
   const [account, setAccount] = useState("");
   const [mobile, setMobile] = useState(false);
   const [loadContent, setLoadContent] = useState(false);
-  const [intervalIds, setIntervalIds] = useState([]);
 
   const [trackerUUID, setTrackerUUID] = useState("");
   const [viewingContent, setViewingContent] = useState("hero");
@@ -103,13 +102,15 @@ export default function Home() {
     }
   }
 
+  var intervalIds = [];
+
   function refreshEvents() {
     console.log("refreshing events")
     console.log("clear events")
 
     for (var i = 0; i < intervalIds.length; i++) {
       clearInterval(intervalIds[i]);
-      setIntervalIds([]);
+      intervalIds.splice(intervalIds.indexOf(intervalIds[i]), 1);
     }
 
     axios({
@@ -119,6 +120,36 @@ export default function Home() {
       if (res.status == 200) {
         console.log("got events")
         const events = res.data;
+        //sort the events array based on the event start date time
+        events.sort((a, b) => {
+          return Date.parse(a.event.startDateTime) - Date.parse(b.event.startDateTime);
+        });
+
+        //sort the events array based on the event's status
+        events.sort((a, b) => {
+          const aStatus = calculateEventStatus(a.event.startDateTime, a.event.endDateTime);
+          const bStatus = calculateEventStatus(b.event.startDateTime, b.event.endDateTime);
+          if (aStatus == "Pending" && bStatus == "Pending") {
+            return 0;
+          } else if (aStatus == "Pending" && bStatus == "In Progress") {
+            return -1;
+          } else if (aStatus == "Pending" && bStatus == "Ended") {
+            return -1;
+          } else if (aStatus == "In Progress" && bStatus == "Pending") {
+            return 1;
+          } else if (aStatus == "In Progress" && bStatus == "In Progress") {
+            return 0;
+          } else if (aStatus == "In Progress" && bStatus == "Ended") {
+            return -1;
+          } else if (aStatus == "Ended" && bStatus == "Pending") {
+            return 1;
+          } else if (aStatus == "Ended" && bStatus == "In Progress") {
+            return 1;
+          } else if (aStatus == "Ended" && bStatus == "Ended") {
+            return 0;
+          }
+        });
+        
         const currentEventsList = document.getElementById("currentEventsList");
         for (var i = 0; i < currentEventsList.children.length; i++) {
           currentEventsList.children[i].remove();
@@ -140,7 +171,7 @@ export default function Home() {
         }
 
         for (var i = 0; i < 3; i++) {
-          if (events[i] == undefined) {
+          if (events[i] == undefined || events[i].event.visible == "Hidden") {
             continue;
           }
           const event = events[i].event;
@@ -169,65 +200,70 @@ export default function Home() {
           console.log(eventStatus, registrationStatus)
           if (registrationStatus == "Pending") {
             eventcard.className = [styles.itemPending, styles.itemEvents].join(" ")
-            const interval = setInterval(() => {
+            const interval = setInterval(function () {
               var timeDifference = calculateTimeDifference(event.registrationStartDateTime);
               eventcountdownline.innerHTML = "Registration opens in " + timeDifference.value + " " + timeDifference.unit;
-              if (timeDifference.value <= 0) {
-                clearInterval();
+              if (timeDifference.value <= 1 && timeDifference.unit === 'seconds') {
+                console.log("reg pending refresh events")
+                clearInterval(interval);
                 refreshEvents();
 
               }
             }, 1000)
-            setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+            intervalIds.push(interval);
           } else if (registrationStatus == "In Progress") {
             eventcard.style.animation = styles.pulse2 + " 3s infinite linear"
-            const interval = setInterval(() => {
+            const interval = setInterval(function () {
               var timeDifference = calculateTimeDifference(event.registrationEndDateTime);
               eventcountdownline.innerHTML = "Registration closes in " + timeDifference.value + " " + timeDifference.unit;
-              if (timeDifference.value <= 0) {
+              if (timeDifference.value <= 1 && timeDifference.unit === 'seconds') {
+                console.log("reg inprogress refresh events")
                 refreshEvents();
-                clearInterval();
+                clearInterval(interval);
               }
             }, 1000)
-            setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+            intervalIds.push(interval);
           } else if (registrationStatus == "Ended") {
             if (eventStatus == "Ended") {
               eventcard.className = [styles.itemEnded, styles.itemEvents].join(" ")
               //show how many days ago the event ended, but if the time is less than 24 hours, show how many hours ago. if the time is less than 1 hour, show how many minutes ago. if the time is less than 1 minute, show how many seconds ago
-              const interval = setInterval(() => {
+              const interval = setInterval(function () {
                 var timeDifference = calculateTimeAgoDifference(event.endDateTime);
                 eventcountdownline.innerHTML = "Ended " + timeDifference.value + " " + timeDifference.unit;
-                if (timeDifference.value <= 0) {
+                if (timeDifference.value <= 1 && timeDifference.unit === 'seconds') {
+                  console.log("ended refresh events")
                   refreshEvents();
-                  clearInterval();
+                  clearInterval(interval);
                 }
               }, 1000)
-              setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+              intervalIds.push(interval);
             } else if (eventStatus == "In Progress") {
               eventcard.className = [styles.itemOnGoing, styles.itemEvents].join(" ")
               //show how many hours left in the event, but if the time is longer than 24 hours, show how many days left. if the time is less than 1 hour, show how many minutes left. if the time is less than 1 minute, show how many seconds left
-              const interval = setInterval(() => {
+              const interval = setInterval(function () {
                 var timeDifference = calculateTimeDifference(event.endDateTime);
                 eventcountdownline.innerHTML = "Ends in " + timeDifference.value + " " + timeDifference.unit;
-                if (timeDifference.value <= 1) {
+                if (timeDifference.value <= 1 && timeDifference.unit === 'seconds') {
+                  console.log("inprogress refresh events")
                   refreshEvents();
-                  clearInterval();
+                  clearInterval(interval);
                 }
               }, 1000)
-              setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+              intervalIds.push(interval);
             } else if (eventStatus == "Pending") {
               eventcard.className = [styles.itemPending, styles.itemEvents].join(" ")
               //show how many days left until the event starts, but if the time is less than 24 hours, show how many hours left
               //Pending means that the registration window has not begun yet
-              const interval = setInterval(() => {
+              const interval = setInterval(function () {
                 var timeDifference = calculateTimeDifference(event.startDateTime);
                 eventcountdownline.innerHTML = "Starts in " + timeDifference.value + " " + timeDifference.unit;
-                if (timeDifference.value <= 0) {
+                if (timeDifference.value <= 1 && timeDifference.unit === 'seconds') {
+                  console.log("pending refresh events")
                   refreshEvents();
-                  clearInterval();
+                  clearInterval(interval);
                 }
               }, 1000)
-              setIntervalIds(prevIntervalIds => [...prevIntervalIds, interval]);
+              intervalIds.push(interval);
             }
           }
 
@@ -762,8 +798,8 @@ export default function Home() {
                         email
                       </span>
                     </div>
-                    <p className={styles.header} style={{ textAlign: "center", margin: "0" }}>
-                      contact<br />@nourishdmv.com
+                    <p className={styles.header} style={{ textAlign: "center", margin: "0", fontSize: "35px" }}>
+                      contact@nourishdmv.com
                     </p>
                   </div>
                   <div className={styles.item} style={{ margin: "auto", marginRight: "0px", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => window.location.href = "https://www.google.com/maps/dir//16701+Melford+Blvd+%23421,+Bowie,+MD+20715/@38.9611344,-76.7158268,19z/data=!4m9!4m8!1m0!1m5!1m1!1s0x89b7ec1769408c5f:0x5e0035c97d3c3f24!2m2!1d-76.7146091!2d38.9611344!3e0?entry=ttu"}>

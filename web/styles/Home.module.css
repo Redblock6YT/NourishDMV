@@ -502,6 +502,10 @@
 }
 
 @media (max-width: 800px) {
+    .currentEventsList {
+        overflow-x: scroll;
+    }
+
     .differenceButtons {
         padding: 0px;
         gap: 20px;
