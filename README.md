@@ -9,7 +9,9 @@ NourishDMV is not a real non-profit. It was created for this 2024 FBLA Website D
 
 # Try it on your device
 Go to https://nourishdmv.rygb.tech<br />
-Create your own account, or log into the admin account to create/modify events:
+## Access Admin-Only Dashboard features
+Go to https://nourishdmv.rygb.tech/accounts<br />
+Sign in using:<br />
 Email: admin@nourishdmv.com<br />
 Password: 1234
 
