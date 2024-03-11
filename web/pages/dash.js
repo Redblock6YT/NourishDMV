@@ -371,9 +371,9 @@ export default function Dash() {
                             eventItem.setAttribute("name", event.title)
                             var icon = document.createElement("span");
                             icon.className = "material-symbols-rounded";
-                            icon.style.fontSize = "30px";
                             icon.innerHTML = "chevron_right"
                             icon.style.margin = "auto"
+                            icon.style.fontSize = "30px"
                             icon.style.marginRight = "0px"
                             eventItem.className = [styles.itemEvents, styles.doublegrid].join(" ");
                             eventItem.style.gridTemplateColumns = "auto 50px";
@@ -1594,7 +1594,7 @@ export default function Dash() {
                 <div id="content" style={{ opacity: 0, overflow: "visible", transition: "all ease 0.5s" }} className={styles.sidebarContent}>
                     <div className={styles.sidebarContainer}>
                         <div className={styles.sidebar}>
-                            <div style={{ padding: "15px" }}>
+                            <div className={styles.innerSidebar}>
                                 <div id="navbtns">
                                     <button id="aagbtn" className={styles.sidebarItem} onClick={() => switchView("aag")}>At a glance</button>
                                     <button id="accountsbtn" className={styles.sidebarItem} onClick={() => switchView("accounts")} style={{ display: (adminView) ? "block" : "none" }}>Accounts</button>
@@ -1629,49 +1629,49 @@ export default function Dash() {
                         }
                     }}>
                         <div id="aag" className={styles.screen} style={{ marginTop: "0px" }}>
-                            <div style={{ padding: "20px" }}>
-                                <div className={styles.doublegrid} style={{ width: "430px", gridTemplateColumns: "70px auto", gridGap: (mobile) ? "0px" : "25px" }}>
-                                    <button style={{ margin: (mobile) ? "0" : "auto" }} className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                            <div className={styles.screenInner}>
+                                <div className={styles.sidebarbuttonGrid} style={{ width: "430px" }}>
+                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                     <h3 className={styles.screenheading}>At a glance</h3>
                                 </div>
                                 <div className={styles.divider}></div>
                                 <div id="admin" style={{ display: (adminView) ? "block" : "none" }}>
-                                    <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>Today</h4>
+                                    <h4 className={styles.screensubheading}>Today</h4>
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.eventsTodayBento}>
                                             <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                <p className={styles.font} style={{ fontSize: "30px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
+                                                <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
                                             </div>
                                         </div>
-                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
+                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
                                             <p id="tdonsnum">0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }} id="tdonssub">donations</p>
+                                            <p className={styles.viewbentoboxSub} id="tdonssub">donations</p>
                                         </div>
-                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
+                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
                                             <p id="tdonsamt">$0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
+                                            <p className={styles.viewbentoboxSub}>donated</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p id="totaluserstd">0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>total users</p>
+                                            <p className={styles.viewbentoboxSub}>total users</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>new users</p>
+                                            <p className={styles.viewbentoboxSub}>new users</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>returning users</p>
+                                            <p className={styles.viewbentoboxSub}>returning users</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div style={{ position: "relative" }}>
                                         <h3 className={styles.screensubheading} style={{ fontSize: "25px", color: "rgb(183 137 58)" }}>REAL-TIME</h3>
-                                        <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>User Activity Monitor</h4>
+                                        <h4 className={styles.screensubheading}>User Activity Monitor</h4>
                                         <div className={styles.bentoboxCont}>
                                             <div className={styles.viewbentobox} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
                                                 <p id="activeusersnum">0</p>
-                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>total active users</p>
+                                                <p className={styles.viewbentoboxSub}>total active users</p>
                                             </div>
                                             <div id="homepageuam" className={styles.bentoboxShorter} style={{ width: "280px", overflow: "hidden", height: "auto", float: "inline-start", marginBottom: "10px", marginRight: "10px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
                                                 <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
@@ -1720,42 +1720,42 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>{new Date().toLocaleString('default', { month: 'long' })}</h4>
+                                    <h4 className={styles.screensubheading}>{new Date().toLocaleString('default', { month: 'long' })}</h4>
                                     <div className={styles.bentoboxCont}>
-                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "300px" }}>
+                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
                                             <p id="maagdonsamt">$0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
+                                            <p className={styles.viewbentoboxSub}>donated</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p id="maagdonsnum">0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donations</p>
+                                            <p className={styles.viewbentoboxSub}>donations</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>{accounts.length}</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>new accounts</p>
+                                            <p className={styles.viewbentoboxSub}>new accounts</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>event attendees</p>
+                                            <p className={styles.viewbentoboxSub}>event attendees</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p id="totalusersm">0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>total users</p>
+                                            <p className={styles.viewbentoboxSub}>total users</p>
                                         </div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Retention</h4>
                                     <div className={styles.bentoboxCont}>
-                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "300px" }}>
+                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
                                             <p>5,554</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>new users</p>
+                                            <p className={styles.viewbentoboxSub}>new users</p>
                                         </div>
-                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "300px" }}>
+                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
                                             <p>2,345</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>returning users</p>
+                                            <p className={styles.viewbentoboxSub}>returning users</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading} style={{ fontSize: "40px" }}>All Time</h4>
+                                    <h4 className={styles.screensubheading}>All Time</h4>
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
                                             <p id="aagdonsamt" style={{ margin: "0px", textAlign: "center" }}>$0</p>
@@ -1763,19 +1763,19 @@ export default function Dash() {
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteers</p>
+                                            <p className={styles.viewbentoboxSub}>volunteers</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>{accounts.length}</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</p>
+                                            <p className={styles.viewbentoboxSub}>accounts</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p id="totalusers">0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>total users</p>
+                                            <p className={styles.viewbentoboxSub}>total users</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>homepage views</p>
+                                            <p className={styles.viewbentoboxSub}>homepage views</p>
                                         </div>
                                     </div>
 
@@ -1783,35 +1783,35 @@ export default function Dash() {
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
                                             <p>40%</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
+                                            <p className={styles.viewbentoboxSub}>from Maryland</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>30%</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from DC</p>
+                                            <p className={styles.viewbentoboxSub}>from DC</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>30%</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>from Virginia</p>
+                                            <p className={styles.viewbentoboxSub}>from Virginia</p>
                                         </div>
                                         <br />
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px", marginBottom: "10px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>77%</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a mobile device</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>77%</p>
+                                            <p className={styles.viewbentoboxSub}>using a mobile device</p>
                                         </div>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
-                                            <p style={{ margin: "0px", textAlign: "center" }}>23%</p>
-                                            <p style={{ margin: "0px", fontWeight: "normal", fontSize: "30px", textAlign: "center" }}>using a desktop device</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p>23%</p>
+                                            <p className={styles.viewbentoboxSub}>using a desktop device</p>
                                         </div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Events</h4>
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
                                             <p>{eventsLength}</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>events</p>
+                                            <p className={styles.viewbentoboxSub}>events</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p id="vacount">{eventAttendees}</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>event attendees</p>
+                                            <p className={styles.viewbentoboxSub}>event attendees</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1892,9 +1892,9 @@ export default function Dash() {
                             </div>
                         </div>
                         <div id="accounts" className={styles.screen} style={{ display: (adminView) ? "block" : "none" }}>
-                            <div style={{ padding: "20px" }}>
-                                <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
-                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                            <div className={styles.innerSidebar}>
+                                <div className={styles.sidebarbuttonGrid} style={{ width: "300px" }}>
+                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                     <h3 className={styles.screenheading}>Accounts</h3>
                                     <div className={styles.loading} id="accountsloading"></div>
                                 </div>
@@ -1902,27 +1902,27 @@ export default function Dash() {
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
                                             <p>{accounts.length}</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</p>
+                                            <p className={styles.viewbentoboxSub}>accounts</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteers</p>
+                                            <p className={styles.viewbentoboxSub}>volunteers</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donators</p>
+                                            <p className={styles.viewbentoboxSub}>donators</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p id="dccount">0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from DC</p>
+                                            <p className={styles.viewbentoboxSub}>from DC</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p id="mdcount">0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Maryland</p>
+                                            <p className={styles.viewbentoboxSub}>from Maryland</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p id="vacount">0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>from Virginia</p>
+                                            <p className={styles.viewbentoboxSub}>from Virginia</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
@@ -1933,10 +1933,10 @@ export default function Dash() {
                             </div>
                         </div>
                         <div id="events" className={styles.screen} style={{ position: "relative" }}>
-                            <div style={{ padding: "20px" }}>
+                            <div className={styles.screenInner}>
                                 <div id="affectbyeoverlay">
-                                    <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
-                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                    <div className={styles.sidebarbuttonGrid} style={{ width: "300px" }}>
+                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                         <h3 className={styles.screenheading}>Events</h3>
                                         <div className={styles.loading} id="eventsloading"></div>
                                     </div>
@@ -1944,23 +1944,23 @@ export default function Dash() {
                                         <div className={styles.bentoboxCont}>
                                             <div className={styles.viewbentobox}>
                                                 <p id="eventsamt">0</p>
-                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>events</p>
+                                                <p className={styles.viewbentoboxSub}>events</p>
                                             </div>
                                             <div className={styles.viewbentobox} style={{ display: (adminView) ? "inline-block" : "none" }}>
                                                 <p id="attcount">{eventAttendees}</p>
-                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>total attendees</p>
+                                                <p className={styles.viewbentoboxSub}>total attendees</p>
                                             </div>
                                             <div className={styles.viewbentobox} style={{ backgroundColor: "#ffff0072", color: "black" }}>
                                                 <p id="pendingcount">0</p>
-                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>pending</p>
+                                                <p className={styles.viewbentoboxSub}>pending</p>
                                             </div>
                                             <div className={styles.viewbentobox} style={{ backgroundColor: "#fbac29ff", animation: styles.pulse + " 3s infinite linear" }}>
                                                 <p id="inprogcount">0</p>
-                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>in progress</p>
+                                                <p className={styles.viewbentoboxSub}>in progress</p>
                                             </div>
                                             <div className={styles.viewbentobox} style={{ backgroundColor: "#f66d4bff" }}>
                                                 <p id="endedcount">0</p>
-                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>ended</p>
+                                                <p className={styles.viewbentoboxSub}>ended</p>
                                             </div>
                                         </div>
                                         <div className={styles.divider}></div>
@@ -2205,9 +2205,9 @@ export default function Dash() {
                             </div>
                         </div>
                         <div id="donations" className={styles.screen}>
-                            <div style={{ padding: "20px" }}>
-                                <div className={styles.doublegrid} style={{ width: "300px", gridTemplateColumns: "70px auto 50px" }}>
-                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span style={{ fontSize: "30px", color: "rgb(227, 171, 74)" }} className="material-symbols-rounded">{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                            <div className={styles.screenInner}>
+                                <div className={styles.sidebarbuttonGrid} style={{ width: "300px" }}>
+                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                     <h3 className={styles.screenheading}>Donations</h3>
                                     <div className={styles.loading} id="donationsloading"></div>
                                 </div>
@@ -2216,16 +2216,16 @@ export default function Dash() {
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
                                             <p id="donationsnumber">0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }} id="donationssub">donations</p>
+                                            <p className={styles.viewbentoboxSub} id="donationssub">donations</p>
                                         </div>
                                         <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
                                             <p id="donationsamt">$0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>raised</p>
+                                            <p className={styles.viewbentoboxSub}>raised</p>
                                         </div>
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div className={styles.viewlist}>
-                                        <div id="donationsnavbar" style={{ display: (mobile) ? "block" : "grid" }} className={styles.viewnavbar}>
+                                        <div id="donationsnavbar" className={styles.viewnavbar}>
                                             <input className={styles.inputScreen} onInput={() => {
                                                 const donatelist = document.getElementById("donatelist").children;
                                                 for (let i = 0; i < donatelist.length; i++) {

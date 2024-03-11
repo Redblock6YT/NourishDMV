@@ -52,7 +52,6 @@
 .itemEvents {
     border-radius: 20px;
     color: white;
-    font-size: 1.5rem;
     padding: 1rem;
     margin-top: 5px;
     margin-bottom: 10px;
@@ -60,6 +59,13 @@
     opacity: 1;
     cursor: pointer;
     transition: 0.5s ease all;
+}
+
+.itemEvents p {
+    font-size: 25px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .itemEvents:hover {
@@ -76,7 +82,7 @@
     display: inline-block;
     transition: all .5s ease;
     position: relative;
-    overflow:hidden;
+    overflow: hidden;
     cursor: pointer;
 }
 
@@ -299,6 +305,10 @@
     grid-gap: 15px;
 }
 
+.innerSidebar {
+    padding: 15px;
+}
+
 .viewbentobox {
     border-radius: 25px;
     width: 250px;
@@ -342,28 +352,6 @@
 
 .bentoboxCont {
     margin: 20px;
-}
-
-@media(max-width: 1500px) {
-    .viewbentobox {
-        min-height: 50px;
-        height: auto;
-        min-width: 150px;
-        width: auto;
-        padding: 15px;
-    }
-
-    .viewbentobox p {
-        display: inline-block;
-        margin-right: 10px;
-    }
-
-    .eventsTodayBento {
-        height: 48px;
-    }
-    .bentoboxCont {
-        margin: 20px 0px;
-    }
 }
 
 .managebutton {
@@ -691,7 +679,7 @@
 
 .screensubheading {
     font-family: 'Outfit', sans-serif;
-    font-size: 30px;
+    font-size: 40px;
     color: rgb(227, 171, 74);
     margin: 0px;
 }
@@ -746,6 +734,49 @@
     display: none;
 }
 
+.viewbentoboxSub {
+    font-size: 30px;
+    font-weight: normal;
+}
+
+.sidebarButtonIcon {
+    font-size: 30px;
+    color: rgb(227, 171, 74);
+}
+
+.screenInner {
+    padding: 20px;
+}
+
+.sidebarbuttonGrid {
+    display: grid;
+    grid-template-columns: 70px auto 50px;
+    grid-gap: 25px;
+}
+
+@media(max-width: 1500px) {
+    .viewbentobox {
+        min-height: 50px;
+        height: auto;
+        min-width: 100px;
+        width: auto;
+        padding: 15px;
+    }
+
+    .viewbentobox p {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .eventsTodayBento {
+        height: 48px;
+    }
+
+    .bentoboxCont {
+        margin: 20px 0px;
+    }
+}
+
 @media(max-width: 1400px) {
     .eventsoverlay {
         width: 80%;
@@ -760,9 +791,49 @@
     .zigZag:before {
         background: rgb(206, 132, 0);
     }
+    .itemEvents {
+        font-size: 1.3rem;
+    }
 }
 
 @media (max-width: 800px) {
+    .innerSidebar {
+        padding: 10px;
+    }
+
+    .sidebarItem {
+        margin-bottom: 10px;
+    }
+
+    .eventsTodayBento {
+        min-height: 30px;
+        padding: 10px;
+        margin-bottom: 5px;
+        font-size: 25px;
+    }
+
+    .screenInner {
+        padding: 15px;
+    }
+
+    .divider {
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    .viewbentobox {
+        font-size: 30px;
+        min-height: 30px;
+        padding: 10px 0px 10px 10px;
+        margin-bottom: 5px;
+        margin-right: 5px;
+        border-radius: 20px;
+    }
+
+    .viewbentoboxSub {
+        font-size: 25px;
+    }
+
     .sidebarContainer {
         padding: 10px;
     }
@@ -773,6 +844,18 @@
 
     .screenheading {
         font-size: 40px;
+    }
+
+    .viewnavbar {
+        display: block;
+    }
+
+    .screensubheading {
+        font-size: 35px;
+    }
+
+    .itemEvents p {
+        font-size: 20px;
     }
 
     .header {
@@ -810,10 +893,26 @@
     .sidebarContent {
         grid-template-columns: 250px 100%;
     }
+
+    .sidebarbutton {
+        width: 50px;
+        height: 50px;
+        border-radius: 20px;
+        margin: 0;
+    }
+
+    .sidebarButtonIcon {
+        font-size: 25px;
+    }
+
+    .sidebarbuttonGrid {
+        grid-template-columns: 60px auto 50px;
+        grid-gap: 0px;
+    }
 }
 
 @media (max-width: 630px) {
     .eventsTodayBento {
         width: 87%;
     }
-} 
+}
