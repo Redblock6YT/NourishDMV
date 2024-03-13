@@ -1643,11 +1643,11 @@ export default function Dash() {
                                                 <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
                                             </div>
                                         </div>
-                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
+                                        <div className={styles.viewbentobox}>
                                             <p id="tdonsnum">0</p>
                                             <p className={styles.viewbentoboxSub} id="tdonssub">donations</p>
                                         </div>
-                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
+                                        <div className={styles.viewbentobox}>
                                             <p id="tdonsamt">$0</p>
                                             <p className={styles.viewbentoboxSub}>donated</p>
                                         </div>
@@ -1722,7 +1722,7 @@ export default function Dash() {
                                     <div className={styles.divider}></div>
                                     <h4 className={styles.screensubheading}>{new Date().toLocaleString('default', { month: 'long' })}</h4>
                                     <div className={styles.bentoboxCont}>
-                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
+                                        <div className={styles.viewbentobox}>
                                             <p id="maagdonsamt">$0</p>
                                             <p className={styles.viewbentoboxSub}>donated</p>
                                         </div>
@@ -1745,11 +1745,11 @@ export default function Dash() {
                                     </div>
                                     <h4 className={styles.screensubheading}>Retention</h4>
                                     <div className={styles.bentoboxCont}>
-                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
+                                        <div className={styles.viewbentobox}>
                                             <p>5,554</p>
                                             <p className={styles.viewbentoboxSub}>new users</p>
                                         </div>
-                                        <div className={styles.viewbentobox} style={{ width: "auto" }}>
+                                        <div className={styles.viewbentobox}>
                                             <p>2,345</p>
                                             <p className={styles.viewbentoboxSub}>returning users</p>
                                         </div>
@@ -1757,7 +1757,7 @@ export default function Dash() {
                                     <div className={styles.divider}></div>
                                     <h4 className={styles.screensubheading}>All Time</h4>
                                     <div className={styles.bentoboxCont}>
-                                        <div className={styles.bentoboxShorter} style={{ width: "auto", minWidth: "300px" }}>
+                                        <div className={styles.bentoboxShorter} style={{ minWidth: "300px" }}>
                                             <p id="aagdonsamt" style={{ margin: "0px", textAlign: "center" }}>$0</p>
                                             <p style={{ fontWeight: "normal", fontSize: "30px", margin: "0px", textAlign: "center" }}>donated</p>
                                         </div>
@@ -2218,7 +2218,7 @@ export default function Dash() {
                                             <p id="donationsnumber">0</p>
                                             <p className={styles.viewbentoboxSub} id="donationssub">donations</p>
                                         </div>
-                                        <div className={styles.viewbentobox} style={{ width: "auto", minWidth: "250px" }}>
+                                        <div className={styles.viewbentobox} style={{ minWidth: "250px" }}>
                                             <p id="donationsamt">$0</p>
                                             <p className={styles.viewbentoboxSub}>raised</p>
                                         </div>
