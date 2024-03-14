@@ -732,7 +732,7 @@
     z-index: 100;
     width: 100%;
     height: 100%;
-    display: none;
+    visibility: hidden;
 }
 
 .viewbentoboxSub {
@@ -797,9 +797,23 @@
     }
 }
 
+.closeZigZag {
+    display: block;
+    position: relative;
+    opacity: 0;
+}
+
 @media (max-width: 800px) {
     .innerSidebar {
         padding: 10px;
+    }
+
+    .closeZigZag {
+        display: none;
+    }
+
+    .overlayGrid {
+        display: block;
     }
 
     .sidebarItem {
@@ -869,6 +883,7 @@
 
     .eventsoverlay {
         width: 95%;
+        height: 90%;
     }
 
     .zigZagView {

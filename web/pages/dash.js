@@ -1080,32 +1080,18 @@ export default function Dash() {
             duration: 1000,
             easing: 'easeInOutQuad',
         })
-        if (mobile) {
-            document.getElementById("closeZigZag").style.display = "none"
-            document.getElementById("differenceOverlay").style.display = "block"
-            anime({
-                targets: "#zigZag",
-                left: "0%",
-                duration: 1000,
-                easing: 'easeInOutQuad',
-                complete: function (anim) {
-                    nextStep(type);
-                }
-            })
-        } else {
-            document.getElementById("differenceOverlay").style.display = "grid";
-            anime({
-                targets: "#zigZag",
-                left: "0%",
-                duration: 1000,
-                easing: 'easeInOutQuad',
-                complete: function (anim) {
-                    nextStep(type);
-                }
-            })
-        }
 
+        document.getElementById("differenceOverlay").style.visibility = "visible";
 
+        anime({
+            targets: "#zigZag",
+            left: "0%",
+            duration: 1000,
+            easing: 'easeInOutQuad',
+            complete: function (anim) {
+                nextStep(type);
+            }
+        })
     }
 
     function closeOverlay() {
@@ -1134,7 +1120,7 @@ export default function Dash() {
             duration: 1000,
             easing: 'easeInOutQuad',
             complete: function (anim) {
-                document.getElementById("differenceOverlay").style.display = "none";
+                document.getElementById("differenceOverlay").style.visibility = "hidden";
                 anime({
                     targets: "#content",
                     opacity: 1,
@@ -1447,7 +1433,6 @@ export default function Dash() {
     useEffect(() => {
         if (router.isReady) {
             //once the page is fully loaded, play the splashscreen outro
-
             if (Cookies.get("account") != undefined) {
                 setAccount(Cookies.get("account"));
             }
@@ -1757,9 +1742,9 @@ export default function Dash() {
                                     <div className={styles.divider}></div>
                                     <h4 className={styles.screensubheading}>All Time</h4>
                                     <div className={styles.bentoboxCont}>
-                                        <div className={styles.bentoboxShorter} style={{ minWidth: "300px" }}>
-                                            <p id="aagdonsamt" style={{ margin: "0px", textAlign: "center" }}>$0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px", margin: "0px", textAlign: "center" }}>donated</p>
+                                        <div className={styles.viewbentobox}>
+                                            <p id="aagdonsamt">$0</p>
+                                            <p className={styles.viewbentoboxSub}>donated</p>
                                         </div>
                                         <div className={styles.viewbentobox}>
                                             <p>0</p>
@@ -2249,7 +2234,7 @@ export default function Dash() {
                 </div>
 
                 <div id="differenceOverlay" className={styles.overlayGrid}>
-                    <div id="closeZigZag" style={{ position: "relative", opacity: "0" }}>
+                    <div id="closeZigZag" className={styles.closeZigZag}>
                         <div className={styles.fullycenter}>
                             <h1 style={{ margin: "auto", marginBottom: "100px", fontSize: "40px", color: "#ce8400ff" }} className={styles.font}>Close</h1>
                             <div style={{ position: "relative" }} className={styles.hover} onClick={() => closeOverlay()}>
@@ -2267,7 +2252,7 @@ export default function Dash() {
                                 <input id="v1damt" type="currency" pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" placeholder="5" className={styles.biginput} onInput={() => {
                                     //replace all non-numeric characters
                                     var actvalue = document.getElementById("v1damt").value.replace(/[^0-9.]/g, "");
-                                    
+
                                     if (actvalue == "" || parseFloat(actvalue) == 0) {
                                         document.getElementById("v1dcont").style.visibility = "hidden";
                                         anime({
