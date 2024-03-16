@@ -5,7 +5,7 @@
 NourishDMV is not a real non-profit. It was created for this 2024 FBLA Website Design Project.
 
 # Awards
-2nd Place - Maryland FBLA Region #3 Leadership Conference
+2nd Place - Maryland FBLA Region #3 Leadership Conference<br />
 2nd Place - Maryland FBLA State Leadership Conference
 
 # Try it on your device
