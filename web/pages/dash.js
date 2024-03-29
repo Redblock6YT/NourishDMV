@@ -1081,7 +1081,7 @@ export default function Dash() {
             easing: 'easeInOutQuad',
         })
 
-        document.getElementById("differenceOverlay").style.visibility = "visible";
+        document.getElementById("diffOverlayWrapper").style.display = "block"
 
         anime({
             targets: "#zigZag",
@@ -1120,7 +1120,7 @@ export default function Dash() {
             duration: 1000,
             easing: 'easeInOutQuad',
             complete: function (anim) {
-                document.getElementById("differenceOverlay").style.visibility = "hidden";
+                document.getElementById("diffOverlayWrapper").style.display = "none";
                 anime({
                     targets: "#content",
                     opacity: 1,
@@ -2233,137 +2233,139 @@ export default function Dash() {
                     </div>
                 </div>
 
-                <div id="differenceOverlay" className={styles.overlayGrid}>
-                    <div id="closeZigZag" className={styles.closeZigZag}>
-                        <div className={styles.fullycenter}>
-                            <h1 style={{ margin: "auto", marginBottom: "100px", fontSize: "40px", color: "#ce8400ff" }} className={styles.font}>Close</h1>
-                            <div style={{ position: "relative" }} className={styles.hover} onClick={() => closeOverlay()}>
-                                <div className={[styles.blurredCircle, styles.fullycenter].join(" ")}></div>
-                                <span className={[styles.fullycenter, "material-symbols-rounded"].join(" ")} style={{ fontSize: "70px", color: "white" }}>close</span>
+                <div id="diffOverlayWrapper" className={styles.overlayGridWrapper}>
+                    <div id="differenceOverlay" className={styles.overlayGrid}>
+                        <div id="closeZigZag" className={styles.closeZigZag}>
+                            <div className={styles.fullycenter}>
+                                <h1 style={{ margin: "auto", marginBottom: "100px", fontSize: "40px", color: "#ce8400ff" }} className={styles.font}>Close</h1>
+                                <div style={{ position: "relative" }} className={styles.hover} onClick={() => closeOverlay()}>
+                                    <div className={[styles.blurredCircle, styles.fullycenter].join(" ")}></div>
+                                    <span className={[styles.fullycenter, "material-symbols-rounded"].join(" ")} style={{ fontSize: "70px", color: "white" }}>close</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div id="zigZag" className={styles.zigZag} style={{ '--lighterColor': "#ffe7bf", backgroundColor: "#ce8400ff", height: "100%", left: "100%", overflowY: "auto" }}>
-                        <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeOverlay()} style={{ margin: "auto", marginTop: "10px", display: (mobile) ? "block" : "none" }}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
-                        <div id="donate" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1d" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
-                                <h1 className={styles.header}>Select donation amount</h1>
-                                <p className={styles.subheader}>Your donation contributes to our goal of ensuring everyone in the DMV has food and shelter.</p>
-                                <input id="v1damt" type="currency" pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" placeholder="5" className={styles.biginput} onInput={() => {
-                                    //replace all non-numeric characters
-                                    var actvalue = document.getElementById("v1damt").value.replace(/[^0-9.]/g, "");
+                        <div id="zigZag" className={styles.zigZag} style={{ '--lighterColor': "#ffe7bf", backgroundColor: "#ce8400ff", height: "100%", left: "100%", overflowY: "auto" }}>
+                            <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeOverlay()} style={{ margin: "auto", marginTop: "10px", display: (mobile) ? "block" : "none" }}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
+                            <div id="donate" style={{ position: "relative", height: "100%" }}>
+                                <div id="v1d" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
+                                    <h1 className={styles.header}>Select donation amount</h1>
+                                    <p className={styles.subheader}>Your donation contributes to our goal of ensuring everyone in the DMV has food and shelter.</p>
+                                    <input id="v1damt" type="currency" pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" placeholder="5" className={styles.biginput} onInput={() => {
+                                        //replace all non-numeric characters
+                                        var actvalue = document.getElementById("v1damt").value.replace(/[^0-9.]/g, "");
 
-                                    if (actvalue == "" || parseFloat(actvalue) == 0) {
-                                        document.getElementById("v1dcont").style.visibility = "hidden";
-                                        anime({
-                                            targets: "#v1dcont",
-                                            opacity: 0,
-                                            duration: 300,
-                                            easing: 'linear',
-                                        })
-                                    } else {
-                                        document.getElementById("v1dcont").style.visibility = "visible";
-                                        anime({
-                                            targets: "#v1dcont",
-                                            opacity: 1,
-                                            duration: 300,
-                                            easing: 'linear',
-                                        })
-                                    }
-                                }}></input>
+                                        if (actvalue == "" || parseFloat(actvalue) == 0) {
+                                            document.getElementById("v1dcont").style.visibility = "hidden";
+                                            anime({
+                                                targets: "#v1dcont",
+                                                opacity: 0,
+                                                duration: 300,
+                                                easing: 'linear',
+                                            })
+                                        } else {
+                                            document.getElementById("v1dcont").style.visibility = "visible";
+                                            anime({
+                                                targets: "#v1dcont",
+                                                opacity: 1,
+                                                duration: 300,
+                                                easing: 'linear',
+                                            })
+                                        }
+                                    }}></input>
 
-                                <button id="v1dcont" onClick={() => nextStep("d")} className={[styles.minibutton, styles.hover].join(" ")} style={{ backgroundColor: "rgba(0, 0, 0, 0.281)", opacity: 0, visibility: "hidden" }}>Continue</button>
+                                    <button id="v1dcont" onClick={() => nextStep("d")} className={[styles.minibutton, styles.hover].join(" ")} style={{ backgroundColor: "rgba(0, 0, 0, 0.281)", opacity: 0, visibility: "hidden" }}>Continue</button>
+                                </div>
+                                <div id="v2d" className={styles.zigZagView} style={{ "--maxWidth": "55%" }}>
+                                    <h1 id="v2dh" className={styles.header}>Donate $0.00</h1>
+                                    <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px" }}>
+                                        <input className={styles.input} type='text' placeholder="Name"></input>
+                                        <input className={styles.input} type="tel" placeholder="Phone Number"></input>
+                                    </div>
+
+                                    <input className={styles.input} type='text' placeholder="Email"></input>
+
+                                    <input className={styles.input} type="number" placeholder="Card Number"></input>
+                                    <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
+                                        <input className={styles.input} type="" placeholder="CVV"></input>
+                                        <input className={styles.input} placeholder="Exp Date"></input>
+                                    </div>
+                                    <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
+                                        <select className={styles.input} placeholder="Name">
+                                            <option>United States</option>
+                                        </select>
+                                        <input className={styles.input} placeholder="Zip Code"></input>
+                                    </div>
+                                    <button onClick={() => nextStep("d")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Donate</button>
+                                </div>
+                                <div id="v3d" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
+                                    <div class="loading" style={{ display: "block", opacity: "1" }}></div>
+                                </div>
+                                <div id="v4d" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
+                                    <h1 className={styles.header}>Thank you!</h1>
+                                    <p className={styles.subheader}>Your donation has been processed. You can close this by clicking the close button on the left.</p>
+                                </div>
                             </div>
-                            <div id="v2d" className={styles.zigZagView} style={{ "--maxWidth": "55%" }}>
-                                <h1 id="v2dh" className={styles.header}>Donate $0.00</h1>
-                                <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px" }}>
-                                    <input className={styles.input} type='text' placeholder="Name"></input>
-                                    <input className={styles.input} type="tel" placeholder="Phone Number"></input>
-                                </div>
+                            <div id="volunteer" style={{ position: "relative", height: "100%" }}>
+                                <div id="v1v" className={styles.zigZagView} style={{ "--maxWidth": "60%" }}>
+                                    <h1 className={styles.header}>Volunteer with Us</h1>
+                                    <p className={styles.subheader}>Thank you for your interest in being a NourishDMV Volunteer! Please fill out this application and we'll get back to you as soon as possible.</p>
+                                    <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px", gridTemplateColumns: "auto auto auto" }}>
+                                        <input className={styles.input} type='text' placeholder="Name"></input>
+                                        <input className={styles.input} type="tel" placeholder="Phone Number"></input>
+                                        <input className={styles.input} type="text" placeholder="Email"></input>
+                                    </div>
 
-                                <input className={styles.input} type='text' placeholder="Email"></input>
-
-                                <input className={styles.input} type="number" placeholder="Card Number"></input>
-                                <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
-                                    <input className={styles.input} type="" placeholder="CVV"></input>
-                                    <input className={styles.input} placeholder="Exp Date"></input>
-                                </div>
-                                <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
                                     <select className={styles.input} placeholder="Name">
-                                        <option>United States</option>
+                                        <option>Area</option>
+                                        <option>D.C.</option>
+                                        <option>Maryland</option>
+                                        <option>Virginia</option>
                                     </select>
-                                    <input className={styles.input} placeholder="Zip Code"></input>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto 150px", gridGap: "15px" }}>
+                                        <input className={styles.input} type='text' placeholder="Address"></input>
+                                        <input className={styles.input} type='text' placeholder="City"></input>
+                                    </div>
+                                    <textarea rows="3" className={styles.textarea} placeholder="Tell us about yourself"></textarea>
+                                    <textarea className={styles.textarea} placeholder="Why do you want to volunteer with us?"></textarea>
+                                    <textarea className={styles.input} placeholder="What tasks are your favorite to complete?"></textarea>
+                                    <input className={styles.input} placeholder="How did you hear about us?"></input>
+                                    <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", marginBottom: "20px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
                                 </div>
-                                <button onClick={() => nextStep("d")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Donate</button>
-                            </div>
-                            <div id="v3d" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
-                                <div class="loading" style={{ display: "block", opacity: "1" }}></div>
-                            </div>
-                            <div id="v4d" className={styles.fullycenter} style={{ width: (mobile) ? "85%" : "50%", left: "150%", opacity: 0 }}>
-                                <h1 className={styles.header}>Thank you!</h1>
-                                <p className={styles.subheader}>Your donation has been processed. You can close this by clicking the close button on the left.</p>
-                            </div>
-                        </div>
-                        <div id="volunteer" style={{ position: "relative", height: "100%" }}>
-                            <div id="v1v" className={styles.zigZagView} style={{ "--maxWidth": "60%" }}>
-                                <h1 className={styles.header}>Volunteer with Us</h1>
-                                <p className={styles.subheader}>Thank you for your interest in being a NourishDMV Volunteer! Please fill out this application and we'll get back to you as soon as possible.</p>
-                                <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px", gridTemplateColumns: "auto auto auto" }}>
-                                    <input className={styles.input} type='text' placeholder="Name"></input>
-                                    <input className={styles.input} type="tel" placeholder="Phone Number"></input>
-                                    <input className={styles.input} type="text" placeholder="Email"></input>
+                                <div id="v2v" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
+                                    <h1 className={styles.header}>Thank you!</h1>
+                                    <p className={styles.subheader}>Your application has been processed, we'll be in touch soon! You can close this by clicking the close button {(mobile) ? "at the top" : "on the left"}.</p>
                                 </div>
+                            </div>
+                            <div id="registerEvent" style={{ position: "relative", height: "100%", display: "none" }}>
+                                <div id="v1re" className={styles.zigZagView} style={{ "--maxWidth": "50%" }}>
+                                    <h1 id="v1rehead" className={styles.header}>Pay $0.00</h1>
+                                    <h1 id="v1resubhead" className={styles.subheader}>to register for Event</h1>
 
-                                <select className={styles.input} placeholder="Name">
-                                    <option>Area</option>
-                                    <option>D.C.</option>
-                                    <option>Maryland</option>
-                                    <option>Virginia</option>
-                                </select>
-                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto 150px", gridGap: "15px" }}>
-                                    <input className={styles.input} type='text' placeholder="Address"></input>
-                                    <input className={styles.input} type='text' placeholder="City"></input>
+                                    <input className={styles.input} type="number" style={{ marginTop: "50px" }} placeholder="Card Number"></input>
+                                    <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
+                                        <input className={styles.input} type="" placeholder="CVV"></input>
+                                        <input className={styles.input} placeholder="Exp Date"></input>
+                                    </div>
+                                    <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
+                                        <select className={styles.input} placeholder="Name" disabed>
+                                            <option>United States</option>
+                                        </select>
+                                        <input className={styles.input} placeholder="Zip Code"></input>
+                                    </div>
+                                    <button onClick={() => nextStep("re")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Register</button>
                                 </div>
-                                <textarea rows="3" className={styles.textarea} placeholder="Tell us about yourself"></textarea>
-                                <textarea className={styles.textarea} placeholder="Why do you want to volunteer with us?"></textarea>
-                                <textarea className={styles.input} placeholder="What tasks are your favorite to complete?"></textarea>
-                                <input className={styles.input} placeholder="How did you hear about us?"></input>
-                                <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", marginBottom: "20px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
-                            </div>
-                            <div id="v2v" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
-                                <h1 className={styles.header}>Thank you!</h1>
-                                <p className={styles.subheader}>Your application has been processed, we'll be in touch soon! You can close this by clicking the close button {(mobile) ? "at the top" : "on the left"}.</p>
-                            </div>
-                        </div>
-                        <div id="registerEvent" style={{ position: "relative", height: "100%", display: "none" }}>
-                            <div id="v1re" className={styles.zigZagView} style={{ "--maxWidth": "50%" }}>
-                                <h1 id="v1rehead" className={styles.header}>Pay $0.00</h1>
-                                <h1 id="v1resubhead" className={styles.subheader}>to register for Event</h1>
-
-                                <input className={styles.input} type="number" style={{ marginTop: "50px" }} placeholder="Card Number"></input>
-                                <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
-                                    <input className={styles.input} type="" placeholder="CVV"></input>
-                                    <input className={styles.input} placeholder="Exp Date"></input>
+                                <div id="v2re" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
+                                    <div class="loading" style={{ display: "block", opacity: "1" }}></div>
                                 </div>
-                                <div className={styles.doublegrid} style={{ gridGap: "15px" }}>
-                                    <select className={styles.input} placeholder="Name" disabed>
-                                        <option>United States</option>
-                                    </select>
-                                    <input className={styles.input} placeholder="Zip Code"></input>
+                                <div id="v3re" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
+                                    <h1 className={styles.header}>You're all set.</h1>
+                                    <p className={styles.subheader}>Your payment has been received and you have succesfully registered for the event.</p>
                                 </div>
-                                <button onClick={() => nextStep("re")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Register</button>
-                            </div>
-                            <div id="v2re" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
-                                <div class="loading" style={{ display: "block", opacity: "1" }}></div>
-                            </div>
-                            <div id="v3re" className={styles.fullycenter} style={{ width: "50%", left: "150%", opacity: 0 }}>
-                                <h1 className={styles.header}>You're all set.</h1>
-                                <p className={styles.subheader}>Your payment has been received and you have succesfully registered for the event.</p>
                             </div>
                         </div>
                     </div>
-
                 </div>
+
                 <div id="donationSuccessful" style={{ position: "absolute", width: "100vw", height: "100vh", backgroundColor: "#000000b8", opacity: "0", display: "none", left: "50%", top: "50%", transform: "translateX(-50%) translateY(-50%)" }}>
                     <div id="dsc1" className={styles.blurredCircle} style={{ position: "absolute", top: "50%", left: "50%", width: "0px", height: "0px", transform: "translateX(-50%) translateY(-50%)" }}></div>
                     <div id="dsc2" className={styles.blurredCircle} style={{ position: "absolute", top: "50%", left: "50%", width: "0px", height: "0px", transform: "translateX(-50%) translateY(-50%)" }}></div>
