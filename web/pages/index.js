@@ -115,7 +115,7 @@ export default function Home() {
 
     axios({
       method: "get",
-      url: "https://nourishapi.rygb.tech/getEvents"
+      url: "http://localhost:8080/getEvents"
     }).then((res) => {
       if (res.status == 200) {
         console.log("got events")
@@ -440,7 +440,7 @@ export default function Home() {
       Cookies.set("trackerUUID", trackerUUID);
       axios({
         method: "post",
-        url: "https://nourishapi.rygb.tech/track",
+        url: "http://localhost:8080/track",
         data: {
           uuid: trackerUUID,
           page: "Homepage",
@@ -783,7 +783,7 @@ export default function Home() {
                 <h3 className={styles.header} style={{ color: "black", marginBottom: "40px", textAlign: "center" }}>Get in touch</h3>
                 <div className={styles.contactgrid}>
                   <div className={styles.item} style={{ margin: "auto", marginRight: "0px", display: "flex", justifyContent: "center", alignItems: "center" }} onClick={() => window.location.href = "tel:4104567890"}>
-                    <p className={styles.header} style={{ margin: 0 }}>
+                    <p className={styles.header} style={{ margin: 0, fontSize: "30px" }}>
                       (410) 456-7890
                     </p>
                     <div style={{ zIndex: "5" }} className={styles.fullycenter}>
@@ -798,7 +798,7 @@ export default function Home() {
                         email
                       </span>
                     </div>
-                    <p className={styles.header} style={{ textAlign: "center", margin: "0", fontSize: "35px" }}>
+                    <p className={styles.header} style={{ textAlign: "center", margin: "0", fontSize: "30px" }}>
                       contact@nourishdmv.com
                     </p>
                   </div>
@@ -815,7 +815,7 @@ export default function Home() {
                   </div>
                   <div className={styles.item} style={{ margin: "auto", marginLeft: "0px", cursor: "default" }}>
                     <div className={styles.fullycenter} style={{ width: "100%" }}>
-                      <div className={styles.header} style={{ textAlign: "center", margin: "auto" }}>
+                      <div className={styles.header} style={{ textAlign: "center", margin: "auto", fontSize: "30px" }}>
                         <h2 className={styles.subheader} style={{ fontSize: "20px" }}>Social Media</h2>
                         @nourishdmv
                       </div>

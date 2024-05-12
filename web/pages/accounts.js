@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import styles from '@/styles/Accounts.module.css'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Cookies from 'js-cookie';
 import anime from 'animejs';
 import Image from 'next/image';
@@ -14,15 +14,21 @@ export default function Accounts() {
     const [view, setView] = useState('norm');
     const [mobile, setMobile] = useState(false);
     const [actionType, setActionType] = useState("Sign In");
-
+    const fromRef = useRef(undefined);
     const [trackerUUID, setTrackerUUID] = useState("");
+
+    useEffect(() => {
+        if (router.isReady) {
+            fromRef.current = router.query.from;
+        }
+    }, [router.isReady]);
 
     useEffect(() => {
         if (trackerUUID != "") {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Accounts",
@@ -293,7 +299,7 @@ export default function Accounts() {
                             if (actionType == "Sign In") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: 'https://nourishapi.rygb.tech/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
+                                    url: 'http://localhost:8080/requestSignIn?email=' + document.getElementById("email").value + '&password=' + hashedpassword,
                                     method: 'get',
                                 }).then((result) => {
                                     if (result.data.status == "Sign In approved.") {
@@ -387,7 +393,7 @@ export default function Accounts() {
                             } else if (actionType == "Sign Up") {
                                 const hashedpassword = crypto.createHash('sha256').update(document.getElementById("password").value).digest('hex');
                                 axios({
-                                    url: "https://nourishapi.rygb.tech/createAccount",
+                                    url: "http://localhost:8080/createAccount",
                                     method: 'post',
                                     data: {
                                         email: document.getElementById("email").value,
@@ -575,13 +581,19 @@ export default function Accounts() {
                 <div id="maincontent" style={{ opacity: 0 }}>
                     <div onClick={() => {
                         if (view == "norm") {
-                            push("/");
+                            if (fromRef.current !== undefined) {
+                                if (fromRef.current == "Dashboard") {
+                                    push("/dash");
+                                }
+                            } else {
+                               push("/"); 
+                            }
                         } else {
                             switchView("norm");
                         }
-                    }} className={styles.doublegrid} style={{ color: "#a46900", fontSize: "25px", width: "210px", marginTop: "20px", marginLeft: "20px", cursor: "pointer", gridTemplateColumns: "50px auto", gridGap: "0px", position: "relative", zIndex: "100" }}>
+                    }} className={styles.doublegrid} style={{ color: "#a46900", fontSize: "25px", width: "30%", marginTop: "20px", marginLeft: "20px", cursor: "pointer", gridTemplateColumns: "50px auto", gridGap: "0px", position: "relative", zIndex: "100" }}>
                         <span class="material-symbols-rounded" style={{ fontSize: "40px" }}>arrow_circle_left</span>
-                        <p className={styles.font} style={{ margin: "auto", textAlign: "left", width: "100%" }}>Back {(view == "norm") ? "to Home" : ""}</p>
+                        <p className={styles.font} style={{ margin: "auto", marginLeft: "0px", textAlign: "left", width: "100%" }}>Back {(view == "norm") ? (fromRef.current !== undefined) ? "to " + fromRef.current :  "to Home" : ""}</p>
                     </div>
                     <div className={styles.fullycenter} style={{ width: "90%", height: (mobile) ? "75%" : "83%" }}>
                         <div id="home" className={styles.buttonsgrid}>

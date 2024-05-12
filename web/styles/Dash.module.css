@@ -281,7 +281,7 @@
 
 .hover:hover,
 .managebutton:hover {
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 
@@ -349,6 +349,24 @@
     border-radius: 25px;
     position: relative;
     font-size: 30px;
+    font-family: 'Outfit', sans-serif;
+    color: rgba(0, 0, 0, 0.300);
+}
+
+.eventsTodayBentoFilled {
+    float: inline-start;
+    width: 500px;
+    height: 120px;
+    margin-right: 10px;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    background-color: rgba(255, 208, 128, 0.692);
+    border-radius: 25px;
+    position: relative;
+    display: table;
+    font-size: 20px;
+    font-family: 'Outfit', sans-serif;
+    color: rgba(0, 0, 0, 0.300);
 }
 
 .bentoboxCont {
@@ -626,6 +644,26 @@
     transition: ease 0.5s all;
 }
 
+.bentoboxLive {
+    border-radius: 25px;
+    width: 280px;
+    height: auto;
+    float: inline-start;
+    background-color: #ff00008a;
+    position: relative;
+    font-family: 'Outfit', sans-serif;
+    font-size: 50px;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 20px;
+    color: #ffe5b9;
+    overflow: hidden;
+    transition: ease 0.5s all;
+    animation: pulseLive2 3s infinite linear;
+}
+
 .minilistitem {
     background-color: #d69a31;
     width: 100%;
@@ -779,6 +817,10 @@
     .bentoboxCont {
         margin: 20px 0px;
     }
+
+    .eventsTodayBentoFilled {
+        height: 90px;
+    }
 }
 
 @media(max-width: 1400px) {
@@ -804,6 +846,13 @@
     display: block;
     position: relative;
     opacity: 0;
+}
+
+.sbAcctInnerDiv {
+    display: grid;
+    grid-template-columns: auto 50px;
+    padding: 10px;
+    height: 50px;
 }
 
 @media (max-width: 800px) {
@@ -873,7 +922,7 @@
     }
 
     .itemEvents p {
-        font-size: 20px;
+        font-size: 23px;
     }
 
     .header {

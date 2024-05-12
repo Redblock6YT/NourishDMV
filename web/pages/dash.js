@@ -92,7 +92,7 @@ export default function Dash() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -216,7 +216,7 @@ export default function Dash() {
         const exitFunction = () => {
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Inactive",
@@ -251,7 +251,7 @@ export default function Dash() {
                 if (view == "accounts") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getAccounts",
+                        url: "http://localhost:8080/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -309,7 +309,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getEvents"
+                        url: "http://localhost:8080/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         //sort the events array based on the event start date time
@@ -357,6 +357,7 @@ export default function Dash() {
                         var inprog = 0;
                         var ended = 0;
                         var attendees = 0;
+                        var displayEventInAAG = null;
                         for (var i = 0; i < events.length; i++) {
                             const event = events[i].event;
                             attendees += events[i].analytics.attendees.length;
@@ -394,15 +395,24 @@ export default function Dash() {
                                     pending++;
                                     eventItem.style.color = "black"
                                     eventItem.style.backgroundColor = "#ffff0072"
+                                    if (new Date().toDateString() == new Date(event.startDateTime).toDateString() || new Date().toDateString() == new Date(event.endDateTime).toDateString()) {
+                                        displayEventInAAG = events[i];
+                                    }
                                 } else if (eventStatus == "In Progress") {
                                     inprog++;
                                     eventItem.style.backgroundColor = "#fbac29ff"
                                     eventItem.style.animation = styles.pulse + " 3s infinite linear"
+                                    displayEventInAAG = events[i];
                                 } else if (eventStatus == "Ended") {
                                     ended++;
                                     eventItem.style.backgroundColor = "#f66d4bff"
+                                    if (new Date().toDateString() == new Date(event.endDateTime).toDateString()) {
+                                        displayEventInAAG = events[i];
+                                    }
                                 }
                             }
+
+
 
 
                             if (adminViewRef.current) {
@@ -430,6 +440,89 @@ export default function Dash() {
                                 eventslist.appendChild(eventItem);
                             }
                         }
+
+                        if (displayEventInAAG != null && adminViewRef.current) {
+                            const eventsTodayBento = document.getElementById("eventsTodayBento");
+                            const event = displayEventInAAG.event;
+                            const id = displayEventInAAG.id;
+                            const status = calculateEventStatus(event.startDateTime, event.endDateTime);
+                            const countdownline = document.createElement("a");
+
+                            eventsTodayBento.innerHTML = ""
+                            /*
+                            eventsTodayBento.style.border = "none"
+                            eventsTodayBento.style.cursor = "pointer"
+                            eventsTodayBento.style.fontSize = "20px"
+                            eventsTodayBento.style.height = "120px";
+                            eventsTodayBento.style.padding = "10px 20px";
+                            eventsTodayBento.style.display = "table";
+                            */
+
+                            if (status == "Pending") {
+                                eventsTodayBento.style.backgroundColor = "#ffff0072"
+                                eventsTodayBento.style.color = "black"
+                                var timeDiff = calculateTimeDifference(event.startDateTime);
+                                countdownline.innerHTML = "Starts in " + timeDiff.value + " " + timeDiff.unit;
+                            } else if (status == "In Progress") {
+                                eventsTodayBento.style.backgroundColor = "#fbac29ff"
+                                eventsTodayBento.style.animation = styles.pulse + " 3s infinite linear"
+                                eventsTodayBento.style.color = "#ffe5b9"
+                                var timeDiff = calculateTimeDifference(event.endDateTime);
+                                countdownline.innerHTML = "Ends in " + timeDiff.value + " " + timeDiff.unit;
+                            } else if (status == "Ended") {
+                                eventsTodayBento.style.backgroundColor = "#f66d4bff"
+                                eventsTodayBento.style.color = "rgba(0,0,0,.504)"
+                                var timeDiff = calculateTimeDifference(event.endDateTime);
+                                countdownline.innerHTML = "Ended " + timeDiff.value + " " + timeDiff.unit + " ago";
+                            }
+
+                            const eventContents = document.createElement("div");
+                            eventContents.style.verticalAlign = "middle";
+                            eventContents.style.display = "table-cell";
+                            const eventTitle = document.createElement("h3");
+                            eventTitle.innerHTML = event.title;
+                            eventTitle.style.margin = "0px";
+
+                            eventContents.appendChild(countdownline);
+                            eventContents.appendChild(eventTitle);
+
+                            if (event.location != "") {
+                                const eventLocationEls = document.createElement("div")
+                                const eventLocation = document.createElement("p");
+                                const eventLocationIcon = document.createElement("span");
+                                eventLocationIcon.className = "material-symbols-rounded";
+                                eventLocationIcon.innerHTML = "pin_drop"
+                                eventLocation.innerHTML = event.location;
+                                eventLocation.style.margin = "0px"
+                                eventLocationEls.className = styles.doublegrid;
+                                eventLocationEls.style.gridTemplateColumns = "20px auto";
+                                eventLocationEls.style.gridGap = "10px";
+                                eventLocationEls.appendChild(eventLocationIcon);
+                                eventLocationEls.appendChild(eventLocation);
+                                eventContents.appendChild(eventLocationEls);
+                            }
+
+                            const eventdates = document.createElement("div");
+                            const eventdicon = document.createElement("span");
+                            const eventdatestext = document.createElement("p");
+                            eventdates.className = styles.doublegrid;
+                            eventdates.style.gridTemplateColumns = "20px auto"
+                            eventdates.style.gridGap = "10px"
+                            eventdatestext.style.margin = "0px"
+                            eventdicon.innerHTML = "schedule"
+                            eventdicon.style.margin = "auto"
+                            eventdicon.className = "material-symbols-rounded"
+                            eventdatestext.innerHTML = new Date(event.startDateTime).toLocaleDateString() + " - " + new Date(event.endDateTime).toLocaleDateString();
+                            eventdates.appendChild(eventdicon);
+                            eventdates.appendChild(eventdatestext);
+                            eventContents.appendChild(eventdates);
+
+                            eventsTodayBento.appendChild(eventContents);
+                            eventsTodayBento.className = [styles.eventsTodayBentoFilled, styles.hover].join(" ");
+                            console.log(displayEventInAAG)
+                            eventsTodayBento.onclick = () => { switchView("events"); openEventOverlay("vieweventsoverlay", id) };
+                        }
+
                         setEventAttendees(attendees);
                         document.getElementById("pendingcount").innerHTML = pending;
                         document.getElementById("inprogcount").innerHTML = inprog;
@@ -461,7 +554,7 @@ export default function Dash() {
                 } else if (view == "donations") {
                     axios({
                         method: "get",
-                        url: "https://nourishapi.rygb.tech/getDonations"
+                        url: "http://localhost:8080/getDonations"
                     }).then((res) => {
                         const accounts = res.data.reverse();
                         var amount = 0;
@@ -548,7 +641,7 @@ export default function Dash() {
                         refresh("donations");
                         axios({
                             method: "get",
-                            url: "https://nourishapi.rygb.tech/getTotalUsers"
+                            url: "http://localhost:8080/getTotalUsers"
                         }).then((res) => {
                             var users = res.data;
                             document.getElementById("totaluserstd").innerHTML = users.today;
@@ -578,6 +671,7 @@ export default function Dash() {
         if (!mobileRef.current) {
             eventsoverlay.style.height = "65%"
         }
+        eventsoverlay.scrollTop = 0;
         anime({
             targets: eventsoverlay,
             scale: 1,
@@ -593,7 +687,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "https://nourishapi.rygb.tech/getEvent?id=" + id
+                url: "http://localhost:8080/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -610,11 +704,11 @@ export default function Dash() {
                         document.getElementById("vecost").innerHTML = "Free Registration";
                         document.getElementById("eregistertbtn").onclick = function () {
                             if (account == "") {
-                                push("/accounts?view=Sign+In")
+                                push("/accounts?from=Dashboard&view=Sign+In")
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "https://nourishapi.rygb.tech/registerEvent",
+                                    url: "http://localhost:8080/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -645,7 +739,7 @@ export default function Dash() {
                     if (!analytics.attendees.includes(accountRef.current)) {
                         if (accountRef.current == "") {
                             document.getElementById("eregistertbtn").innerHTML = "Sign In to Register"
-                            document.getElementById("eregistertbtn").onclick = () => push("/accounts?view=Sign+In&redirect=" + encodeURIComponent("/dash?view=events&eventid=" + id));
+                            document.getElementById("eregistertbtn").onclick = () => push("/accounts?from=Dashboard&view=Sign+In&redirect=" + encodeURIComponent("/dash?view=events&eventid=" + id));
                         } else {
                             document.getElementById("eregistertbtn").innerHTML = "Register"
                         }
@@ -656,7 +750,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "https://nourishapi.rygb.tech/unregisterEvent",
+                                url: "http://localhost:8080/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -831,7 +925,7 @@ export default function Dash() {
                 // "process" the donation
                 axios({
                     method: "post",
-                    url: "https://nourishapi.rygb.tech/addDonation",
+                    url: "http://localhost:8080/addDonation",
                     data: {
                         amount: parseFloat(document.getElementById("v1damt").value.replace(/[$,]/g, "")).toFixed(2),
                     }
@@ -912,7 +1006,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "https://nourishapi.rygb.tech/getEvent?id=" + selectedEvent
+                    url: "http://localhost:8080/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost;
                     document.getElementById("v1resubhead").innerHTML = "to register for " + res.data.event.title;
@@ -922,7 +1016,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "https://nourishapi.rygb.tech/registerEvent",
+                    url: "http://localhost:8080/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -1036,7 +1130,7 @@ export default function Dash() {
             donate.style.display = "block";
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1051,7 +1145,7 @@ export default function Dash() {
             volunteer.style.display = "block";
             axios({
                 method: "post",
-                url: "https://nourishapi.rygb.tech/track",
+                url: "http://localhost:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1098,7 +1192,7 @@ export default function Dash() {
         setStep(0);
         axios({
             method: "post",
-            url: "https://nourishapi.rygb.tech/track",
+            url: "http://localhost:8080/track",
             data: {
                 uuid: trackerUUID,
                 page: "Dashboard",
@@ -1211,7 +1305,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "https://nourishapi.rygb.tech/getAccount?uuid=" + account
+                url: "http://localhost:8080/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1221,7 +1315,7 @@ export default function Dash() {
                         if (viewState == "aag") {
                             axios({
                                 method: "get",
-                                url: "https://nourishapi.rygb.tech/getTrackerStats"
+                                url: "http://localhost:8080/getTrackerStats"
                             }).then((res) => {
                                 const stats = res.data;
                                 console.log(stats);
@@ -1326,7 +1420,7 @@ export default function Dash() {
                     if (err.response.data == "Account not found.") {
                         Cookies.remove("account");
                         setAccount("");
-                        push("/accounts?view=Sign+In")
+                        push("/accounts?from=Dashboard&view=Sign+In")
                     }
                 } else {
                     apiError(err.message)
@@ -1588,14 +1682,14 @@ export default function Dash() {
                                     <button id="donationsbtn" className={styles.sidebarItem} onClick={() => switchView("donations")}>Donations</button>
                                 </div>
                                 <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 50, zIndex: 100, width: "90%" }}>
-                                    <button className={styles.sidebarItem} onClick={() => push("/accounts?view=Sign+In")} style={{ display: (account == "") ? "block" : "none" }}>Sign In</button>
+                                    <button className={styles.sidebarItem} onClick={() => push("/accounts?from=Dashboard&view=Sign+In")} style={{ display: (account == "") ? "block" : "none" }}>Sign In</button>
                                     <div className={styles.sidebarItem} style={{ width: "100%", zIndex: "100", display: (account != "") ? "block" : "none", backgroundColor: "rgba(255, 208, 128, 0.692)", border: "1px solid #e3ab4a", cursor: "initial" }}>
-                                        <div style={{ display: "grid", gridTemplateColumns: "auto 50px", padding: "10px", height: "50px" }}>
+                                        <div className={styles.sbAcctInnerDiv}>
                                             <h3 style={{ margin: "auto", marginLeft: "0px", color: "#e3ab4a", textAlign: "left" }} id="acctName">Name</h3>
                                             <div id="logout" className={styles.hover} onClick={() => {
                                                 Cookies.remove("account");
                                                 setAccount("");
-                                                push("/accounts?view=Sign+In")
+                                                push("/accounts?from=Dashboard&view=Sign+In")
                                             }} style={{ backgroundColor: "#e3ab4a", position: "relative", width: "40px", height: "40px", borderRadius: "15px", margin: "auto", marginRight: "0px" }}>
                                                 <span className={["material-symbols-rounded", styles.fullycenter].join(" ")} style={{ fontSize: "30px", margin: "auto" }}>logout</span>
                                             </div>
@@ -1623,7 +1717,7 @@ export default function Dash() {
                                 <div id="admin" style={{ display: (adminView) ? "block" : "none" }}>
                                     <h4 className={styles.screensubheading}>Today</h4>
                                     <div className={styles.bentoboxCont}>
-                                        <div className={styles.eventsTodayBento}>
+                                        <div className={styles.eventsTodayBento} id="eventsTodayBento">
                                             <div className={styles.fullycenter} style={{ width: "100%" }}>
                                                 <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
                                             </div>
@@ -1658,7 +1752,7 @@ export default function Dash() {
                                                 <p id="activeusersnum">0</p>
                                                 <p className={styles.viewbentoboxSub}>total active users</p>
                                             </div>
-                                            <div id="homepageuam" className={styles.bentoboxShorter} style={{ width: "280px", overflow: "hidden", height: "auto", float: "inline-start", marginBottom: "10px", marginRight: "10px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                            <div id="homepageuam" className={styles.bentoboxLive}>
                                                 <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
                                                     <p style={{ margin: "0px", textAlign: "center" }}><a id="homepagenum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
                                                     <div className={styles.collapse} onClick={() => collapse("homepageuam", 53, "hpuamcico")} style={{ cursor: "pointer" }}>
@@ -1667,14 +1761,16 @@ export default function Dash() {
                                                 </div>
 
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="heronum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Hero</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="goalgridnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Statistics/Goal</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="howhelplistnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>How we help</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="makedifferencenum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Difference Together</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="getintouchnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Get In Touch</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="footernum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Footer</a></p>
+                                                <div style={{ padding: "0px 25px" }}>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="heronum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Hero</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="goalgridnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Statistics/Goal</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="howhelplistnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>How we help</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="makedifferencenum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Difference Together</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="getintouchnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Get In Touch</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="footernum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Footer</a></p>
+                                                </div>
                                             </div>
-                                            <div id="accountsuam" className={styles.bentoboxShorter} style={{ width: "230px", height: "auto", overflow: "hidden", float: "inline-start", marginBottom: "10px", marginRight: "10px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                            <div id="accountsuam" className={styles.bentoboxLive} style={{ width: "230px" }}>
                                                 <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
                                                     <p style={{ margin: "0px", textAlign: "center" }}><a id="accountsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
                                                     <div className={styles.collapse} onClick={() => collapse("accountsuam", 53, "accuamcico")} style={{ cursor: "pointer" }}>
@@ -1682,11 +1778,13 @@ export default function Dash() {
                                                     </div>
                                                 </div>
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="landingnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Landing</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="innum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign In</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="upnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Sign Up</a></p>
+                                                <div style={{ padding: "0px 15px" }}>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="landingnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Landing</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="innum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Sign In</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="upnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Sign Up</a></p>
+                                                </div>
                                             </div>
-                                            <div className={styles.bentoboxShorter} id="dashboarduam" style={{ width: "250px", marginBottom: "10px", marginRight: "10px", height: "350px", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                            <div className={styles.bentoboxLive} id="dashboarduam" style={{ width: "250px", height: "350px", float: "none" }}>
                                                 <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
                                                     <p style={{ margin: "0px", textAlign: "center" }}><a id="dashboardnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
                                                     <div className={styles.collapse} onClick={() => collapse("dashboarduam", 53, "dashuamico")} style={{ cursor: "pointer" }}>
@@ -1695,12 +1793,14 @@ export default function Dash() {
                                                 </div>
 
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="aagnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>At a glance</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="eventsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Events</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="eventdetailsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Event Details</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="donationsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Donations</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="donationflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Donation Flow</a></p>
-                                                <p style={{ margin: "0px", fontSize: "35px", textAlign: "center" }}><a id="volunteerflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "25px" }}>Volunteer Flow</a></p>
+                                                <div style={{padding: "0px 10px"}}>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="aagnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>At a glance</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="eventsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Events</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="eventdetailsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Event Details</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="donationsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Donations</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="donationflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Donation Flow</a></p>
+                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="volunteerflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Volunteer Flow</a></p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1865,9 +1965,9 @@ export default function Dash() {
                                     <div>
                                         <h4 className={styles.screensubheading}>Recent Events</h4>
                                         <div id="othereventsl" className={styles.bentoboxCont} style={{ overflowX: "auto" }}>
-                                            <div className={styles.card}>
+                                            <div id="reaagetb" className={styles.eventsTodayBento} style={{ marginBottom: "0px" }}>
                                                 <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                    <p className={styles.font} style={{ fontSize: "25px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>
+                                                    <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -2126,7 +2226,7 @@ export default function Dash() {
                                             if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                                 axios({
                                                     method: "post",
-                                                    url: "https://nourishapi.rygb.tech/createEvent",
+                                                    url: "http://localhost:8080/createEvent",
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -2150,7 +2250,7 @@ export default function Dash() {
                                                 console.log(selectedEvent)
                                                 axios({
                                                     method: "post",
-                                                    url: "https://nourishapi.rygb.tech/updateEvent?id=" + selectedEvent,
+                                                    url: "http://localhost:8080/updateEvent?id=" + selectedEvent,
                                                     data: {
                                                         event: {
                                                             title: document.getElementById("ename").value,
@@ -2176,7 +2276,7 @@ export default function Dash() {
                                         <button onClick={() => {
                                             axios({
                                                 method: "post",
-                                                url: "https://nourishapi.rygb.tech/deleteEvent?id=" + selectedEvent,
+                                                url: "http://localhost:8080/deleteEvent?id=" + selectedEvent,
                                             }).then((res) => {
                                                 closeEventOverlay("editeventsoverlay");
                                                 refresh("events")
