@@ -1554,16 +1554,30 @@ export default function Dash() {
                 if (window.innerWidth <= 1060) {
                     hideSidebar();
                     try {
-                        collapse("dashboarduam", 53, "dashuamico", true);
-                        collapse("accountsuam", 53, "accuamcico", true);
-                        collapse("homepageuam", 53, "hpuamcico", true);
+                        if (window.innerWidth <= 800) {
+                            collapse("dashboarduam", 38, "dashuamico", true);
+                            collapse("accountsuam", 38, "accuamcico", true);
+                            collapse("homepageuam", 38, "hpuamcico", true);
+                        } else {
+                            collapse("dashboarduam", 53, "dashuamico", true);
+                            collapse("accountsuam", 53, "accuamcico", true);
+                            collapse("homepageuam", 53, "hpuamcico", true);
+                        }
+
                     } catch (ignored) { }
                 } else {
                     showSidebar();
                     try {
-                        collapse("dashboarduam", 53, "dashuamico", false);
-                        collapse("accountsuam", 53, "accuamcico", false);
-                        collapse("homepageuam", 53, "hpuamcico", false);
+                        if (window.innerWidth <= 800) {
+                            collapse("dashboarduam", 38, "dashuamico", false);
+                            collapse("accountsuam", 38, "accuamcico", false);
+                            collapse("homepageuam", 38, "hpuamcico", false);
+                        } else {
+                            collapse("dashboarduam", 53, "dashuamico", false);
+                            collapse("accountsuam", 53, "accuamcico", false);
+                            collapse("homepageuam", 53, "hpuamcico", false);
+                        }
+
                     } catch (ignored) { }
                 }
             });
@@ -1760,7 +1774,7 @@ export default function Dash() {
                                                     </div>
                                                 </div>
 
-                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
+                                                <div className={[styles.divider, styles.bbldivider].join(" ")}></div>
                                                 <div style={{ padding: "0px 25px" }}>
                                                     <p style={{ margin: "0px", fontSize: "30px" }}><a id="heronum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Hero</a></p>
                                                     <p style={{ margin: "0px", fontSize: "30px" }}><a id="goalgridnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Statistics/Goal</a></p>
@@ -1793,7 +1807,7 @@ export default function Dash() {
                                                 </div>
 
                                                 <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
-                                                <div style={{padding: "0px 10px"}}>
+                                                <div style={{ padding: "0px 10px" }}>
                                                     <p style={{ margin: "0px", fontSize: "30px" }}><a id="aagnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>At a glance</a></p>
                                                     <p style={{ margin: "0px", fontSize: "30px" }}><a id="eventsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Events</a></p>
                                                     <p style={{ margin: "0px", fontSize: "30px" }}><a id="eventdetailsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Event Details</a></p>

@@ -664,6 +664,13 @@
     animation: pulseLive2 3s infinite linear;
 }
 
+.bbldivider {
+    border-top: 0.5px solid rgb(255 255 255 / 34%);
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-bottom: 0.5px solid rgb(255 255 255 / 34%)
+}
+
 .minilistitem {
     background-color: #d69a31;
     width: 100%;
@@ -886,6 +893,18 @@
     .divider {
         margin-top: 15px;
         margin-bottom: 15px;
+    }
+
+    .bentoboxLive {
+        font-size: 30px;
+        padding: 10px 0px 10px 10px;
+        margin-bottom: 5px;
+        margin-right: 5px;
+    }
+
+    .bbldivider {
+        margin-top: 5px;
+        margin-bottom: 5px;
     }
 
     .viewbentobox {
