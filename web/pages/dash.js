@@ -92,7 +92,7 @@ export default function Dash() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "http://localhost:8080/track",
+                url: "http://192.168.1.253:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -216,7 +216,7 @@ export default function Dash() {
         const exitFunction = () => {
             axios({
                 method: "post",
-                url: "http://localhost:8080/track",
+                url: "http://192.168.1.253:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Inactive",
@@ -251,7 +251,7 @@ export default function Dash() {
                 if (view == "accounts") {
                     axios({
                         method: "get",
-                        url: "http://localhost:8080/getAccounts",
+                        url: "http://192.168.1.253:8080/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -309,7 +309,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "http://localhost:8080/getEvents"
+                        url: "http://192.168.1.253:8080/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         //sort the events array based on the event start date time
@@ -485,6 +485,7 @@ export default function Dash() {
 
                             eventContents.appendChild(countdownline);
                             eventContents.appendChild(eventTitle);
+                            const eventExtras = document.createElement("div");
 
                             if (event.location != "") {
                                 const eventLocationEls = document.createElement("div")
@@ -499,7 +500,7 @@ export default function Dash() {
                                 eventLocationEls.style.gridGap = "10px";
                                 eventLocationEls.appendChild(eventLocationIcon);
                                 eventLocationEls.appendChild(eventLocation);
-                                eventContents.appendChild(eventLocationEls);
+                                eventExtras.appendChild(eventLocationEls);
                             }
 
                             const eventdates = document.createElement("div");
@@ -515,7 +516,10 @@ export default function Dash() {
                             eventdatestext.innerHTML = new Date(event.startDateTime).toLocaleDateString() + " - " + new Date(event.endDateTime).toLocaleDateString();
                             eventdates.appendChild(eventdicon);
                             eventdates.appendChild(eventdatestext);
-                            eventContents.appendChild(eventdates);
+
+                            eventExtras.appendChild(eventdates);
+                            eventExtras.id = "bentoEventExtras"
+                            eventContents.appendChild(eventExtras);
 
                             eventsTodayBento.appendChild(eventContents);
                             eventsTodayBento.className = [styles.eventsTodayBentoFilled, styles.hover].join(" ");
@@ -554,7 +558,7 @@ export default function Dash() {
                 } else if (view == "donations") {
                     axios({
                         method: "get",
-                        url: "http://localhost:8080/getDonations"
+                        url: "http://192.168.1.253:8080/getDonations"
                     }).then((res) => {
                         const accounts = res.data.reverse();
                         var amount = 0;
@@ -641,7 +645,7 @@ export default function Dash() {
                         refresh("donations");
                         axios({
                             method: "get",
-                            url: "http://localhost:8080/getTotalUsers"
+                            url: "http://192.168.1.253:8080/getTotalUsers"
                         }).then((res) => {
                             var users = res.data;
                             document.getElementById("totaluserstd").innerHTML = users.today;
@@ -674,8 +678,8 @@ export default function Dash() {
         eventsoverlay.scrollTop = 0;
         anime({
             targets: eventsoverlay,
-            scale: 1,
             opacity: 1,
+            zoom: 1,
             duration: 500,
             filter: "blur(0px)",
             easing: 'easeInOutQuad'
@@ -687,7 +691,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "http://localhost:8080/getEvent?id=" + id
+                url: "http://192.168.1.253:8080/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -708,7 +712,7 @@ export default function Dash() {
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "http://localhost:8080/registerEvent",
+                                    url: "http://192.168.1.253:8080/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -750,7 +754,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "http://localhost:8080/unregisterEvent",
+                                url: "http://192.168.1.253:8080/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -837,8 +841,8 @@ export default function Dash() {
 
         anime({
             targets: "#" + overlayId,
-            scale: 1.2,
             opacity: 0,
+            zoom: 1.2,
             filter: "blur(10px)",
             duration: 500,
             easing: 'easeInOutQuad',
@@ -879,7 +883,11 @@ export default function Dash() {
         e.target.value = (value == "") ? "" : formatUSD(value.replace(/[$,]/g, ""))
     }
 
-    function collapse(element, collapseHeight, icon, force) {
+    function collapse(element, collapseHeight, altCollapseHeight, icon, force) {
+        var usingCollapseHeight = collapseHeight;
+        if (window.innerWidth <= 800) {
+            usingCollapseHeight = altCollapseHeight;
+        }
         if (force != undefined) {
             if (!force) {
                 //expand
@@ -887,19 +895,19 @@ export default function Dash() {
                 document.getElementById(icon).innerHTML = "expand_circle_up";
                 document.getElementById(element).style.overflow = "auto";
             } else {
-                document.getElementById(element).style.height = collapseHeight + "px";
+                document.getElementById(element).style.height = usingCollapseHeight + "px";
                 document.getElementById(icon).innerHTML = "expand_circle_down";
                 document.getElementById(element).style.overflow = "hidden";
             }
         } else {
-            if (document.getElementById(element).style.height == collapseHeight + "px") {
+            if (document.getElementById(element).style.height == usingCollapseHeight + "px") {
                 //expand
                 document.getElementById(element).style.height = "auto";
                 document.getElementById(icon).innerHTML = "expand_circle_up";
                 document.getElementById(element).style.overflow = "auto";
             } else {
                 //collapse
-                document.getElementById(element).style.height = collapseHeight + "px";
+                document.getElementById(element).style.height = usingCollapseHeight + "px";
                 document.getElementById(icon).innerHTML = "expand_circle_down";
                 document.getElementById(element).style.overflow = "hidden";
             }
@@ -925,7 +933,7 @@ export default function Dash() {
                 // "process" the donation
                 axios({
                     method: "post",
-                    url: "http://localhost:8080/addDonation",
+                    url: "http://192.168.1.253:8080/addDonation",
                     data: {
                         amount: parseFloat(document.getElementById("v1damt").value.replace(/[$,]/g, "")).toFixed(2),
                     }
@@ -1006,7 +1014,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "http://localhost:8080/getEvent?id=" + selectedEvent
+                    url: "http://192.168.1.253:8080/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost;
                     document.getElementById("v1resubhead").innerHTML = "to register for " + res.data.event.title;
@@ -1016,7 +1024,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "http://localhost:8080/registerEvent",
+                    url: "http://192.168.1.253:8080/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -1130,7 +1138,7 @@ export default function Dash() {
             donate.style.display = "block";
             axios({
                 method: "post",
-                url: "http://localhost:8080/track",
+                url: "http://192.168.1.253:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1145,7 +1153,7 @@ export default function Dash() {
             volunteer.style.display = "block";
             axios({
                 method: "post",
-                url: "http://localhost:8080/track",
+                url: "http://192.168.1.253:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1192,7 +1200,7 @@ export default function Dash() {
         setStep(0);
         axios({
             method: "post",
-            url: "http://localhost:8080/track",
+            url: "http://192.168.1.253:8080/track",
             data: {
                 uuid: trackerUUID,
                 page: "Dashboard",
@@ -1305,7 +1313,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "http://localhost:8080/getAccount?uuid=" + account
+                url: "http://192.168.1.253:8080/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1315,7 +1323,7 @@ export default function Dash() {
                         if (viewState == "aag") {
                             axios({
                                 method: "get",
-                                url: "http://localhost:8080/getTrackerStats"
+                                url: "http://192.168.1.253:8080/getTrackerStats"
                             }).then((res) => {
                                 const stats = res.data;
                                 console.log(stats);
@@ -1534,16 +1542,16 @@ export default function Dash() {
             if (window.innerWidth <= 1060) {
                 hideSidebar();
                 try {
-                    collapse("dashboarduam", 53, "dashuamico", true);
-                    collapse("accountsuam", 53, "accuamcico", true);
-                    collapse("homepageuam", 53, "hpuamcico", true);
+                    collapse("dashboarduam", 53, 38, "dashuamico", true);
+                    collapse("accountsuam", 53, 38, "accuamcico", true);
+                    collapse("homepageuam", 53, 38, "hpuamcico", true);
                 } catch (ignored) { }
             } else {
                 showSidebar();
                 try {
-                    collapse("dashboarduam", 53, "dashuamico", false);
-                    collapse("accountsuam", 53, "accuamcico", false);
-                    collapse("homepageuam", 53, "hpuamcico", false);
+                    collapse("dashboarduam", 53, 38, "dashuamico", false);
+                    collapse("accountsuam", 53, 38, "accuamcico", false);
+                    collapse("homepageuam", 53, 38, "hpuamcico", false);
                 } catch (ignored) { }
             }
 
@@ -1551,32 +1559,27 @@ export default function Dash() {
             document.getElementById("v1damt").addEventListener("blur", onBlur);
 
             window.addEventListener("resize", () => {
+                if (window.innerWidth <= 1500) {
+                    document.getElementById("bentoEventExtras").style.display = "none";
+                } else {
+                    document.getElementById("bentoEventExtras").style.display = "block";
+                }
+
                 if (window.innerWidth <= 1060) {
                     hideSidebar();
                     try {
-                        if (window.innerWidth <= 800) {
-                            collapse("dashboarduam", 38, "dashuamico", true);
-                            collapse("accountsuam", 38, "accuamcico", true);
-                            collapse("homepageuam", 38, "hpuamcico", true);
-                        } else {
-                            collapse("dashboarduam", 53, "dashuamico", true);
-                            collapse("accountsuam", 53, "accuamcico", true);
-                            collapse("homepageuam", 53, "hpuamcico", true);
-                        }
+                        collapse("dashboarduam", 53, 38, "dashuamico", true);
+                        collapse("accountsuam", 53, 38, "accuamcico", true);
+                        collapse("homepageuam", 53, 38, "hpuamcico", true);
 
                     } catch (ignored) { }
                 } else {
                     showSidebar();
                     try {
-                        if (window.innerWidth <= 800) {
-                            collapse("dashboarduam", 38, "dashuamico", false);
-                            collapse("accountsuam", 38, "accuamcico", false);
-                            collapse("homepageuam", 38, "hpuamcico", false);
-                        } else {
-                            collapse("dashboarduam", 53, "dashuamico", false);
-                            collapse("accountsuam", 53, "accuamcico", false);
-                            collapse("homepageuam", 53, "hpuamcico", false);
-                        }
+
+                        collapse("dashboarduam", 53, 38, "dashuamico", false);
+                        collapse("accountsuam", 53, 38, "accuamcico", false);
+                        collapse("homepageuam", 53, 38, "hpuamcico", false);
 
                     } catch (ignored) { }
                 }
@@ -1769,7 +1772,7 @@ export default function Dash() {
                                             <div id="homepageuam" className={styles.bentoboxLive}>
                                                 <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
                                                     <p style={{ margin: "0px", textAlign: "center" }}><a id="homepagenum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
-                                                    <div className={styles.collapse} onClick={() => collapse("homepageuam", 53, "hpuamcico")} style={{ cursor: "pointer" }}>
+                                                    <div className={styles.collapse} onClick={() => collapse("homepageuam", 53, 38, "hpuamcico")} style={{ cursor: "pointer" }}>
                                                         <span className='material-symbols-rounded' id="hpuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
                                                     </div>
                                                 </div>
@@ -1787,7 +1790,7 @@ export default function Dash() {
                                             <div id="accountsuam" className={styles.bentoboxLive} style={{ width: "230px" }}>
                                                 <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
                                                     <p style={{ margin: "0px", textAlign: "center" }}><a id="accountsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
-                                                    <div className={styles.collapse} onClick={() => collapse("accountsuam", 53, "accuamcico")} style={{ cursor: "pointer" }}>
+                                                    <div className={styles.collapse} onClick={() => collapse("accountsuam", 53, 38, "accuamcico")} style={{ cursor: "pointer" }}>
                                                         <span className='material-symbols-rounded' id="accuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
                                                     </div>
                                                 </div>
@@ -1801,7 +1804,7 @@ export default function Dash() {
                                             <div className={styles.bentoboxLive} id="dashboarduam" style={{ width: "250px", height: "350px", float: "none" }}>
                                                 <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
                                                     <p style={{ margin: "0px", textAlign: "center" }}><a id="dashboardnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
-                                                    <div className={styles.collapse} onClick={() => collapse("dashboarduam", 53, "dashuamico")} style={{ cursor: "pointer" }}>
+                                                    <div className={styles.collapse} onClick={() => collapse("dashboarduam", 53, 38, "dashuamico")} style={{ cursor: "pointer" }}>
                                                         <span className='material-symbols-rounded' id="dashuamico" style={{ fontSize: "40px" }}>expand_circle_up</span>
                                                     </div>
                                                 </div>
@@ -1842,7 +1845,7 @@ export default function Dash() {
                                             <p className={styles.viewbentoboxSub}>total users</p>
                                         </div>
                                     </div>
-                                    <h4 className={styles.screensubheading}>Retention</h4>
+                                    <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Retention</h4>
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
                                             <p>5,554</p>
@@ -1878,7 +1881,7 @@ export default function Dash() {
                                         </div>
                                     </div>
 
-                                    <h4 className={styles.screensubheading}>Demographics</h4>
+                                    <h4 className={styles.screensubheading} style={{ fontWeight: "nromal" }}>Demographics</h4>
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
                                             <p>40%</p>
@@ -1902,7 +1905,7 @@ export default function Dash() {
                                             <p className={styles.viewbentoboxSub}>using a desktop device</p>
                                         </div>
                                     </div>
-                                    <h4 className={styles.screensubheading}>Events</h4>
+                                    <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Events</h4>
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
                                             <p>{eventsLength}</p>
@@ -2090,218 +2093,219 @@ export default function Dash() {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div id="vieweventsoverlay" style={{ transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={[styles.fullycenter, styles.eventsoverlay].join(" ")}>
-                                    <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("vieweventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
-                                    <div id="vestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
-                                        <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                            <p id="vestatusverbtop" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>Event is</p>
-                                            <h2 id="vestatus" style={{ margin: "0px", fontSize: "80px", textAlign: "center" }}>PENDING</h2>
-                                            <p id="vestatusverb" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>It will start in 0 days</p>
-                                        </div>
+                            <div id="vieweventsoverlay" className={styles.eventsoverlay}>
+                                <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("vieweventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
+                                <div id="vestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
+                                    <div className={styles.fullycenter} style={{ width: "100%" }}>
+                                        <p id="vestatusverbtop" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>Event is</p>
+                                        <h2 id="vestatus" style={{ margin: "0px", fontSize: "80px", textAlign: "center" }}>PENDING</h2>
+                                        <p id="vestatusverb" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>It will start in 0 days</p>
                                     </div>
+                                </div>
+                                <div>
+                                    <h1 id="vename" className={styles.screenheading} style={{ marginTop: "20px", marginLeft: "20px", marginBottom: "0px" }}>Event Title</h1>
+                                    <p id="vedesc" className={styles.font} style={{ fontSize: "30px", marginTop: "10px", fontWeight: "normal", marginLeft: "20px" }}>Event Description</p>
+                                </div>
+                                <div className={styles.divider}></div>
+                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "20px" }}>
+                                    <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>pin_drop</span>
                                     <div>
-                                        <h1 id="vename" className={styles.screenheading} style={{ marginTop: "20px", marginLeft: "20px", marginBottom: "0px" }}>Event Title</h1>
-                                        <p id="vedesc" className={styles.font} style={{ fontSize: "30px", marginTop: "10px", fontWeight: "normal", marginLeft: "20px" }}>Event Description</p>
+                                        <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event Location:</h3>
+                                        <p id="veloc" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Location</p>
                                     </div>
-                                    <div className={styles.divider}></div>
-                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "20px" }}>
-                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>pin_drop</span>
-                                        <div>
-                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event Location:</h3>
-                                            <p id="veloc" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Location</p>
-                                        </div>
-                                    </div>
-
-                                    <div id="regdef" style={{ display: (mobile) ? "block" : "grid", marginBottom: "20px" }} className={styles.doublegrid}>
-                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
-                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_available</span>
-                                            <div>
-                                                <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Registration Start:</h3>
-                                                <p id="veregstart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
-                                            </div>
-                                        </div>
-                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
-                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_busy</span>
-                                            <div>
-                                                <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Registration End:</h3>
-                                                <p id="veregend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid" }}>
-                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
-                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
-                                            <div>
-                                                <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event Start:</h3>
-                                                <p id="vestart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
-                                            </div>
-                                        </div>
-                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
-                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
-                                            <div>
-                                                <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event End:</h3>
-                                                <p id="veend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.divider}></div>
-                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
-                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>local_activity</span>
-                                        <h3 id="vecost" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>Free Registration</h3>
-                                    </div>
-                                    <button id="eregistertbtn" className={styles.managebutton}>Register</button>
                                 </div>
 
-                                <div id="editeventsoverlay" style={{ transform: "translateX(-50%) translateY(-50%) scale(1.2)", filter: "blur(10px)", opacity: 0 }} className={[styles.fullycenter, styles.eventsoverlay].join(" ")}>
-                                    <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("editeventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
-                                    <div id="eestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
-                                        <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                            <p id="eestatusverbtop" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>Event is</p>
-                                            <h2 id="eestatus" style={{ margin: "0px", fontSize: "80px", textAlign: "center" }}>PENDING</h2>
-                                            <p id="eestatusverb" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>It will start in ??? days</p>
+                                <div id="regdef" style={{ display: (mobile) ? "block" : "grid", marginBottom: "20px" }} className={styles.doublegrid}>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
+                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_available</span>
+                                        <div>
+                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Registration Start:</h3>
+                                            <p id="veregstart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
                                         </div>
+                                    </div>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
+                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_busy</span>
+                                        <div>
+                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Registration End:</h3>
+                                            <p id="veregend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid" }}>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
+                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
+                                        <div>
+                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event Start:</h3>
+                                            <p id="vestart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
+                                        </div>
+                                    </div>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
+                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
+                                        <div>
+                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event End:</h3>
+                                            <p id="veend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className={styles.divider}></div>
+                                <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
+                                    <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>local_activity</span>
+                                    <h3 id="vecost" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>Free Registration</h3>
+                                </div>
+                                <button id="eregistertbtn" className={styles.managebutton}>Register</button>
+                            </div>
+
+                            <div id="editeventsoverlay" className={styles.eventsoverlay}>
+                                <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("editeventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
+                                <div id="eestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
+                                    <div className={styles.fullycenter} style={{ width: "100%" }}>
+                                        <p id="eestatusverbtop" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>Event is</p>
+                                        <h2 id="eestatus" style={{ margin: "0px", fontSize: "80px", textAlign: "center" }}>PENDING</h2>
+                                        <p id="eestatusverb" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>It will start in ??? days</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <input id="ename" className={styles.slickttt} style={{ marginTop: "20px" }} placeholder="Event Title"></input>
+                                    <textarea id="edesc" onInput={() => {
+                                        document.getElementById("edesc").style.height = "auto";
+                                        document.getElementById("edesc").style.height = (document.getElementById("edesc").scrollHeight) + "px";
+                                    }} className={styles.slickttt} style={{ fontSize: "30px", fontWeight: "normal", height: "100px" }} placeholder="Event Description"></textarea>
+                                </div>
+                                <div className={styles.divider}></div>
+                                <div id="admineanalytics" style={{ display: "none" }}>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
+                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>visibility</span>
+                                        <h3 id="eev" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>0 Views</h3>
+                                    </div>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
+                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>group</span>
+                                        <h3 id="eea" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>0 Attendees</h3>
+                                    </div>
+                                    <div className={styles.divider}></div>
+                                </div>
+                                <div id="eldoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "250px auto" }}>
+                                    <h3 className={[styles.font, styles.evDGItem].join(" ")} style={{ fontSize: "30px", margin: "10px" }}>Event Location</h3>
+                                    <input id="eloc" placeholder="Location" className={[styles.input, styles.evDGItem].join(" ")}></input>
+                                </div>
+                                <div id="evdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "150px auto" }}>
+                                    <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Visibility</h3>
+                                    <select id="evselect" className={styles.input}>
+                                        <option>Visible</option>
+                                        <option>Hidden</option>
+                                    </select>
+                                </div>
+                                <div id="erdtdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridGap: "15px" }}>
+                                    <div>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Start</h3>
+                                        <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("erst").value, (document.getElementById("eret") == "") ? document.getElementById("erst").value : document.getElementById("eret").value, document.getElementById("est").value, document.getElementById("eet").value)} id="erst" type="datetime-local" className={styles.input}></input>
                                     </div>
                                     <div>
-                                        <input id="ename" className={styles.slickttt} style={{ marginTop: "20px" }} placeholder="Event Title"></input>
-                                        <textarea id="edesc" onInput={() => {
-                                            document.getElementById("edesc").style.height = "auto";
-                                            document.getElementById("edesc").style.height = (document.getElementById("edesc").scrollHeight) + "px";
-                                        }} className={styles.slickttt} style={{ fontSize: "30px", fontWeight: "normal", height: "100px" }} placeholder="Event Description"></textarea>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration End</h3>
+                                        <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("eret").value, (document.getElementById("erst") == "") ? document.getElementById("eret").value : document.getElementById("erst").value, document.getElementById("est").value, document.getElementById("eet").value)} id="eret" type="datetime-local" className={styles.input}></input>
                                     </div>
-                                    <div className={styles.divider}></div>
-                                    <div id="admineanalytics" style={{ display: "none" }}>
-                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
-                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>visibility</span>
-                                            <h3 id="eev" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>0 Views</h3>
-                                        </div>
-                                        <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
-                                            <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>group</span>
-                                            <h3 id="eea" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>0 Attendees</h3>
-                                        </div>
-                                        <div className={styles.divider}></div>
+                                </div>
+                                <div id="etdtdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridGap: "15px" }}>
+                                    <div>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Start</h3>
+                                        <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("eret").value, document.getElementById("erst").value, document.getElementById("est").value, (document.getElementById("eet").value == "") ? document.getElementById("est").value : document.getElementById("eet").value)} id="est" type="datetime-local" className={styles.input}></input>
                                     </div>
-                                    <div id="eldoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "250px auto" }}>
-                                        <h3 className={[styles.font, styles.evDGItem].join(" ")} style={{ fontSize: "30px", margin: "10px" }}>Event Location</h3>
-                                        <input id="eloc" placeholder="Location" className={[styles.input, styles.evDGItem].join(" ")}></input>
+                                    <div>
+                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event End</h3>
+                                        <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("eret").value, document.getElementById("erst").value, (document.getElementById("est").value == "") ? document.getElementById("eet").value : document.getElementById("est").value, document.getElementById("eet").value)} id="eet" type="datetime-local" className={styles.input}></input>
                                     </div>
-                                    <div id="evdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "150px auto" }}>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Visibility</h3>
-                                        <select id="evselect" className={styles.input}>
-                                            <option>Visible</option>
-                                            <option>Hidden</option>
-                                        </select>
-                                    </div>
-                                    <div id="erdtdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridGap: "15px" }}>
-                                        <div>
-                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Start</h3>
-                                            <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("erst").value, (document.getElementById("eret") == "") ? document.getElementById("erst").value : document.getElementById("eret").value, document.getElementById("est").value, document.getElementById("eet").value)} id="erst" type="datetime-local" className={styles.input}></input>
-                                        </div>
-                                        <div>
-                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration End</h3>
-                                            <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("eret").value, (document.getElementById("erst") == "") ? document.getElementById("eret").value : document.getElementById("erst").value, document.getElementById("est").value, document.getElementById("eet").value)} id="eret" type="datetime-local" className={styles.input}></input>
-                                        </div>
-                                    </div>
-                                    <div id="etdtdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridGap: "15px" }}>
-                                        <div>
-                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Start</h3>
-                                            <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("eret").value, document.getElementById("erst").value, document.getElementById("est").value, (document.getElementById("eet").value == "") ? document.getElementById("est").value : document.getElementById("eet").value)} id="est" type="datetime-local" className={styles.input}></input>
-                                        </div>
-                                        <div>
-                                            <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event End</h3>
-                                            <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("eret").value, document.getElementById("erst").value, (document.getElementById("est").value == "") ? document.getElementById("eet").value : document.getElementById("est").value, document.getElementById("eet").value)} id="eet" type="datetime-local" className={styles.input}></input>
-                                        </div>
-                                    </div>
-                                    <div className={styles.divider}></div>
-                                    <div id="ecdgicon" className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
-                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>local_activity</span>
-                                        <div id="ecdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "auto" }}>
-                                            <select id="ecselect" className={styles.input} onInput={() => {
-                                                if (document.getElementById("ecselect").value == "Paid") {
-                                                    document.getElementById("eusdamount").style.display = "block";
-                                                    document.getElementById("ecdoublegrid").style.gridTemplateColumns = "auto 200px";
-                                                } else {
-                                                    document.getElementById("eusdamount").style.display = "none";
-                                                    document.getElementById("ecdoublegrid").style.gridTemplateColumns = "auto";
-                                                }
-                                            }}>
-                                                <option value="Free">Free Registration</option>
-                                                <option value="Paid">Paid Registration</option>
-                                            </select>
-                                            <input id="eusdamount" className={styles.input} style={{ display: "none" }} placeholder="USD Amount"></input>
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.divider}></div>
-
-                                    <div id="submitdelgrid" className={styles.doublegrid} style={{ gridTemplateColumns: (mobile) ? "60% auto" : "70% auto", gridGap: "15px" }}>
-                                        <button id="esubmitbtn" className={styles.managebutton} onClick={() => {
-                                            if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
-                                                axios({
-                                                    method: "post",
-                                                    url: "http://localhost:8080/createEvent",
-                                                    data: {
-                                                        event: {
-                                                            title: document.getElementById("ename").value,
-                                                            description: document.getElementById("edesc").value,
-                                                            location: document.getElementById("eloc").value,
-                                                            visible: document.getElementById("evselect").value,
-                                                            registrationStartDateTime: document.getElementById("erst").value,
-                                                            registrationEndDateTime: document.getElementById("eret").value,
-                                                            startDateTime: document.getElementById("est").value,
-                                                            endDateTime: document.getElementById("eet").value,
-                                                            cost: (document.getElementById("eusdamount").value == "") ? "Free" : parseFloat(document.getElementById("eusdamount").value).toFixed(2),
-                                                        }
-                                                    }
-                                                }).then((res) => {
-                                                    closeEventOverlay("editeventsoverlay", "add");
-                                                    refresh("events")
-                                                }).catch((err) => {
-                                                    apiError(err)
-                                                })
-                                            } else if (document.getElementById("esubmitbtn").innerHTML = "Save Event") {
-                                                console.log(selectedEvent)
-                                                axios({
-                                                    method: "post",
-                                                    url: "http://localhost:8080/updateEvent?id=" + selectedEvent,
-                                                    data: {
-                                                        event: {
-                                                            title: document.getElementById("ename").value,
-                                                            description: document.getElementById("edesc").value,
-                                                            location: document.getElementById("eloc").value,
-                                                            visible: document.getElementById("evselect").value,
-                                                            registrationStartDateTime: document.getElementById("erst").value,
-                                                            registrationEndDateTime: document.getElementById("eret").value,
-                                                            startDateTime: document.getElementById("est").value,
-                                                            endDateTime: document.getElementById("eet").value,
-                                                            cost: (document.getElementById("eusdamount").value == "") ? "Free" : parseFloat(document.getElementById("eusdamount").value).toFixed(2),
-                                                        },
-                                                    }
-                                                }).then((res) => {
-                                                    closeEventOverlay("editeventsoverlay", "add");
-                                                    refresh("events")
-                                                }).catch((err) => {
-                                                    console.log(err)
-                                                    apiError(err)
-                                                })
+                                </div>
+                                <div className={styles.divider}></div>
+                                <div id="ecdgicon" className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
+                                    <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>local_activity</span>
+                                    <div id="ecdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "auto" }}>
+                                        <select id="ecselect" className={styles.input} onInput={() => {
+                                            if (document.getElementById("ecselect").value == "Paid") {
+                                                document.getElementById("eusdamount").style.display = "block";
+                                                document.getElementById("ecdoublegrid").style.gridTemplateColumns = "auto 200px";
+                                            } else {
+                                                document.getElementById("eusdamount").style.display = "none";
+                                                document.getElementById("ecdoublegrid").style.gridTemplateColumns = "auto";
                                             }
-                                        }}>Add Event</button>
-                                        <button onClick={() => {
+                                        }}>
+                                            <option value="Free">Free Registration</option>
+                                            <option value="Paid">Paid Registration</option>
+                                        </select>
+                                        <input id="eusdamount" className={styles.input} style={{ display: "none" }} placeholder="USD Amount"></input>
+                                    </div>
+                                </div>
+
+                                <div className={styles.divider}></div>
+
+                                <div id="submitdelgrid" className={styles.doublegrid} style={{ gridTemplateColumns: (mobile) ? "60% auto" : "70% auto", gridGap: "15px" }}>
+                                    <button id="esubmitbtn" className={styles.managebutton} onClick={() => {
+                                        if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                             axios({
                                                 method: "post",
-                                                url: "http://localhost:8080/deleteEvent?id=" + selectedEvent,
+                                                url: "http://192.168.1.253:8080/createEvent",
+                                                data: {
+                                                    event: {
+                                                        title: document.getElementById("ename").value,
+                                                        description: document.getElementById("edesc").value,
+                                                        location: document.getElementById("eloc").value,
+                                                        visible: document.getElementById("evselect").value,
+                                                        registrationStartDateTime: document.getElementById("erst").value,
+                                                        registrationEndDateTime: document.getElementById("eret").value,
+                                                        startDateTime: document.getElementById("est").value,
+                                                        endDateTime: document.getElementById("eet").value,
+                                                        cost: (document.getElementById("eusdamount").value == "") ? "Free" : parseFloat(document.getElementById("eusdamount").value).toFixed(2),
+                                                    }
+                                                }
                                             }).then((res) => {
-                                                closeEventOverlay("editeventsoverlay");
+                                                closeEventOverlay("editeventsoverlay", "add");
                                                 refresh("events")
                                             }).catch((err) => {
                                                 apiError(err)
-                                                console.log(err)
                                             })
-                                        }} style={{ backgroundColor: "#ef3600b9" }} id="edelbtn" className={styles.managebutton}>Delete Event</button>
-                                    </div>
+                                        } else if (document.getElementById("esubmitbtn").innerHTML = "Save Event") {
+                                            console.log(selectedEvent)
+                                            axios({
+                                                method: "post",
+                                                url: "http://192.168.1.253:8080/updateEvent?id=" + selectedEvent,
+                                                data: {
+                                                    event: {
+                                                        title: document.getElementById("ename").value,
+                                                        description: document.getElementById("edesc").value,
+                                                        location: document.getElementById("eloc").value,
+                                                        visible: document.getElementById("evselect").value,
+                                                        registrationStartDateTime: document.getElementById("erst").value,
+                                                        registrationEndDateTime: document.getElementById("eret").value,
+                                                        startDateTime: document.getElementById("est").value,
+                                                        endDateTime: document.getElementById("eet").value,
+                                                        cost: (document.getElementById("eusdamount").value == "") ? "Free" : parseFloat(document.getElementById("eusdamount").value).toFixed(2),
+                                                    },
+                                                }
+                                            }).then((res) => {
+                                                closeEventOverlay("editeventsoverlay", "add");
+                                                refresh("events")
+                                            }).catch((err) => {
+                                                console.log(err)
+                                                apiError(err)
+                                            })
+                                        }
+                                    }}>Add Event</button>
+                                    <button onClick={() => {
+                                        axios({
+                                            method: "post",
+                                            url: "http://192.168.1.253:8080/deleteEvent?id=" + selectedEvent,
+                                        }).then((res) => {
+                                            closeEventOverlay("editeventsoverlay");
+                                            refresh("events")
+                                        }).catch((err) => {
+                                            apiError(err)
+                                            console.log(err)
+                                        })
+                                    }} style={{ backgroundColor: "#ef3600b9" }} id="edelbtn" className={styles.managebutton}>Delete Event</button>
                                 </div>
                             </div>
+
                         </div>
                         <div id="donations" className={styles.screen}>
                             <div className={styles.screenInner}>

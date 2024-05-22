@@ -731,17 +731,19 @@
 }
 
 .eventsoverlay {
-    height: 65%;
+    height: 100%;
     width: 60%;
     display: none;
     overflow-y: auto;
     overflow-x: visible;
     padding: 20%;
-    position: absolute;
+    position: fixed;
     top: 50%;
-    left: 50%;
+    left: calc(300px + 50%);
     filter: blur(10px);
     opacity: 0;
+    zoom: 1.2;
+    transform: translateX(-50%) translateY(-50%);
 }
 
 .makeDifferenceCont {
@@ -826,7 +828,8 @@
     }
 
     .eventsTodayBentoFilled {
-        height: 90px;
+        height: 73px;
+        width: 400px;
     }
 }
 
@@ -886,6 +889,11 @@
         font-size: 25px;
     }
 
+    .eventsTodayBentoFilled {
+        margin-bottom: 5px;
+        width: 80%;
+    }
+
     .screenInner {
         padding: 15px;
     }
@@ -897,9 +905,10 @@
 
     .bentoboxLive {
         font-size: 30px;
-        padding: 10px 0px 10px 10px;
+        padding: 10px;
         margin-bottom: 5px;
         margin-right: 5px;
+        border-radius: 20px;
     }
 
     .bbldivider {
@@ -953,8 +962,9 @@
     }
 
     .eventsoverlay {
-        width: 95%;
+        width: 90%;
         height: 90%;
+        left: calc(271px + 50%);
     }
 
     .zigZagView {
