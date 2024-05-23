@@ -68,6 +68,10 @@
     text-overflow: ellipsis;
 }
 
+.itemEvents span {
+    font-size: 30px;
+}
+
 .itemEvents:hover {
     transform: scale(1.02)
 }
@@ -409,6 +413,7 @@
     font-family: 'Outfit', sans-serif;
     font-weight: bold;
     font-size: 16px;
+    -webkit-min-logical-width: calc(100% - 16px);
 }
 
 .inputScreen {
@@ -448,6 +453,29 @@
     font-weight: bold;
     font-size: 40px;
     transition: all 0.5s ease;
+}
+
+.subslickttt {
+    font-size: 30px;
+}
+
+.evstatusdiv {
+    height: 300px;
+    width: 100%;
+    border-radius: 25px;
+    position: relative;
+}
+
+.evstatusverb {
+    font-size: 30px;
+    margin: 0px;
+    text-align: center;
+}
+
+.evstatus {
+    font-size: 80px;
+    margin: 0px;
+    text-align: center;
 }
 
 .slickttt:hover,
@@ -870,6 +898,32 @@
         padding: 10px;
     }
 
+    .slickttt {
+        font-size: 30px;
+        padding: 12px;
+        margin-top: 5px;
+    }
+
+    .evstatusverb {
+        font-size: 25px;
+    }
+
+    .evstatus {
+        font-size: 60px;
+    }
+
+    .evstatusdiv {
+        height: 200px;
+    }
+
+    .subslickttt {
+        font-size: 20px;
+    }
+
+    .sbAcctInnerDiv {
+        padding: 5px 10px;
+    }
+
     .closeZigZag {
         display: none;
     }
@@ -946,11 +1000,15 @@
     }
 
     .screensubheading {
-        font-size: 35px;
+        font-size: 30px;
     }
 
     .itemEvents p {
-        font-size: 23px;
+        font-size: 18px;
+    }
+
+    .itemEvents span {
+        font-size: 20px;
     }
 
     .header {

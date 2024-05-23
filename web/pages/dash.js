@@ -68,7 +68,7 @@ export default function Dash() {
         if (isLeftSwipe) {
             hideSidebar();
             setUserSidebarOpen(false);
-        } else if (isRightSwipe) {
+        } else if (isRightSwipe && viewState != "eventDetails") {
             showSidebar();
             setUserSidebarOpen(true);
         }
@@ -92,7 +92,7 @@ export default function Dash() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "http://192.168.1.253:8080/track",
+                url: "http://192.168.1.158:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -113,13 +113,14 @@ export default function Dash() {
         }
         document.getElementById(view + "btn").style.backgroundColor = "rgb(209, 156, 64)";
         document.getElementById(view + "btn").style.marginLeft = "10px";
+        if (window.innerWidth <= 600) {
+            hideSidebar(view);
+        }
         document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
         router.push("/dash", "/dash?view=" + view, { shallow: true });
         refresh(view);
         setViewState(view);
-        if (window.innerWidth <= 600) {
-            hideSidebar();
-        }
+
     }
 
     function calculateEventStatus(startDateTime, endDateTime) {
@@ -216,7 +217,7 @@ export default function Dash() {
         const exitFunction = () => {
             axios({
                 method: "post",
-                url: "http://192.168.1.253:8080/track",
+                url: "http://192.168.1.158:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Inactive",
@@ -251,7 +252,7 @@ export default function Dash() {
                 if (view == "accounts") {
                     axios({
                         method: "get",
-                        url: "http://192.168.1.253:8080/getAccounts",
+                        url: "http://192.168.1.158:8080/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -309,7 +310,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "http://192.168.1.253:8080/getEvents"
+                        url: "http://192.168.1.158:8080/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         //sort the events array based on the event start date time
@@ -374,7 +375,6 @@ export default function Dash() {
                             icon.className = "material-symbols-rounded";
                             icon.innerHTML = "chevron_right"
                             icon.style.margin = "auto"
-                            icon.style.fontSize = "30px"
                             icon.style.marginRight = "0px"
                             eventItem.className = [styles.itemEvents, styles.doublegrid].join(" ");
                             eventItem.style.gridTemplateColumns = "auto 50px";
@@ -558,7 +558,7 @@ export default function Dash() {
                 } else if (view == "donations") {
                     axios({
                         method: "get",
-                        url: "http://192.168.1.253:8080/getDonations"
+                        url: "http://192.168.1.158:8080/getDonations"
                     }).then((res) => {
                         const accounts = res.data.reverse();
                         var amount = 0;
@@ -645,7 +645,7 @@ export default function Dash() {
                         refresh("donations");
                         axios({
                             method: "get",
-                            url: "http://192.168.1.253:8080/getTotalUsers"
+                            url: "http://192.168.1.158:8080/getTotalUsers"
                         }).then((res) => {
                             var users = res.data;
                             document.getElementById("totaluserstd").innerHTML = users.today;
@@ -671,6 +671,9 @@ export default function Dash() {
             filter: "blur(40px)",
             easing: 'easeInOutQuad'
         })
+
+        //document.getElementById(viewState).transform = "none"
+
         eventsoverlay.style.display = "block";
         if (!mobileRef.current) {
             eventsoverlay.style.height = "65%"
@@ -691,7 +694,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "http://192.168.1.253:8080/getEvent?id=" + id
+                url: "http://192.168.1.158:8080/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -712,7 +715,7 @@ export default function Dash() {
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "http://192.168.1.253:8080/registerEvent",
+                                    url: "http://192.168.1.158:8080/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -754,7 +757,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "http://192.168.1.253:8080/unregisterEvent",
+                                url: "http://192.168.1.158:8080/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -933,7 +936,7 @@ export default function Dash() {
                 // "process" the donation
                 axios({
                     method: "post",
-                    url: "http://192.168.1.253:8080/addDonation",
+                    url: "http://192.168.1.158:8080/addDonation",
                     data: {
                         amount: parseFloat(document.getElementById("v1damt").value.replace(/[$,]/g, "")).toFixed(2),
                     }
@@ -1014,7 +1017,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "http://192.168.1.253:8080/getEvent?id=" + selectedEvent
+                    url: "http://192.168.1.158:8080/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost;
                     document.getElementById("v1resubhead").innerHTML = "to register for " + res.data.event.title;
@@ -1024,7 +1027,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "http://192.168.1.253:8080/registerEvent",
+                    url: "http://192.168.1.158:8080/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -1087,21 +1090,82 @@ export default function Dash() {
         if (window.innerWidth <= 600) {
             //mobile
             document.getElementById("content").style.gridTemplateColumns = "245px 100%";
+            anime({
+                targets: document.getElementsByClassName(styles.screen),
+                border: "1px solid rgb(227, 171, 74)",
+                borderRadius: "25px",
+                duration: 300,
+                easing: 'easeInOutQuad',
+            })
+
+            for (var i = 0; i < document.getElementsByClassName(styles.screen).length; i++) {
+                document.getElementsByClassName(styles.screen)[i].style.overflowY = "hidden"
+            }
+
+            anime({
+                targets: "#screens",
+                padding: "0px",
+                duration: 300,
+                easing: 'easeInOutQuad',
+            })
+
+            anime({
+                targets: "#" + viewState,
+                scale: 0.95,
+                opacity: 0.8,
+                duration: 300,
+                easing: 'easeInOutQuad',
+            })
         } else {
             document.getElementById("content").style.gridTemplateColumns = "280px auto";
         }
         document.getElementById("content").style.left = "50%";
         document.getElementById("errorCard").style.display = "none"
 
+
+
         setSidebarOpen(true);
     }
 
-    function hideSidebar() {
+    function hideSidebar(view) {
         console.log(mobileRef.current)
         const parentWidth = document.getElementById("mainelem").clientWidth;
         var left = (parentWidth / 2) - 305;
         if (window.innerWidth <= 600) {
             document.getElementById("content").style.gridTemplateColumns = "245px 100%";
+            anime({
+                targets: document.getElementsByClassName(styles.screen),
+                border: "0px solid rgb(227, 171, 74)",
+                borderRadius: "0px",
+                duration: 300,
+                easing: 'easeInOutQuad',
+            })
+
+            anime({
+                targets: "#screens",
+                padding: "0px",
+                duration: 300,
+                easing: 'easeInOutQuad',
+            })
+
+            anime({
+                targets: "#" + viewState,
+                scale: 1,
+                opacity: 1,
+                duration: 300,
+                complete: function (anim) {
+                    for (var i = 0; i < document.getElementsByClassName(styles.screen).length; i++) {
+                        document.getElementsByClassName(styles.screen)[i].style.overflowY = "auto"
+                        document.getElementsByClassName(styles.screen)[i].style.transform = "none"
+                    }
+
+                    if (view) {
+                        document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                },
+                easing: 'easeInOutQuad',
+            })
+
             left = (parentWidth / 2) - 270;
         } else {
             document.getElementById("content").style.gridTemplateColumns = "280px 100%";
@@ -1138,7 +1202,7 @@ export default function Dash() {
             donate.style.display = "block";
             axios({
                 method: "post",
-                url: "http://192.168.1.253:8080/track",
+                url: "http://192.168.1.158:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1153,7 +1217,7 @@ export default function Dash() {
             volunteer.style.display = "block";
             axios({
                 method: "post",
-                url: "http://192.168.1.253:8080/track",
+                url: "http://192.168.1.158:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1200,7 +1264,7 @@ export default function Dash() {
         setStep(0);
         axios({
             method: "post",
-            url: "http://192.168.1.253:8080/track",
+            url: "http://192.168.1.158:8080/track",
             data: {
                 uuid: trackerUUID,
                 page: "Dashboard",
@@ -1313,7 +1377,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "http://192.168.1.253:8080/getAccount?uuid=" + account
+                url: "http://192.168.1.158:8080/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1323,7 +1387,7 @@ export default function Dash() {
                         if (viewState == "aag") {
                             axios({
                                 method: "get",
-                                url: "http://192.168.1.253:8080/getTrackerStats"
+                                url: "http://192.168.1.158:8080/getTrackerStats"
                             }).then((res) => {
                                 const stats = res.data;
                                 console.log(stats);
@@ -2067,7 +2131,7 @@ export default function Dash() {
                                         </div>
                                         <div className={styles.divider}></div>
                                         <div id="eventsattend">
-                                            <h3 className={styles.screenheading} style={{ fontSize: "40px", marginLeft: "5px" }}>Your Events</h3>
+                                            <h3 className={styles.screensubheading} style={{ marginLeft: "5px" }}>Your Events</h3>
                                             <div id="eventsattendlist" className={styles.viewlist} style={{ marginTop: "10px" }}></div>
                                             <div className={styles.divider}></div>
                                         </div>
@@ -2160,11 +2224,11 @@ export default function Dash() {
 
                             <div id="editeventsoverlay" className={styles.eventsoverlay}>
                                 <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("editeventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
-                                <div id="eestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
+                                <div id="eestatusdiv" className={[styles.font, styles.evstatusdiv].join(" ")} style={{ backgroundColor: "#ffff0072", color: "black" }}>
                                     <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                        <p id="eestatusverbtop" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>Event is</p>
-                                        <h2 id="eestatus" style={{ margin: "0px", fontSize: "80px", textAlign: "center" }}>PENDING</h2>
-                                        <p id="eestatusverb" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>It will start in ??? days</p>
+                                        <p id="eestatusverbtop" className={styles.evstatusverb}>Event is</p>
+                                        <h2 id="eestatus" className={styles.evstatus}>PENDING</h2>
+                                        <p id="eestatusverb" className={styles.evstatusverb}>It will start in ??? days</p>
                                     </div>
                                 </div>
                                 <div>
@@ -2172,7 +2236,7 @@ export default function Dash() {
                                     <textarea id="edesc" onInput={() => {
                                         document.getElementById("edesc").style.height = "auto";
                                         document.getElementById("edesc").style.height = (document.getElementById("edesc").scrollHeight) + "px";
-                                    }} className={styles.slickttt} style={{ fontSize: "30px", fontWeight: "normal", height: "100px" }} placeholder="Event Description"></textarea>
+                                    }} className={[styles.slickttt, styles.subslickttt].join(" ")} style={{ fontWeight: "normal", height: "100px" }} placeholder="Event Description"></textarea>
                                 </div>
                                 <div className={styles.divider}></div>
                                 <div id="admineanalytics" style={{ display: "none" }}>
@@ -2244,7 +2308,7 @@ export default function Dash() {
                                         if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                             axios({
                                                 method: "post",
-                                                url: "http://192.168.1.253:8080/createEvent",
+                                                url: "http://192.168.1.158:8080/createEvent",
                                                 data: {
                                                     event: {
                                                         title: document.getElementById("ename").value,
@@ -2268,7 +2332,7 @@ export default function Dash() {
                                             console.log(selectedEvent)
                                             axios({
                                                 method: "post",
-                                                url: "http://192.168.1.253:8080/updateEvent?id=" + selectedEvent,
+                                                url: "http://192.168.1.158:8080/updateEvent?id=" + selectedEvent,
                                                 data: {
                                                     event: {
                                                         title: document.getElementById("ename").value,
@@ -2294,7 +2358,7 @@ export default function Dash() {
                                     <button onClick={() => {
                                         axios({
                                             method: "post",
-                                            url: "http://192.168.1.253:8080/deleteEvent?id=" + selectedEvent,
+                                            url: "http://192.168.1.158:8080/deleteEvent?id=" + selectedEvent,
                                         }).then((res) => {
                                             closeEventOverlay("editeventsoverlay");
                                             refresh("events")
