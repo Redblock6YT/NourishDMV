@@ -306,7 +306,7 @@
 .viewnavbar {
     display: grid;
     grid-template-columns: auto 230px;
-    grid-gap: 15px;
+    grid-gap: 10px;
 }
 
 .innerSidebar {
@@ -840,6 +840,7 @@
         min-width: 100px;
         width: auto;
         padding: 15px;
+        font-size: 40px;
     }
 
     .viewbentobox p {
@@ -893,6 +894,23 @@
     height: 50px;
 }
 
+.evlabelicon {
+    font-size: 40px;
+    margin: auto;
+}
+
+.evlabeltext {
+    font-size: 30px;
+    margin: auto;
+    margin-left: 0px;
+}
+
+.evlabelgrid {
+    display: grid;
+    grid-template-columns: 50px auto;
+    margin-bottom: 15px;
+}
+
 @media (max-width: 800px) {
     .innerSidebar {
         padding: 10px;
@@ -904,12 +922,20 @@
         margin-top: 5px;
     }
 
+    .evlabeltext {
+        font-size: 23px;
+    }
+
+    .evlabelicon {
+        font-size: 33px;
+    }
+
     .evstatusverb {
-        font-size: 25px;
+        font-size: 20px;
     }
 
     .evstatus {
-        font-size: 60px;
+        font-size: 55px;
     }
 
     .evstatusdiv {

@@ -2137,7 +2137,7 @@ export default function Dash() {
                                         </div>
 
                                         <div className={styles.viewlist}>
-                                            <div id="eventsnavbar" style={{ display: (mobile) ? "block" : (adminView) ? "grid" : "block" }} className={styles.viewnavbar}>
+                                            <div id="eventsnavbar" style={{ gridTemplateColumns: "auto 100px", display: (adminView) ? "grid" : "block" }} className={styles.viewnavbar}>
                                                 <input onInput={() => {
                                                     const children = document.getElementById("eventslist").children;
                                                     for (let i = 0; i < children.length; i++) {
@@ -2147,8 +2147,8 @@ export default function Dash() {
                                                             children[i].style.display = "none";
                                                         }
                                                     }
-                                                }} className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with title"></input>
-                                                <button style={{ width: "100%", display: (adminView) ? "block" : "none" }} className={styles.managebutton} onClick={() => openEventOverlay("editeventsoverlay")}>New Event</button>
+                                                }} className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", marginBottom: "5px", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with title"></input>
+                                                <button style={{ width: "100%", marginBottom: "5px", display: (adminView) ? "block" : "none" }} className={styles.managebutton} onClick={() => openEventOverlay("editeventsoverlay")}><span className="material-symbols-rounded" style={{display: "block"}}>add_circle</span></button>
                                             </div>
                                             <div id="eventslist"></div>
                                         </div>
@@ -2240,22 +2240,22 @@ export default function Dash() {
                                 </div>
                                 <div className={styles.divider}></div>
                                 <div id="admineanalytics" style={{ display: "none" }}>
-                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
-                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>visibility</span>
-                                        <h3 id="eev" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>0 Views</h3>
+                                    <div className={styles.evlabelgrid}>
+                                        <span className={["material-symbols-rounded", styles.evlabelicon].join(" ")}>visibility</span>
+                                        <h3 id="eev" className={[styles.font, styles.evlabeltext].join(" ")}>0 Views</h3>
                                     </div>
-                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
-                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>group</span>
-                                        <h3 id="eea" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>0 Attendees</h3>
+                                    <div className={styles.evlabelgrid}>
+                                        <span className={["material-symbols-rounded", styles.evlabelicon].join(" ")}>group</span>
+                                        <h3 id="eea" className={[styles.font, styles.evlabeltext].join(" ")}>0 Attendees</h3>
                                     </div>
                                     <div className={styles.divider}></div>
                                 </div>
                                 <div id="eldoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "250px auto" }}>
-                                    <h3 className={[styles.font, styles.evDGItem].join(" ")} style={{ fontSize: "30px", margin: "10px" }}>Event Location</h3>
+                                    <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "10px" }}>Event Location</h3>
                                     <input id="eloc" placeholder="Location" className={[styles.input, styles.evDGItem].join(" ")}></input>
                                 </div>
                                 <div id="evdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridTemplateColumns: "150px auto" }}>
-                                    <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Visibility</h3>
+                                    <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "10px" }}>Visibility</h3>
                                     <select id="evselect" className={styles.input}>
                                         <option>Visible</option>
                                         <option>Hidden</option>
@@ -2263,27 +2263,27 @@ export default function Dash() {
                                 </div>
                                 <div id="erdtdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridGap: "15px" }}>
                                     <div>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration Start</h3>
+                                        <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "10px" }}>Registration Start</h3>
                                         <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("erst").value, (document.getElementById("eret") == "") ? document.getElementById("erst").value : document.getElementById("eret").value, document.getElementById("est").value, document.getElementById("eet").value)} id="erst" type="datetime-local" className={styles.input}></input>
                                     </div>
                                     <div>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Registration End</h3>
+                                        <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "10px" }}>Registration End</h3>
                                         <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("eret").value, (document.getElementById("erst") == "") ? document.getElementById("eret").value : document.getElementById("erst").value, document.getElementById("est").value, document.getElementById("eet").value)} id="eret" type="datetime-local" className={styles.input}></input>
                                     </div>
                                 </div>
                                 <div id="etdtdoublegrid" className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid", gridGap: "15px" }}>
                                     <div>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event Start</h3>
+                                        <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "10px" }}>Event Start</h3>
                                         <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("eret").value, document.getElementById("erst").value, document.getElementById("est").value, (document.getElementById("eet").value == "") ? document.getElementById("est").value : document.getElementById("eet").value)} id="est" type="datetime-local" className={styles.input}></input>
                                     </div>
                                     <div>
-                                        <h3 className={styles.font} style={{ fontSize: "30px", margin: "10px" }}>Event End</h3>
+                                        <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "10px" }}>Event End</h3>
                                         <input onInput={() => updateEventStatus("editeventsoverlay", document.getElementById("eret").value, document.getElementById("erst").value, (document.getElementById("est").value == "") ? document.getElementById("eet").value : document.getElementById("est").value, document.getElementById("eet").value)} id="eet" type="datetime-local" className={styles.input}></input>
                                     </div>
                                 </div>
                                 <div className={styles.divider}></div>
-                                <div id="ecdgicon" className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
-                                    <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>local_activity</span>
+                                <div id="ecdgicon" className={styles.evlabelgrid}>
+                                    <span className={["material-symbols-rounded", styles.evlabelicon].join(" ")}>local_activity</span>
                                     <div id="ecdoublegrid" className={styles.doublegrid} style={{ gridTemplateColumns: "auto" }}>
                                         <select id="ecselect" className={styles.input} onInput={() => {
                                             if (document.getElementById("ecselect").value == "Paid") {
@@ -2392,7 +2392,7 @@ export default function Dash() {
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div className={styles.viewlist}>
-                                        <div id="donationsnavbar" className={styles.viewnavbar}>
+                                        <div id="donationsnavbar" style={{display: "grid", gridTemplateColumns: "auto 150px", gridGap: "10px"}}>
                                             <input className={styles.inputScreen} onInput={() => {
                                                 const donatelist = document.getElementById("donatelist").children;
                                                 for (let i = 0; i < donatelist.length; i++) {
@@ -2402,8 +2402,8 @@ export default function Dash() {
                                                         donatelist[i].style.display = "none";
                                                     }
                                                 }
-                                            }} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)" }} id="donatesearch" type="date" placeholder="Search with date"></input>
-                                            <button style={{ width: "100%" }} className={styles.managebutton} onClick={() => openOverlay("d")}>New Donation</button>
+                                            }} style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", marginBottom: "5px", WebkitMinLogicalWidth: "calc(100% - 16px)" }} id="donatesearch" type="date" placeholder="Search with date"></input>
+                                            <button style={{ width: "100%", marginBottom: "5px" }} className={styles.managebutton} onClick={() => openOverlay("d")}>Donate</button>
                                         </div>
                                         <div id="donatelist">
 
