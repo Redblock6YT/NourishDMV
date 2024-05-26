@@ -4,6 +4,7 @@
     background-color: rgb(226 226 226 / 23%);
     border: solid 1px rgb(161 161 161 / 13%);
     backdrop-filter: blur(10px);
+    will-change: transform;
     width: 99%;
     position: fixed;
     top: 5px;
@@ -51,7 +52,6 @@
     font-family: 'Outfit', sans-serif;
     font-size: 20px;
     color: rgba(0, 0, 0, 0.296);
-    border-radius: 25px;
 }
 
 .button {
@@ -371,6 +371,7 @@
     height: 500px;
     width: 100%;
     object-fit: cover;
+    will-change: transform;
 }
 
 .header {
@@ -399,6 +400,7 @@
     border-radius: 50%;
     height: 200px;
     width: 200px;
+    will-change: transform;
     background-color: gray;
 }
 
@@ -421,6 +423,7 @@
     position: fixed;
     background-color: rgba(0, 0, 0, 0.678);
     backdrop-filter: blur(20px);
+    will-change: transform;
     left: -50%;
     top: 50%;
     transform: translate(-50%, -50%);

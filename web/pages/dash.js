@@ -92,7 +92,7 @@ export default function Dash() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "http://192.168.1.158:8080/track",
+                url: "http://192.168.1.176:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -217,7 +217,7 @@ export default function Dash() {
         const exitFunction = () => {
             axios({
                 method: "post",
-                url: "http://192.168.1.158:8080/track",
+                url: "http://192.168.1.176:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Inactive",
@@ -252,7 +252,7 @@ export default function Dash() {
                 if (view == "accounts") {
                     axios({
                         method: "get",
-                        url: "http://192.168.1.158:8080/getAccounts",
+                        url: "http://192.168.1.176:8080/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -310,7 +310,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "http://192.168.1.158:8080/getEvents"
+                        url: "http://192.168.1.176:8080/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         //sort the events array based on the event start date time
@@ -519,6 +519,9 @@ export default function Dash() {
 
                             eventExtras.appendChild(eventdates);
                             eventExtras.id = "bentoEventExtras"
+                            if (window.innerWidth <= 1500) {
+                                eventExtras.style.display = "none";
+                            }
                             eventContents.appendChild(eventExtras);
 
                             eventsTodayBento.appendChild(eventContents);
@@ -558,7 +561,7 @@ export default function Dash() {
                 } else if (view == "donations") {
                     axios({
                         method: "get",
-                        url: "http://192.168.1.158:8080/getDonations"
+                        url: "http://192.168.1.176:8080/getDonations"
                     }).then((res) => {
                         const accounts = res.data.reverse();
                         var amount = 0;
@@ -574,7 +577,13 @@ export default function Dash() {
                             const account = accounts[i];
                             var accountItem = document.createElement("div");
                             var accountName = document.createElement("p");
-                            accountName.innerHTML = new Date(account.date).toLocaleString() + " - " + formatUSD(account.amount);
+                            if (window.innerWidth <= 800) {
+                                // set the accountname innerHTML to the date and amount of the donation, the date should not include the time
+                                accountName.innerHTML = new Date(account.date).toLocaleDateString() + " - " + formatUSD(account.amount);
+                            } else {
+                                accountName.innerHTML = new Date(account.date).toLocaleString() + " - " + formatUSD(account.amount);
+                            }
+
                             accountName.style.margin = "0px";
                             accountName.className = styles.font;
                             accountItem.style.cursor = "default";
@@ -645,7 +654,7 @@ export default function Dash() {
                         refresh("donations");
                         axios({
                             method: "get",
-                            url: "http://192.168.1.158:8080/getTotalUsers"
+                            url: "http://192.168.1.176:8080/getTotalUsers"
                         }).then((res) => {
                             var users = res.data;
                             document.getElementById("totaluserstd").innerHTML = users.today;
@@ -694,7 +703,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "http://192.168.1.158:8080/getEvent?id=" + id
+                url: "http://192.168.1.176:8080/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -715,7 +724,7 @@ export default function Dash() {
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "http://192.168.1.158:8080/registerEvent",
+                                    url: "http://192.168.1.176:8080/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -757,7 +766,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "http://192.168.1.158:8080/unregisterEvent",
+                                url: "http://192.168.1.176:8080/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -936,7 +945,7 @@ export default function Dash() {
                 // "process" the donation
                 axios({
                     method: "post",
-                    url: "http://192.168.1.158:8080/addDonation",
+                    url: "http://192.168.1.176:8080/addDonation",
                     data: {
                         amount: parseFloat(document.getElementById("v1damt").value.replace(/[$,]/g, "")).toFixed(2),
                     }
@@ -1017,7 +1026,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "http://192.168.1.158:8080/getEvent?id=" + selectedEvent
+                    url: "http://192.168.1.176:8080/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost;
                     document.getElementById("v1resubhead").innerHTML = "to register for " + res.data.event.title;
@@ -1027,7 +1036,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "http://192.168.1.158:8080/registerEvent",
+                    url: "http://192.168.1.176:8080/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -1202,7 +1211,7 @@ export default function Dash() {
             donate.style.display = "block";
             axios({
                 method: "post",
-                url: "http://192.168.1.158:8080/track",
+                url: "http://192.168.1.176:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1217,7 +1226,7 @@ export default function Dash() {
             volunteer.style.display = "block";
             axios({
                 method: "post",
-                url: "http://192.168.1.158:8080/track",
+                url: "http://192.168.1.176:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1264,7 +1273,7 @@ export default function Dash() {
         setStep(0);
         axios({
             method: "post",
-            url: "http://192.168.1.158:8080/track",
+            url: "http://192.168.1.176:8080/track",
             data: {
                 uuid: trackerUUID,
                 page: "Dashboard",
@@ -1377,7 +1386,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "http://192.168.1.158:8080/getAccount?uuid=" + account
+                url: "http://192.168.1.176:8080/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1387,7 +1396,7 @@ export default function Dash() {
                         if (viewState == "aag") {
                             axios({
                                 method: "get",
-                                url: "http://192.168.1.158:8080/getTrackerStats"
+                                url: "http://192.168.1.176:8080/getTrackerStats"
                             }).then((res) => {
                                 const stats = res.data;
                                 console.log(stats);
@@ -1623,11 +1632,14 @@ export default function Dash() {
             document.getElementById("v1damt").addEventListener("blur", onBlur);
 
             window.addEventListener("resize", () => {
-                if (window.innerWidth <= 1500) {
-                    document.getElementById("bentoEventExtras").style.display = "none";
-                } else {
-                    document.getElementById("bentoEventExtras").style.display = "block";
-                }
+                try {
+                    if (window.innerWidth <= 1500) {
+                        document.getElementById("bentoEventExtras").style.display = "none";
+                    } else {
+                        document.getElementById("bentoEventExtras").style.display = "block";
+                    }
+                } catch (ignored) { }
+
 
                 if (window.innerWidth <= 1060) {
                     hideSidebar();
@@ -1945,7 +1957,7 @@ export default function Dash() {
                                         </div>
                                     </div>
 
-                                    <h4 className={styles.screensubheading} style={{ fontWeight: "nromal" }}>Demographics</h4>
+                                    <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Demographics</h4>
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
                                             <p>40%</p>
@@ -2006,6 +2018,14 @@ export default function Dash() {
                                                 <p style={{ fontWeight: "normal", fontSize: "30px" }}>events attended</p>
                                             </div>
                                         </div>
+                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Your Upcoming Events</h4>
+                                        <div id="upcomingeventsl" style={{ margin: "20px" }}>
+                                            <div className={styles.card} style={{ height: "130px" }}>
+                                                <div className={styles.fullycenter} style={{ width: "100%" }}>
+                                                    <p className={styles.font} style={{ fontSize: "25px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>You aren't apart of any events</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div className={styles.divider}></div>
                                     </div>
 
@@ -2032,17 +2052,7 @@ export default function Dash() {
                                         </button>
                                     </div>
                                     <div className={styles.divider}></div>
-                                    <div style={{ display: "none" }}>
-                                        <h4 className={styles.screensubheading}>Your Upcoming Events</h4>
-                                        <div id="upcomingeventsl" style={{ margin: "20px" }}>
-                                            <div className={styles.card} style={{ height: "130px" }}>
-                                                <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                    <p className={styles.font} style={{ fontSize: "25px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>You aren't apart of any events</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                    <h4 className={styles.screensubheading}>Today</h4>
                                     <div>
                                         <h4 className={styles.screensubheading}>Recent Events</h4>
                                         <div id="othereventsl" className={styles.bentoboxCont} style={{ overflowX: "auto" }}>
@@ -2148,7 +2158,7 @@ export default function Dash() {
                                                         }
                                                     }
                                                 }} className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", marginBottom: "5px", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with title"></input>
-                                                <button style={{ width: "100%", marginBottom: "5px", display: (adminView) ? "block" : "none" }} className={styles.managebutton} onClick={() => openEventOverlay("editeventsoverlay")}><span className="material-symbols-rounded" style={{display: "block"}}>add_circle</span></button>
+                                                <button style={{ width: "100%", marginBottom: "5px", display: (adminView) ? "block" : "none" }} className={styles.managebutton} onClick={() => openEventOverlay("editeventsoverlay")}><span className="material-symbols-rounded" style={{ display: "block" }}>add_circle</span></button>
                                             </div>
                                             <div id="eventslist"></div>
                                         </div>
@@ -2308,7 +2318,7 @@ export default function Dash() {
                                         if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                             axios({
                                                 method: "post",
-                                                url: "http://192.168.1.158:8080/createEvent",
+                                                url: "http://192.168.1.176:8080/createEvent",
                                                 data: {
                                                     event: {
                                                         title: document.getElementById("ename").value,
@@ -2332,7 +2342,7 @@ export default function Dash() {
                                             console.log(selectedEvent)
                                             axios({
                                                 method: "post",
-                                                url: "http://192.168.1.158:8080/updateEvent?id=" + selectedEvent,
+                                                url: "http://192.168.1.176:8080/updateEvent?id=" + selectedEvent,
                                                 data: {
                                                     event: {
                                                         title: document.getElementById("ename").value,
@@ -2358,7 +2368,7 @@ export default function Dash() {
                                     <button onClick={() => {
                                         axios({
                                             method: "post",
-                                            url: "http://192.168.1.158:8080/deleteEvent?id=" + selectedEvent,
+                                            url: "http://192.168.1.176:8080/deleteEvent?id=" + selectedEvent,
                                         }).then((res) => {
                                             closeEventOverlay("editeventsoverlay");
                                             refresh("events")
@@ -2392,7 +2402,7 @@ export default function Dash() {
                                     </div>
                                     <div className={styles.divider}></div>
                                     <div className={styles.viewlist}>
-                                        <div id="donationsnavbar" style={{display: "grid", gridTemplateColumns: "auto 150px", gridGap: "10px"}}>
+                                        <div id="donationsnavbar" style={{ display: "grid", gridTemplateColumns: "auto 150px", gridGap: "10px" }}>
                                             <input className={styles.inputScreen} onInput={() => {
                                                 const donatelist = document.getElementById("donatelist").children;
                                                 for (let i = 0; i < donatelist.length; i++) {
