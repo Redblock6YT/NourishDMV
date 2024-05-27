@@ -258,18 +258,20 @@
 
 .sidebarItem {
     font-family: 'Outfit', sans-serif;
-    font-size: 25px;
+    font-size: 32px;
     background-color: #e3ab4a;
     border: none;
     color: white;
-    height: 70px;
+    height: 60px;
     width: 100%;
-    border-radius: 25px;
+    border-radius: 20px;
     display: block;
     transition: all .5s ease;
     position: relative;
     cursor: pointer;
-    margin-bottom: 15px;
+    text-align: left;
+    margin-bottom: 13px;
+    padding: 0px 15px;
 }
 
 .font {
@@ -892,9 +894,9 @@
 
 .sbAcctInnerDiv {
     display: grid;
-    grid-template-columns: auto 50px;
-    padding: 10px;
-    height: 50px;
+    grid-template-columns: auto 60px;
+    padding: 5px;
+    height: 60px;
 }
 
 .evlabelicon {
