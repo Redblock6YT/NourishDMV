@@ -330,6 +330,7 @@
     margin-right: 10px;
     margin-bottom: 10px;
     padding: 20px;
+    flex-grow: 1;
     color: #ffe5b9;
     transition: ease 0.5s all;
 }
@@ -338,6 +339,13 @@
     width: 80%;
     margin: auto;
     transition: all 0.5s ease;
+}
+
+.peopleinspector {
+    border: 1px dashed #E3AB4A;
+    border-radius: 25px;
+    height: 100%;
+    position: relative;
 }
 
 .viewbentobox p {
@@ -356,7 +364,7 @@
     background-color: rgba(255, 208, 128, 0.692);
     border-radius: 25px;
     position: relative;
-    font-size: 30px;
+    font-size: 25px;
     font-family: 'Outfit', sans-serif;
     color: rgba(0, 0, 0, 0.300);
 }
@@ -573,8 +581,7 @@
 }
 
 .divider {
-    border-top: 0.5px solid rgb(227, 171, 74);
-    border-bottom: 0.5px solid rgb(227, 171, 74);
+    border-top: 1px solid rgb(227, 171, 74);
     margin: auto;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -590,12 +597,12 @@
 
 .loading {
     display: block;
-    height: 30px;
-    width: 30px;
+    height: 25px;
+    width: 25px;
     border: 4px rgba(247, 183, 73, 0.418)solid;
     border-top: 4px rgb(247, 183, 73) solid;
     border-radius: 50%;
-    margin-top: 12px;
+    margin-top: 8px;
     opacity: 0;
     -webkit-animation: spin2 0.7s infinite linear;
     animation: spin2 0.7s infinite linear;
@@ -750,14 +757,14 @@
 
 .screenheading {
     font-family: 'Outfit', sans-serif;
-    font-size: 50px;
+    font-size: 40px;
     color: rgb(227, 171, 74);
     margin: 0px;
 }
 
 .screensubheading {
     font-family: 'Outfit', sans-serif;
-    font-size: 40px;
+    font-size: 30px;
     color: rgb(227, 171, 74);
     margin: 0px;
 }
@@ -827,14 +834,57 @@
     color: rgb(227, 171, 74);
 }
 
+.screenNavbar {
+    padding: 0px;
+    position: sticky;
+    padding-top: 5px;
+    top: 0px;
+    backdrop-filter: blur(20px) saturate(110%);
+    background-color: rgba(255, 232, 191, 0.501);
+    z-index: 10000;
+}
+
 .screenInner {
     padding: 20px;
 }
 
 .sidebarbuttonGrid {
     display: grid;
-    grid-template-columns: 70px auto 50px;
+    grid-template-columns: auto 50px;
     grid-gap: 25px;
+    margin-left: 20px;
+}
+
+.sviewbentobox {
+    border-radius: 20px;
+    min-height: 30px;
+    height: auto;
+    min-width: 100px;
+    width: auto;
+    background-color: #e3ab4a;
+    position: relative;
+    font-family: 'Outfit', sans-serif;
+    font-size: 30px;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 10px;
+    padding: 7px 15px;
+    flex-grow: 1;
+    flex: 0 0 auto;
+    color: #ffe5b9;
+    transition: ease 0.5s all;
+}
+
+.sviewbentoboxSub {
+    font-size: 20px;
+    font-weight: normal;
+}
+
+.sviewbentobox p {
+    display: inline-block;
+    margin: 0px;
+    margin-right: 10px;
+    text-align: center;
 }
 
 @media(max-width: 1500px) {
@@ -845,6 +895,8 @@
         width: auto;
         padding: 15px;
         font-size: 40px;
+        flex-grow: 1;
+        flex: 0 0 auto;
     }
 
     .viewbentobox p {
@@ -881,6 +933,7 @@
     .zigZag:before {
         background: rgb(206, 132, 0);
     }
+
     .itemEvents {
         font-size: 1.3rem;
     }
@@ -890,6 +943,10 @@
     display: block;
     position: relative;
     opacity: 0;
+}
+
+.viewtogglesidebar {
+    display: none;
 }
 
 .sbAcctInnerDiv {
@@ -1094,6 +1151,10 @@
     .sidebarbuttonGrid {
         grid-template-columns: 60px auto 50px;
         grid-gap: 0px;
+    }
+
+    .viewtogglesidebar {
+        display: block;
     }
 }
 
