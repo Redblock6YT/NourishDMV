@@ -237,6 +237,42 @@ export default function Dash() {
         }
     }, []);
 
+    function inspectPerson(obj) {
+        anime({
+            targets: "#peoplecontent",
+            gridTemplateColumns: "0.7fr 1.3fr",
+            easing: 'easeInOutQuad',
+            duration: 300,
+        })
+
+        anime({
+            targets: "#peopleinspector",
+            border: "1px solid #E3AB4A",
+            duration: 300,
+            easing: 'easeInOutQuad',
+        })
+
+        anime({
+            targets: "#pinotselected",
+            opacity: 1,
+            easing: 'linear',
+            duration: 300,
+            complete: function (anim) {
+                document.getElementById("pinotselected").style.display = "none"
+            }
+        })
+
+        document.getElementById("piselected").style.display = "block"
+        anime({
+            targets: "#piselected",
+            opacity: 1,
+            easing: 'linear',
+            duration: 300,
+        })
+
+        hideSidebar();
+    }
+
     function refresh(view) {
         anime({
             targets: '#' + view + 'loading',
@@ -280,6 +316,9 @@ export default function Dash() {
                                 md++;
                             } else if (account.area == "Virginia") {
                                 va++;
+                            }
+                            accountItem.onclick = function () {
+                                inspectPerson(account);
                             }
                             accountItem.appendChild(accountName);
                             accountslist.appendChild(accountItem);
@@ -2185,9 +2224,9 @@ export default function Dash() {
                                 <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "0px" }}></div>
                             </div>
                             <div className={styles.innerSidebar} style={{ height: "calc(100% - 95px)" }}>
-                                <div id="peoplecontent" className={styles.doublegrid} style={{ willChange: "transform", height: "100%", gridTemplateColumns: "1.3fr 0.7fr" }}>
+                                <div id="peoplecontent" className={styles.doublegrid} style={{ willChange: "transform", height: "100%", gridTemplateColumns: "1.2fr 0.8fr" }}>
                                     <div>
-                                        <div id="peoplenavbar" className={styles.viewnavbar} style={{gridTemplateColumns: "auto 100px",}}><input onInput={() => {
+                                        <div id="peoplenavbar" className={styles.viewnavbar} style={{ gridTemplateColumns: "auto 100px", }}><input onInput={() => {
                                             const children = document.getElementById("eventslist").children;
                                             for (let i = 0; i < children.length; i++) {
                                                 if (children[i].getAttribute("name").toLowerCase().includes(document.getElementById("eventssearch").value.toLowerCase())) {
@@ -2207,7 +2246,44 @@ export default function Dash() {
                                             <span className="material-symbols-rounded" style={{ fontSize: "180px" }}>data_loss_prevention</span>
                                             <p style={{ fontSize: "30px", margin: "0px" }}>Select a person to inspect</p>
                                         </div>
-                                        <div id="piselected" style={{ display: "none" }}></div>
+                                        <div id="piselected" style={{ display: "none" }}>
+                                            <div className={styles.screenNavbar} style={{ borderRadius: "25px 25px 0px 0px" }}>
+                                                <div className={styles.sidebarbuttonGrid} style={{ width: "430px" }}>
+                                                    <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                                    <h3 className={styles.screenheading}>Person</h3>
+                                                </div>
+                                                <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "5px" }}></div>
+
+                                            </div>
+                                            <div id="pisinner" style={{ padding: "0px 5px" }}>
+                                                <div className={styles.bentoboxCont}>
+                                                    <div className={styles.viewbentobox}>
+                                                        <p>{accounts.length}</p>
+                                                        <p className={styles.sviewbentoboxSub}>accounts</p>
+                                                    </div>
+                                                    <div className={styles.viewbentobox}>
+                                                        <p>0</p>
+                                                        <p className={styles.sviewbentoboxSub}>volunteers</p>
+                                                    </div>
+                                                    <div className={styles.viewbentobox}>
+                                                        <p>0</p>
+                                                        <p className={styles.sviewbentoboxSub}>donators</p>
+                                                    </div>
+                                                    <div className={styles.viewbentobox}>
+                                                        <p id="dccount">0</p>
+                                                        <p className={styles.sviewbentoboxSub}>from DC</p>
+                                                    </div>
+                                                    <div className={styles.viewbentobox}>
+                                                        <p id="mdcount">0</p>
+                                                        <p className={styles.sviewbentoboxSub}>from Maryland</p>
+                                                    </div>
+                                                    <div className={styles.viewbentobox}>
+                                                        <p id="vacount">0</p>
+                                                        <p className={styles.sviewbentoboxSub}>from Virginia</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
