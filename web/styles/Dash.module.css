@@ -335,6 +335,43 @@
     transition: ease 0.5s all;
 }
 
+.viewbentobox p {
+    margin: 0px;
+    text-align: center;
+}
+
+.sviewbentobox {
+    border-radius: 25px;
+    width: auto;
+    min-width: 100px;
+    min-height: 50px;
+    height: auto;
+    background-color: #e3ab4a;
+    position: relative;
+    font-family: 'Outfit', sans-serif;
+    font-size: 40px;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 15px;
+    flex-grow: 1;
+    color: #ffe5b9;
+    transition: ease 0.5s all;
+}
+
+.sviewbentobox p {
+    margin: 0px;
+    text-align: center;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.sviewbentoboxSub {
+    font-size: 30px;
+    font-weight: normal;
+}
+
 .viewlist {
     width: 80%;
     margin: auto;
@@ -346,11 +383,6 @@
     border-radius: 25px;
     height: 100%;
     position: relative;
-}
-
-.viewbentobox p {
-    margin: 0px;
-    text-align: center;
 }
 
 .eventsTodayBento {
@@ -855,7 +887,7 @@
     margin-left: 20px;
 }
 
-.sviewbentobox {
+.xsviewbentobox {
     border-radius: 20px;
     min-height: 30px;
     height: auto;
@@ -875,12 +907,12 @@
     transition: ease 0.5s all;
 }
 
-.sviewbentoboxSub {
+.xsviewbentoboxSub {
     font-size: 20px;
     font-weight: normal;
 }
 
-.sviewbentobox p {
+.xsviewbentobox p {
     display: inline-block;
     margin: 0px;
     margin-right: 10px;
@@ -1058,7 +1090,7 @@
         margin-bottom: 5px;
     }
 
-    .viewbentobox {
+    .viewbentobox, .sviewbentobox {
         font-size: 30px;
         min-height: 30px;
         padding: 10px 0px 10px 10px;
@@ -1067,7 +1099,7 @@
         border-radius: 20px;
     }
 
-    .viewbentoboxSub {
+    .viewbentoboxSub, .sviewbentoboxSub {
         font-size: 25px;
     }
 

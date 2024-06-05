@@ -33,6 +33,7 @@ const Account = mongoose.model("Account", {
     password: { type: String, default: "" },
     area: { type: String, default: "D.C." },
     phone: { type: Number, default: 1234567890 },
+    address: { type: String, default: "" },
     dateJoined: { type: Date, default: Date.now },
     lastLogin: { type: Date, default: Date.now },
     eventsAttended: { type: Array, default: [] },
@@ -255,6 +256,19 @@ app.get("/getEvent", async (req, res) => {
     }
 })
 
+app.post("/updateAccount", jsonParser, async (req, res) => {
+    Account.findOneAndUpdate({ uuid: req.body.uuid }, req.body).then((account) => {
+        if (account) {
+            res.status(200).send({ uuid: account.uuid, status: "Account updated." });
+        } else {
+            res.status(400).send("Account not found.");
+        }
+    }).catch((err) => {
+        console.log(err)
+        res.status(400, err);
+    });
+});
+
 app.post("/createAccount", jsonParser, async (req, res) => {
     //password has already been hashed by frontend
     try {
@@ -359,12 +373,25 @@ app.post("/addDonation", jsonParser, async (req, res) => {
         amount: req.body.amount,
         date: Date.now(),
     })
-    donation.save().then((donation) => {
-        res.status(200).send(donation);
-    }).catch((err) => {
-        console.log(err)
-        res.status(400).send(err);
-    })
+    if (req.body.account != "") {
+        Account.findOneAndUpdate({ uuid: req.body.account }, { $push: { donations: donation } }).then((account) => {
+            if (account) {
+                donation.save().then((donation) => {
+                    res.status(200).send({ uuid: account.uuid, status: "Donation added.", donation: donation });
+                }).catch((err) => {
+                    res.status(400).send(err);
+                })
+            } else {
+                res.status(400).send("Account not found.");
+            }
+        })
+    } else {
+        donation.save().then((donation) => {
+            res.status(200).send({ status: "Donation added.", donation: donation });
+        }).catch((err) => {
+            res.status(400).send(err);
+        })
+    }
 })
 
 app.get("/getDonations", async (req, res) => {

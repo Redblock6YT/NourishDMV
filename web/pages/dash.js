@@ -94,7 +94,7 @@ export default function Dash() {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
                 method: "post",
-                url: "http://192.168.1.158:8080/track",
+                url: "http://192.168.1.253:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -219,7 +219,7 @@ export default function Dash() {
         const exitFunction = () => {
             axios({
                 method: "post",
-                url: "http://192.168.1.158:8080/track",
+                url: "http://192.168.1.253:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Inactive",
@@ -254,9 +254,9 @@ export default function Dash() {
 
         anime({
             targets: "#pinotselected",
-            opacity: 1,
+            opacity: 0,
             easing: 'linear',
-            duration: 300,
+            duration: 100,
             complete: function (anim) {
                 document.getElementById("pinotselected").style.display = "none"
             }
@@ -270,7 +270,70 @@ export default function Dash() {
             duration: 300,
         })
 
+        const personheader = document.getElementById("pipersonheader");
+        const piphone = document.getElementById("piphone");
+        const piemail = document.getElementById("piemail");
+        const piaddr = document.getElementById("piaddr");
+        const piarea = document.getElementById("piarea");
+        const pirole = document.getElementById("pirole");
+        const pidatejoined = document.getElementById("pidatejoined");
+        const pifrom = document.getElementById("pifrom");
+        const pieattamt = document.getElementById("pieattamt");
+        const pidonationsamt = document.getElementById("pidonationsamt");
+        const pidonatedamt = document.getElementById("pidonatedamt");
+        personheader.value = obj.name;
+        piphone.value = obj.phone;
+        piemail.value = obj.email;
+        if (obj.address !== undefined) {
+            piaddr.value = obj.address;
+        }
+        piarea.value = obj.area;
+        pifrom.innerHTML = obj.area;
+        pirole.value = obj.role;
+        pidatejoined.innerHTML = new Date(obj.dateJoined).toLocaleDateString();
+        pieattamt.innerHTML = obj.eventsAttended.length;
+        pidonationsamt.innerHTML = obj.donations.length;
+        var amtdonated = 0;
+        for (var i = 0; i < obj.donations.length; i++) {
+            amtdonated += obj.donations[i].amount;
+        }
+        pidonatedamt.innerHTML = formatUSD(amtdonated);
+
         hideSidebar();
+    }
+
+    function closePersonInspector() {
+        anime({
+            targets: "#peoplecontent",
+            gridTemplateColumns: "1.2fr 0.8fr",
+            easing: 'easeInOutQuad',
+            duration: 300,
+        })
+
+        anime({
+            targets: "#peopleinspector",
+            border: "1px dashed #E3AB4A",
+            duration: 300,
+            easing: 'easeInOutQuad',
+        })
+
+        document.getElementById("pinotselected").style.display = "block"
+        anime({
+            targets: "#pinotselected",
+            opacity: 1,
+            easing: 'linear',
+            duration: 300,
+        })
+
+        anime({
+            targets: "#piselected",
+            opacity: 0,
+            easing: 'linear',
+            duration: 100,
+            complete: function (anim) {
+                document.getElementById("piselected").style.display = "none"
+            }
+        })
     }
 
     function refresh(view) {
@@ -290,7 +353,7 @@ export default function Dash() {
                 if (view == "people") {
                     axios({
                         method: "get",
-                        url: "http://192.168.1.158:8080/getAccounts",
+                        url: "http://192.168.1.253:8080/getAccounts",
                     }).then((res) => {
                         const accounts = res.data;
                         var dc = 0;
@@ -309,7 +372,6 @@ export default function Dash() {
                             accountName.style.margin = "0px";
                             accountName.className = styles.font;
                             accountItem.className = styles.item;
-                            accountItem.style.cursor = "default";
                             if (account.area == "D.C.") {
                                 dc++;
                             } else if (account.area == "Maryland") {
@@ -351,7 +413,7 @@ export default function Dash() {
                 } else if (view == "events") {
                     axios({
                         method: "get",
-                        url: "http://192.168.1.158:8080/getEvents"
+                        url: "http://192.168.1.253:8080/getEvents"
                     }).then((res) => {
                         const events = res.data;
                         //sort the events array based on the event start date time
@@ -602,7 +664,7 @@ export default function Dash() {
                 } else if (view == "donations") {
                     axios({
                         method: "get",
-                        url: "http://192.168.1.158:8080/getDonations"
+                        url: "http://192.168.1.253:8080/getDonations"
                     }).then((res) => {
                         const accounts = res.data.reverse();
                         var amount = 0;
@@ -695,7 +757,7 @@ export default function Dash() {
                         refresh("people");
                         axios({
                             method: "get",
-                            url: "http://192.168.1.158:8080/getTotalUsers"
+                            url: "http://192.168.1.253:8080/getTotalUsers"
                         }).then((res) => {
                             var users = res.data;
                             document.getElementById("totaluserstd").innerHTML = users.today;
@@ -752,7 +814,7 @@ export default function Dash() {
             setSelectedEvent(id);
             axios({
                 method: "get",
-                url: "http://192.168.1.158:8080/getEvent?id=" + id
+                url: "http://192.168.1.253:8080/getEvent?id=" + id
             }).then((res) => {
                 const event = res.data.event;
                 const analytics = res.data.analytics;
@@ -773,7 +835,7 @@ export default function Dash() {
                             } else {
                                 axios({
                                     method: "post",
-                                    url: "http://192.168.1.158:8080/registerEvent",
+                                    url: "http://192.168.1.253:8080/registerEvent",
                                     data: {
                                         uuid: accountRef.current,
                                         eventId: id
@@ -815,7 +877,7 @@ export default function Dash() {
                         document.getElementById("eregistertbtn").onclick = function () {
                             axios({
                                 method: "post",
-                                url: "http://192.168.1.158:8080/unregisterEvent",
+                                url: "http://192.168.1.253:8080/unregisterEvent",
                                 data: {
                                     uuid: accountRef.current,
                                     eventId: id
@@ -994,9 +1056,10 @@ export default function Dash() {
                 // "process" the donation
                 axios({
                     method: "post",
-                    url: "http://192.168.1.158:8080/addDonation",
+                    url: "http://192.168.1.253:8080/addDonation",
                     data: {
                         amount: parseFloat(document.getElementById("v1damt").value.replace(/[$,]/g, "")).toFixed(2),
+                        account: accountRef.current
                     }
                 })
                 setTimeout(() => {
@@ -1075,7 +1138,7 @@ export default function Dash() {
             if (step == 1) {
                 axios({
                     method: "get",
-                    url: "http://192.168.1.158:8080/getEvent?id=" + selectedEvent
+                    url: "http://192.168.1.253:8080/getEvent?id=" + selectedEvent
                 }).then((res) => {
                     document.getElementById("v1rehead").innerHTML = "Pay $" + res.data.event.cost;
                     document.getElementById("v1resubhead").innerHTML = "to register for " + res.data.event.title;
@@ -1085,7 +1148,7 @@ export default function Dash() {
             } else if (step == 2) {
                 axios({
                     method: "post",
-                    url: "http://192.168.1.158:8080/registerEvent",
+                    url: "http://192.168.1.253:8080/registerEvent",
                     data: {
                         uuid: accountRef.current,
                         eventId: selectedEvent
@@ -1196,7 +1259,9 @@ export default function Dash() {
         document.getElementById("content").style.left = "50%";
         document.getElementById("errorCard").style.display = "none"
 
-
+        if (document.getElementById("peoplecontent").style.gridTemplateColumns == "0.7fr 1.3fr") {
+            closePersonInspector();
+        }
 
         setSidebarOpen(true);
     }
@@ -1290,7 +1355,7 @@ export default function Dash() {
             donate.style.display = "block";
             axios({
                 method: "post",
-                url: "http://192.168.1.158:8080/track",
+                url: "http://192.168.1.253:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1305,7 +1370,7 @@ export default function Dash() {
             volunteer.style.display = "block";
             axios({
                 method: "post",
-                url: "http://192.168.1.158:8080/track",
+                url: "http://192.168.1.253:8080/track",
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
@@ -1352,7 +1417,7 @@ export default function Dash() {
         setStep(0);
         axios({
             method: "post",
-            url: "http://192.168.1.158:8080/track",
+            url: "http://192.168.1.253:8080/track",
             data: {
                 uuid: trackerUUID,
                 page: "Dashboard",
@@ -1465,7 +1530,7 @@ export default function Dash() {
         if (account != "") {
             axios({
                 method: "get",
-                url: "http://192.168.1.158:8080/getAccount?uuid=" + account
+                url: "http://192.168.1.253:8080/getAccount?uuid=" + account
             }).then((res) => {
                 setAccountData(res.data);
                 document.getElementById("acctName").innerHTML = res.data.name.split(" ")[0];
@@ -1475,7 +1540,7 @@ export default function Dash() {
                         if (viewState == "aag") {
                             axios({
                                 method: "get",
-                                url: "http://192.168.1.158:8080/getTrackerStats"
+                                url: "http://192.168.1.253:8080/getTrackerStats"
                             }).then((res) => {
                                 const stats = res.data;
                                 console.log(stats);
@@ -2195,29 +2260,29 @@ export default function Dash() {
                                         <div className={styles.loading} id="peopleloading"></div>
                                     </div>
                                     <div className={styles.bentoboxCont} style={{ display: "flex", margin: "0", flexWrap: "nowrap", alignItems: "stretch" }}>
-                                        <div className={styles.sviewbentobox}>
+                                        <div className={styles.xsviewbentobox}>
                                             <p>{accounts.length}</p>
-                                            <p className={styles.sviewbentoboxSub}>accounts</p>
+                                            <p className={styles.xsviewbentoboxSub}>accounts</p>
                                         </div>
-                                        <div className={styles.sviewbentobox}>
+                                        <div className={styles.xsviewbentobox}>
                                             <p>0</p>
-                                            <p className={styles.sviewbentoboxSub}>volunteers</p>
+                                            <p className={styles.xsviewbentoboxSub}>volunteers</p>
                                         </div>
-                                        <div className={styles.sviewbentobox}>
+                                        <div className={styles.xsviewbentobox}>
                                             <p>0</p>
-                                            <p className={styles.sviewbentoboxSub}>donators</p>
+                                            <p className={styles.xsviewbentoboxSub}>donators</p>
                                         </div>
-                                        <div className={styles.sviewbentobox}>
+                                        <div className={styles.xsviewbentobox}>
                                             <p id="dccount">0</p>
-                                            <p className={styles.sviewbentoboxSub}>from DC</p>
+                                            <p className={styles.xsviewbentoboxSub}>from DC</p>
                                         </div>
-                                        <div className={styles.sviewbentobox}>
+                                        <div className={styles.xsviewbentobox}>
                                             <p id="mdcount">0</p>
-                                            <p className={styles.sviewbentoboxSub}>from Maryland</p>
+                                            <p className={styles.xsviewbentoboxSub}>from Maryland</p>
                                         </div>
-                                        <div className={styles.sviewbentobox}>
+                                        <div className={styles.xsviewbentobox}>
                                             <p id="vacount">0</p>
-                                            <p className={styles.sviewbentoboxSub}>from Virginia</p>
+                                            <p className={styles.xsviewbentoboxSub}>from Virginia</p>
                                         </div>
                                     </div>
                                 </div>
@@ -2248,38 +2313,85 @@ export default function Dash() {
                                         </div>
                                         <div id="piselected" style={{ display: "none" }}>
                                             <div className={styles.screenNavbar} style={{ borderRadius: "25px 25px 0px 0px" }}>
-                                                <div className={styles.sidebarbuttonGrid} style={{ width: "430px" }}>
+                                                <div className={styles.sidebarbuttonGrid} style={{ width: "430px", marginLeft: "10px" }}>
                                                     <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                                    <h3 className={styles.screenheading}>Person</h3>
+                                                    <input id="pipersonheader" style={{ padding: "12px 10px" }} className={[styles.screenheading, styles.slickttt].join(" ")} defaultValue="Person" />
                                                 </div>
                                                 <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "5px" }}></div>
 
                                             </div>
-                                            <div id="pisinner" style={{ padding: "0px 5px" }}>
-                                                <div className={styles.bentoboxCont}>
-                                                    <div className={styles.viewbentobox}>
-                                                        <p>{accounts.length}</p>
-                                                        <p className={styles.sviewbentoboxSub}>accounts</p>
+
+                                            <div className={styles.bentoboxCont} style={{ marginBottom: "10px" }}>
+                                                <div className={styles.sviewbentobox}>
+                                                    <p id="pidonationsamt">0</p>
+                                                    <p className={styles.sviewbentoboxSub}>donations</p>
+                                                </div>
+                                                <div className={styles.sviewbentobox}>
+                                                    <p id="pidonatedamt">0</p>
+                                                    <p className={styles.sviewbentoboxSub}>donated</p>
+                                                </div>
+                                                <div className={styles.sviewbentobox}>
+                                                    <p className={styles.sviewbentoboxSub}>from</p>
+                                                    <p id="pifrom">DC</p>
+                                                </div>
+                                                <div className={styles.sviewbentobox}>
+                                                    <p id="pieattamt">0</p>
+                                                    <p className={styles.sviewbentoboxSub}>events attended</p>
+                                                </div>
+                                                <div className={styles.sviewbentobox}>
+                                                    <p id="piopenamt">0</p>
+                                                    <p className={styles.sviewbentoboxSub}>times opened</p>
+                                                </div>
+                                                <div className={styles.sviewbentobox}>
+                                                    <p className={styles.sviewbentoboxSub}>since</p>
+                                                    <p id="pidatejoined">2024</p>
+                                                </div>
+                                            </div>
+                                            <div className={styles.divider}></div>
+                                            <div id="pisinner" className={styles.screenInner} style={{ paddingTop: "0px" }}>
+                                                <div id="piinfo">
+                                                    <div className={styles.doublegrid} style={{ rowGap: "10px" }}>
+                                                        <div>
+                                                            <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "0px 15px" }}>Phone Number</h3>
+                                                            <input id="piphone" type="tel" className={styles.input}></input>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "0px 15px" }}>Email Address</h3>
+                                                            <input id="piemail" type="email" className={styles.input}></input>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "0px 15px" }}>Address</h3>
+                                                            <input id="piaddr" type="text" className={styles.input}></input>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "0px 15px" }}>Area</h3>
+                                                            <select id="piarea" className={styles.input}>
+                                                                <option>D.C.</option>
+                                                                <option>Maryland</option>
+                                                                <option>Virginia</option>
+                                                                <option>Other (Not from DMV)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "0px 15px" }}>Role</h3>
+                                                            <select id="pirole" className={styles.input}>
+                                                                <option>Supporter</option>
+                                                                <option>Donator</option>
+                                                                <option>Admin</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                    <div className={styles.viewbentobox}>
-                                                        <p>0</p>
-                                                        <p className={styles.sviewbentoboxSub}>volunteers</p>
-                                                    </div>
-                                                    <div className={styles.viewbentobox}>
-                                                        <p>0</p>
-                                                        <p className={styles.sviewbentoboxSub}>donators</p>
-                                                    </div>
-                                                    <div className={styles.viewbentobox}>
-                                                        <p id="dccount">0</p>
-                                                        <p className={styles.sviewbentoboxSub}>from DC</p>
-                                                    </div>
-                                                    <div className={styles.viewbentobox}>
-                                                        <p id="mdcount">0</p>
-                                                        <p className={styles.sviewbentoboxSub}>from Maryland</p>
-                                                    </div>
-                                                    <div className={styles.viewbentobox}>
-                                                        <p id="vacount">0</p>
-                                                        <p className={styles.sviewbentoboxSub}>from Virginia</p>
+                                                </div>
+                                                <div className={styles.divider}></div>
+                                                <div id="piinvolvement">
+                                                    <h3 className={styles.screensubheading}>Involvement</h3>
+                                                    <div className={styles.doublegrid}>
+                                                        <div>
+                                                            <h3 className={styles.screensubheading}>Events Attended</h3>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className={styles.screensubheading}>Events Attended</h3>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -2498,7 +2610,7 @@ export default function Dash() {
                                         if (document.getElementById("esubmitbtn").innerHTML == "Add Event") {
                                             axios({
                                                 method: "post",
-                                                url: "http://192.168.1.158:8080/createEvent",
+                                                url: "http://192.168.1.253:8080/createEvent",
                                                 data: {
                                                     event: {
                                                         title: document.getElementById("ename").value,
@@ -2522,7 +2634,7 @@ export default function Dash() {
                                             console.log(selectedEvent)
                                             axios({
                                                 method: "post",
-                                                url: "http://192.168.1.158:8080/updateEvent?id=" + selectedEvent,
+                                                url: "http://192.168.1.253:8080/updateEvent?id=" + selectedEvent,
                                                 data: {
                                                     event: {
                                                         title: document.getElementById("ename").value,
@@ -2548,7 +2660,7 @@ export default function Dash() {
                                     <button onClick={() => {
                                         axios({
                                             method: "post",
-                                            url: "http://192.168.1.158:8080/deleteEvent?id=" + selectedEvent,
+                                            url: "http://192.168.1.253:8080/deleteEvent?id=" + selectedEvent,
                                         }).then((res) => {
                                             closeEventOverlay("editeventsoverlay");
                                             refresh("events")
