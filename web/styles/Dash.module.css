@@ -382,6 +382,7 @@
     border: 1px dashed #E3AB4A;
     border-radius: 25px;
     height: 100%;
+    overflow-y: auto;
     position: relative;
 }
 

@@ -281,6 +281,10 @@ export default function Dash() {
         const pieattamt = document.getElementById("pieattamt");
         const pidonationsamt = document.getElementById("pidonationsamt");
         const pidonatedamt = document.getElementById("pidonatedamt");
+        const pidont = document.getElementById("pidont");
+        const piieat = document.getElementById("piieat")
+        const piiea = document.getElementById("piiea");
+        const pidon = document.getElementById("pidon")
         personheader.value = obj.name;
         piphone.value = obj.phone;
         piemail.value = obj.email;
@@ -291,13 +295,86 @@ export default function Dash() {
         pifrom.innerHTML = obj.area;
         pirole.value = obj.role;
         pidatejoined.innerHTML = new Date(obj.dateJoined).toLocaleDateString();
-        pieattamt.innerHTML = obj.eventsAttended.length;
+
         pidonationsamt.innerHTML = obj.donations.length;
+        pidont.innerHTML = "Donations - " + obj.donations.length;
         var amtdonated = 0;
+        pidon.innerHTML = ""
         for (var i = 0; i < obj.donations.length; i++) {
             amtdonated += obj.donations[i].amount;
+            const donation = obj.donations[i];
+            const div = document.createElement("div")
+            const text = document.createElement("p");
+            text.innerHTML = new Date(donation.date).toLocaleString() + " - " + formatUSD(donation.amount);
+            text.style.margin = "0px";
+            text.className = styles.font;
+            div.style.cursor = "default"
+            div.className = styles.item
+            div.appendChild(text)
+            pidon.appendChild(div)
         }
         pidonatedamt.innerHTML = formatUSD(amtdonated);
+        pieattamt.innerHTML = obj.eventsAttended.length;
+        piieat.innerHTML = "Events Attended - " + obj.eventsAttended.length;
+        piiea.innerHTML = ""
+
+        axios({
+            method: "get",
+            url: "http://192.168.1.253:8080/getEvents",
+        }).then((res) => {
+            const events = res.data;
+            for (var i = 0; i < events.length; i++) {
+                console.log("event " + events[i].id)
+                if (obj.eventsAttended.includes(events[i].id)) {
+                    //create event divs
+                    console.log("includes")
+                    const event = events[i].event;
+                    const eventItem = document.createElement("div");
+                    const en = document.createElement("p")
+                    en.innerHTML = event.title;
+                    en.style.margin = "0px"
+                    en.className = styles.font;
+                    const icon = document.createElement("span");
+                    icon.className = "material-symbols-rounded";
+                    icon.innerHTML = "chevron_right"
+                    icon.style.margin = "auto"
+                    icon.style.marginRight = "0px"
+                    eventItem.className = [styles.itemEvents, styles.doublegrid].join(" ");
+                    eventItem.style.gridTemplateColumns = "auto 50px";
+
+                    var registrationStatus = calculateEventStatus(event.registrationStartDateTime, event.registrationEndDateTime);
+                    if (registrationStatus == "Pending") {
+                        eventItem.style.color = "black"
+                        eventItem.style.backgroundColor = "#ffff0072"
+                    } else if (registrationStatus == "In Progress") {
+                        eventItem.style.color = "black"
+                        eventItem.style.backgroundColor = "#fbac29ff"
+                        eventItem.style.animation = styles.pulseRegistration + " 3s infinite linear"
+                    } else if (registrationStatus == "Ended") {
+                        var eventStatus = calculateEventStatus(event.startDateTime, event.endDateTime);
+                        if (eventStatus == "Pending") {
+                            eventItem.style.color = "black"
+                            eventItem.style.backgroundColor = "#ffff0072"
+                        } else if (eventStatus == "In Progress") {
+                            eventItem.style.backgroundColor = "#fbac29ff"
+                            eventItem.style.animation = styles.pulse + " 3s infinite linear"
+                        } else if (eventStatus == "Ended") {
+                            eventItem.style.backgroundColor = "#f66d4bff"
+                        }
+                    }
+
+                    (function (eventid) {
+                        eventItem.onclick = function () {
+                            openEventOverlay("vieweventsoverlay", eventid);
+                        }
+                    })(obj.eventsAttended[i].id);
+
+                    eventItem.appendChild(en);
+                    eventItem.appendChild(icon);
+                    piiea.appendChild(eventItem)
+                }
+            }
+        })
 
         hideSidebar();
     }
@@ -2313,10 +2390,17 @@ export default function Dash() {
                                         </div>
                                         <div id="piselected" style={{ display: "none" }}>
                                             <div className={styles.screenNavbar} style={{ borderRadius: "25px 25px 0px 0px" }}>
-                                                <div className={styles.sidebarbuttonGrid} style={{ width: "430px", marginLeft: "10px" }}>
-                                                    <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                                    <input id="pipersonheader" style={{ padding: "12px 10px" }} className={[styles.screenheading, styles.slickttt].join(" ")} defaultValue="Person" />
+                                                <div>
+                                                    <div className={styles.sidebarbuttonGrid} style={{ width: "430px", marginLeft: "10px" }}>
+                                                        <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                                        <input id="pipersonheader" style={{ padding: "12px 10px" }} className={[styles.screenheading, styles.slickttt].join(" ")} defaultValue="Person" />
+                                                    </div>
+                                                    <div className={styles.doublegrid}>
+                                                        <button className={styles.button}></button>
+                                                        <button className={styles.button}></button>
+                                                    </div>
                                                 </div>
+
                                                 <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "5px" }}></div>
 
                                             </div>
@@ -2337,10 +2421,6 @@ export default function Dash() {
                                                 <div className={styles.sviewbentobox}>
                                                     <p id="pieattamt">0</p>
                                                     <p className={styles.sviewbentoboxSub}>events attended</p>
-                                                </div>
-                                                <div className={styles.sviewbentobox}>
-                                                    <p id="piopenamt">0</p>
-                                                    <p className={styles.sviewbentoboxSub}>times opened</p>
                                                 </div>
                                                 <div className={styles.sviewbentobox}>
                                                     <p className={styles.sviewbentoboxSub}>since</p>
@@ -2387,10 +2467,12 @@ export default function Dash() {
                                                     <h3 className={styles.screensubheading}>Involvement</h3>
                                                     <div className={styles.doublegrid}>
                                                         <div>
-                                                            <h3 className={styles.screensubheading}>Events Attended</h3>
+                                                            <h3 id="piieat" className={styles.screensubheading} style={{ fontWeight: "normal" }}>Events Attended - 0</h3>
+                                                            <div id="piiea"></div>
                                                         </div>
                                                         <div>
-                                                            <h3 className={styles.screensubheading}>Events Attended</h3>
+                                                            <h3 id="pidont" className={styles.screensubheading} style={{ fontWeight: "normal" }}>Donations - 0</h3>
+                                                            <div id="pidon"></div>
                                                         </div>
                                                     </div>
                                                 </div>
