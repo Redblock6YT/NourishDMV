@@ -156,11 +156,12 @@
     color: white;
     background-color: #ef3600b9;
     width: 300px;
-    padding: 20px;
+    padding: 10px 20px;
     min-height: 100px;
     bottom: -100%;
     left: 50%;
     transform: translateX(-50%);
+    backdrop-filter: blur(10px);
     border-radius: 25px;
     position: absolute;
     display: none;
@@ -1148,10 +1149,6 @@
 
     .screenheading {
         font-size: 40px;
-    }
-
-    .viewnavbar {
-        display: block;
     }
 
     .screensubheading {
