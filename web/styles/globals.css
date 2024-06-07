@@ -23,6 +23,11 @@ video::-internal-media-controls-overlay-cast-button {
   display: none;
 }
 
+* {
+  scrollbar-color: rgb(227, 171, 74) rgb(255, 231, 191);
+  scrollbar-arrow-color: rgb(255, 231, 191);
+}
+
 .loading {
   display: none;
   position: absolute;

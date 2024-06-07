@@ -26,6 +26,7 @@ export default function Dash() {
     const [contentReady, setContentReady] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState("");
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
+    const [piInspecting, setPiInspecting] = useState("")
 
     //this uuid will identify the user's session, keeping track of which view they are in and staying anonymous
     const [trackerEnabled, setTrackerEnabled] = useState(false);
@@ -237,13 +238,102 @@ export default function Dash() {
         }
     }, []);
 
-    function inspectPerson(obj) {
+    function savePerson() {
         anime({
-            targets: "#peoplecontent",
-            gridTemplateColumns: "0.7fr 1.3fr",
-            easing: 'easeInOutQuad',
+            targets: "#peopleloading",
+            opacity: 1,
+            duration: 300,
+            easing: 'linear',
+        })
+        anime({
+            targets: '#peopleicon',
+            opacity: 0,
+            easing: 'linear',
             duration: 300,
         })
+        anime({
+            targets: "#peopleinspector",
+            filter: "blur(30px)",
+            scale: 0.9,
+            easing: "easeInOutQuad",
+            duration: 500,
+            complete: function (anim) {
+                axios({
+                    method: "post",
+                    url: "http://192.168.1.253:8080/updateAccount",
+                    data: {
+                        uuid: piInspecting,
+                        account: {
+                            phone: document.getElementById("piphone").value,
+                            email: document.getElementById("piemail").value,
+                            address: document.getElementById("piaddr").value,
+                            area: document.getElementById("piarea").value,
+                            role: document.getElementById("pirole").value
+                        }
+                    }
+                }).then((res) => {
+                    refresh("people", piInspecting);
+                }).catch((err) => {
+                    apiError(err);
+                    refresh("people");
+                })
+            }
+        })
+    }
+
+    function deletePerson() {
+        anime({
+            targets: "#peopleloading",
+            opacity: 1,
+            duration: 300,
+            easing: 'linear',
+        })
+        anime({
+            targets: '#peopleicon',
+            opacity: 0,
+            easing: 'linear',
+            duration: 300,
+        })
+        anime({
+            targets: "#peopleinspector",
+            filter: "blur(30px)",
+            scale: 0.9,
+            easing: "easeInOutQuad",
+            duration: 500,
+            complete: function (anim) {
+                axios({
+                    method: "post",
+                    url: "http://192.168.1.253:8080/deleteAccount",
+                    data: {
+                        uuid: piInspecting
+                    }
+                }).then((res) => {
+                    refresh("people");
+                    showSidebar();
+                }).catch((err) => {
+                    apiError(err);
+                    refresh("people");
+                })
+            }
+        })
+    }
+
+    function inspectPerson(obj) {
+        if (window.innerWidth <= 800) {
+            anime({
+                targets: "#peoplecontent",
+                translateX: "-105%",
+                easing: 'easeInOutQuad',
+                duration: 300,
+            })
+        } else {
+            anime({
+                targets: "#peoplecontent",
+                gridTemplateColumns: "0.7fr 1.3fr",
+                easing: 'easeInOutQuad',
+                duration: 300,
+            })
+        }
 
         anime({
             targets: "#peopleinspector",
@@ -285,6 +375,7 @@ export default function Dash() {
         const piieat = document.getElementById("piieat")
         const piiea = document.getElementById("piiea");
         const pidon = document.getElementById("pidon")
+        setPiInspecting(obj.uuid);
         personheader.value = obj.name;
         piphone.value = obj.phone;
         piemail.value = obj.email;
@@ -296,6 +387,7 @@ export default function Dash() {
         pirole.value = obj.role;
         pidatejoined.innerHTML = new Date(obj.dateJoined).toLocaleDateString();
 
+        obj.donations.reverse();
         pidonationsamt.innerHTML = obj.donations.length;
         pidont.innerHTML = "Donations - " + obj.donations.length;
         var amtdonated = 0;
@@ -413,7 +505,13 @@ export default function Dash() {
         })
     }
 
-    function refresh(view) {
+    function refresh(view, arg) {
+        anime({
+            targets: '#' + view + 'icon',
+            opacity: 0,
+            easing: 'linear',
+            duration: 300,
+        })
         anime({
             targets: '#' + view + 'loading',
             opacity: 1,
@@ -465,6 +563,23 @@ export default function Dash() {
                         document.getElementById("dccount").innerHTML = dc;
                         document.getElementById("mdcount").innerHTML = md;
                         document.getElementById("vacount").innerHTML = va;
+                        if (arg != undefined) {
+                            axios({
+                                method: "get",
+                                url: "http://192.168.1.253:8080/getAccount?uuid=" + arg,
+                            }).then((res) => {
+                                inspectPerson(res.data);
+                            }).catch((err) => {
+                                apiError(err);
+                            })
+                        }
+                        anime({
+                            targets: "#peopleinspector",
+                            filter: "blur(0px)",
+                            scale: 1,
+                            duration: 500,
+                            easing: 'easeInOutQuad',
+                        })
                         anime({
                             targets: "#peopleloading",
                             opacity: 0,
@@ -472,12 +587,30 @@ export default function Dash() {
                             easing: 'linear',
                         })
                         anime({
-                            targets: "#peoplecontent",
-                            filter: "blur(0px)",
-                            duration: 500,
-                            scale: 1,
-                            easing: 'easeInOutQuad',
+                            targets: '#peopleicon',
+                            opacity: 1,
+                            easing: 'linear',
+                            duration: 300,
                         })
+
+                        if (window.innerWidth <= 800) {
+                            console.log("mobile")
+                            anime({
+                                targets: "#peoplecontent",
+                                transform: "translateX(0%) scale(1)",
+                                filter: "blur(0px)",
+                                easing: 'easeInOutQuad',
+                                duration: 300,
+                            })
+                        } else {
+                            anime({
+                                targets: "#peoplecontent",
+                                filter: "blur(0px)",
+                                duration: 500,
+                                scale: 1,
+                                easing: 'easeInOutQuad',
+                            })
+                        }
                     }).catch((err) => {
                         apiError(err);
                         anime({
@@ -722,6 +855,12 @@ export default function Dash() {
                             easing: 'linear',
                         })
                         anime({
+                            targets: '#eventsicon',
+                            opacity: 1,
+                            easing: 'linear',
+                            duration: 300,
+                        })
+                        anime({
                             targets: "#eventscontent",
                             filter: "blur(0px)",
                             scale: 1,
@@ -812,6 +951,12 @@ export default function Dash() {
                             easing: 'linear',
                         })
                         anime({
+                            targets: '#donationsicon',
+                            opacity: 1,
+                            easing: 'linear',
+                            duration: 300,
+                        })
+                        anime({
                             targets: "#donationscontent",
                             filter: "blur(0px)",
                             scale: 1,
@@ -856,7 +1001,7 @@ export default function Dash() {
     }
 
     function openEventOverlay(overlayid, id) {
-        hideSidebar();
+        hideSidebar("events", true);
         setViewState("eventDetails");
         document.getElementById("events").style.overflowY = "hidden";
         const eventsoverlay = document.getElementById(overlayid);
@@ -1343,65 +1488,120 @@ export default function Dash() {
         setSidebarOpen(true);
     }
 
-    function hideSidebar(view) {
+    function hideSidebar(view, full) {
         console.log(mobileRef.current)
         const parentWidth = document.getElementById("mainelem").clientWidth;
-        var left = (parentWidth / 2) - 250;
-        if (window.innerWidth <= 600) {
-            document.getElementById("content").style.gridTemplateColumns = "245px 100%";
-            anime({
-                targets: document.getElementsByClassName(styles.screen),
-                border: "0px solid rgb(227, 171, 74)",
-                borderRadius: "0px",
-                duration: 300,
-                easing: 'easeInOutQuad',
-            })
+        if (!full) {
+            var left = (parentWidth / 2) - 250;
+            if (window.innerWidth <= 600) {
+                document.getElementById("content").style.gridTemplateColumns = "245px 100%";
+                anime({
+                    targets: document.getElementsByClassName(styles.screen),
+                    border: "0px solid rgb(227, 171, 74)",
+                    borderRadius: "0px",
+                    duration: 300,
+                    easing: 'easeInOutQuad',
+                })
 
-            anime({
-                targets: "#screens",
-                padding: "0px",
-                duration: 300,
-                easing: 'easeInOutQuad',
-            })
+                anime({
+                    targets: "#screens",
+                    padding: "0px",
+                    duration: 300,
+                    easing: 'easeInOutQuad',
+                })
 
-            anime({
-                targets: "#" + viewState,
-                scale: 1,
-                opacity: 1,
-                duration: 300,
-                complete: function (anim) {
-                    for (var i = 0; i < document.getElementsByClassName(styles.screen).length; i++) {
-                        document.getElementsByClassName(styles.screen)[i].style.overflowY = "auto"
-                        document.getElementsByClassName(styles.screen)[i].style.transform = "none"
-                    }
+                anime({
+                    targets: "#" + viewState,
+                    scale: 1,
+                    opacity: 1,
+                    duration: 300,
+                    complete: function (anim) {
+                        for (var i = 0; i < document.getElementsByClassName(styles.screen).length; i++) {
+                            document.getElementsByClassName(styles.screen)[i].style.overflowY = "auto"
+                            document.getElementsByClassName(styles.screen)[i].style.transform = "none"
+                        }
 
-                    if (view) {
-                        document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
-                    }
-                },
-                easing: 'easeInOutQuad',
-            })
+                        if (view) {
+                            document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
+                        }
+                    },
+                    easing: 'easeInOutQuad',
+                })
 
-            left = (parentWidth / 2) - 270;
+                left = (parentWidth / 2) - 270;
+            } else {
+                document.getElementById("showSidebar").style.display = "block"
+                anime({
+                    targets: "#showSidebar",
+                    opacity: 1,
+                    duration: 300,
+                    easing: "linear"
+                })
+
+                anime({
+                    targets: "#sidebarInteractions",
+                    opacity: 0,
+                    duration: 300,
+                    easing: "linear"
+                })
+                document.getElementById("content").style.gridTemplateColumns = "280px calc(100% - 55px)";
+            }
         } else {
-            document.getElementById("showSidebar").style.display = "block"
-            anime({
-                targets: "#showSidebar",
-                opacity: 1,
-                duration: 300,
-                easing: "linear"
-            })
+            var left = (parentWidth / 2) - 305;
+            if (window.innerWidth <= 600) {
+                document.getElementById("content").style.gridTemplateColumns = "245px 100%";
+                anime({
+                    targets: document.getElementsByClassName(styles.screen),
+                    border: "0px solid rgb(227, 171, 74)",
+                    borderRadius: "0px",
+                    duration: 300,
+                    easing: 'easeInOutQuad',
+                })
 
-            anime({
-                targets: "#sidebarInteractions",
-                opacity: 0,
-                duration: 300,
-                easing: "linear"
-            })
-            document.getElementById("content").style.gridTemplateColumns = "280px calc(100% - 55px)";
+                anime({
+                    targets: "#screens",
+                    padding: "0px",
+                    duration: 300,
+                    easing: 'easeInOutQuad',
+                })
+
+                anime({
+                    targets: "#" + viewState,
+                    scale: 1,
+                    opacity: 1,
+                    duration: 300,
+                    complete: function (anim) {
+                        for (var i = 0; i < document.getElementsByClassName(styles.screen).length; i++) {
+                            document.getElementsByClassName(styles.screen)[i].style.overflowY = "auto"
+                            document.getElementsByClassName(styles.screen)[i].style.transform = "none"
+                        }
+
+                        if (view) {
+                            document.getElementById(view).scrollIntoView({ behavior: "smooth", block: "center" });
+                        }
+                    },
+                    easing: 'easeInOutQuad',
+                })
+
+                left = (parentWidth / 2) - 270;
+            } else {
+                document.getElementById("showSidebar").style.display = "block"
+                anime({
+                    targets: "#showSidebar",
+                    opacity: 1,
+                    duration: 300,
+                    easing: "linear"
+                })
+
+                anime({
+                    targets: "#sidebarInteractions",
+                    opacity: 0,
+                    duration: 300,
+                    easing: "linear"
+                })
+                document.getElementById("content").style.gridTemplateColumns = "280px 100%";
+            }
         }
-
-
 
         document.getElementById("content").style.left = left + "px";
         setSidebarOpen(false);
@@ -2032,8 +2232,9 @@ export default function Dash() {
                     }}>
                         <div id="aag" className={styles.screen} style={{ marginTop: "0px" }}>
                             <div className={styles.screenNavbar}>
-                                <div className={styles.sidebarbuttonGrid} style={{ width: "430px" }}>
+                                <div className={styles.sidebarbuttonGrid} style={{ width: "480px" }}>
                                     <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                    <span className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }}>bar_chart_4_bars</span>
                                     <h3 className={styles.screenheading}>At a glance</h3>
                                 </div>
                                 <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "-5px" }}></div>
@@ -2331,10 +2532,11 @@ export default function Dash() {
                         <div id="people" className={styles.screen} style={{ display: (adminView) ? "block" : "none" }}>
                             <div className={styles.screenNavbar} style={{ position: "initial" }}>
                                 <div className={styles.doublegrid} style={{ display: "flex", overflowX: "auto", paddingRight: "10px" }}>
+                                    <div className={styles.loading} id="peopleloading"></div>
                                     <div className={styles.sidebarbuttonGrid} style={{ width: "200px" }}>
                                         <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                        <span id="peopleicon" className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }}>group</span>
                                         <h3 className={styles.screenheading}>People</h3>
-                                        <div className={styles.loading} id="peopleloading"></div>
                                     </div>
                                     <div className={styles.bentoboxCont} style={{ display: "flex", margin: "0", flexWrap: "nowrap", alignItems: "stretch" }}>
                                         <div className={styles.xsviewbentobox}>
@@ -2366,20 +2568,21 @@ export default function Dash() {
                                 <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "0px" }}></div>
                             </div>
                             <div className={styles.innerSidebar} style={{ height: "calc(100% - 95px)" }}>
-                                <div id="peoplecontent" className={styles.doublegrid} style={{ willChange: "transform", height: "100%", gridTemplateColumns: "1.2fr 0.8fr" }}>
+                                <div id="peoplecontent" className={styles.peoplecontent}>
                                     <div>
-                                        <div id="peoplenavbar" className={styles.viewnavbar} style={{ gridTemplateColumns: "auto 100px", }}><input onInput={() => {
-                                            const children = document.getElementById("eventslist").children;
-                                            for (let i = 0; i < children.length; i++) {
-                                                if (children[i].getAttribute("name").toLowerCase().includes(document.getElementById("eventssearch").value.toLowerCase())) {
-                                                    children[i].style.display = "grid";
-                                                } else {
-                                                    children[i].style.display = "none";
+                                        <div id="peoplenavbar" className={styles.viewnavbar} style={{ gridTemplateColumns: "auto 100px", }}>
+                                            <input onInput={() => {
+                                                const children = document.getElementById("eventslist").children;
+                                                for (let i = 0; i < children.length; i++) {
+                                                    if (children[i].getAttribute("name").toLowerCase().includes(document.getElementById("eventssearch").value.toLowerCase())) {
+                                                        children[i].style.display = "grid";
+                                                    } else {
+                                                        children[i].style.display = "none";
+                                                    }
                                                 }
-                                            }
-                                        }} className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", marginBottom: "5px", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with title"></input>
+                                            }} className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", marginBottom: "5px", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with title"></input>
                                             <button style={{ width: "100%", marginBottom: "5px", display: (adminView) ? "block" : "none" }} className={styles.managebutton} onClick={() => openEventOverlay("editeventsoverlay")}><span className="material-symbols-rounded" style={{ display: "block" }}>add_circle</span></button></div>
-                                        <div id="peoplelist" className={styles.viewlist} style={{ width: "100%", overflowX: "visible", overflowY: "scroll", margin: "0px" }}>
+                                        <div id="peoplelist" className={styles.viewlist} style={{ width: "100%", padding: "0px 10px", margin: "0px", marginLeft: "-10px", overflowY: "auto" }}>
 
                                         </div>
                                     </div>
@@ -2390,14 +2593,11 @@ export default function Dash() {
                                         </div>
                                         <div id="piselected" style={{ display: "none" }}>
                                             <div className={styles.screenNavbar} style={{ borderRadius: "25px 25px 0px 0px" }}>
-                                                <div>
-                                                    <div className={styles.sidebarbuttonGrid} style={{ width: "430px", marginLeft: "10px" }}>
-                                                        <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                                        <input id="pipersonheader" style={{ padding: "12px 10px" }} className={[styles.screenheading, styles.slickttt].join(" ")} defaultValue="Person" />
-                                                    </div>
-                                                    <div className={styles.doublegrid}>
-                                                        <button className={styles.button}></button>
-                                                        <button className={styles.button}></button>
+                                                <div className={styles.pinavbar}>
+                                                    <input id="pipersonheader" style={{ padding: "12px 10px" }} className={[styles.screenheading, styles.slickttt].join(" ")} defaultValue="Person" />
+                                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "100px auto", gridGap: "5px", marginRight: "5px" }}>
+                                                        <button className={styles.managebutton} onClick={() => deletePerson()} style={{ margin: "0px", height: "50px", backgroundColor: "rgba(239, 54, 0, 0.725)" }}><span style={{ display: "block" }} className='material-symbols-rounded'>delete_forever</span></button>
+                                                        <button className={styles.managebutton} style={{ margin: "0px", height: "50px" }} onClick={() => savePerson()}><span style={{ display: "block" }} className='material-symbols-rounded'>save</span></button>
                                                     </div>
                                                 </div>
 
@@ -2427,10 +2627,10 @@ export default function Dash() {
                                                     <p id="pidatejoined">2024</p>
                                                 </div>
                                             </div>
-                                            <div className={styles.divider}></div>
+                                            <div className={styles.divider} style={{ marginTop: "0px" }}></div>
                                             <div id="pisinner" className={styles.screenInner} style={{ paddingTop: "0px" }}>
                                                 <div id="piinfo">
-                                                    <div className={styles.doublegrid} style={{ rowGap: "10px" }}>
+                                                    <div className={[styles.doublegrid, styles.piinfo].join(" ")} style={{ rowGap: "10px" }}>
                                                         <div>
                                                             <h3 className={[styles.font, styles.evlabeltext].join(" ")} style={{ margin: "0px 15px" }}>Phone Number</h3>
                                                             <input id="piphone" type="tel" className={styles.input}></input>
@@ -2465,7 +2665,7 @@ export default function Dash() {
                                                 <div className={styles.divider}></div>
                                                 <div id="piinvolvement">
                                                     <h3 className={styles.screensubheading}>Involvement</h3>
-                                                    <div className={styles.doublegrid}>
+                                                    <div className={[styles.doublegrid, styles.piinfo].join(" ")}>
                                                         <div>
                                                             <h3 id="piieat" className={styles.screensubheading} style={{ fontWeight: "normal" }}>Events Attended - 0</h3>
                                                             <div id="piiea"></div>
@@ -2483,43 +2683,47 @@ export default function Dash() {
                             </div>
                         </div>
                         <div id="events" className={styles.screen} style={{ position: "relative" }}>
-                            <div className={styles.screenInner}>
-                                <div id="affectbyeoverlay">
-                                    <div className={styles.sidebarbuttonGrid} style={{ width: "300px" }}>
-                                        <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                        <h3 className={styles.screenheading}>Events</h3>
+                            <div id="affectbyeoverlay">
+                                <div className={styles.screenNavbar}>
+                                    <div className={styles.doublegrid} style={{ display: "flex", overflowX: "auto", paddingRight: "10px" }}>
                                         <div className={styles.loading} id="eventsloading"></div>
-                                    </div>
-                                    <div id="eventscontent">
-                                        <div className={styles.bentoboxCont}>
-                                            <div className={styles.viewbentobox}>
+                                        <div className={styles.sidebarbuttonGrid} style={{ width: "200px" }}>
+                                            <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                            <span id="eventsicon" className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }}>local_activity</span>
+                                            <h3 className={styles.screenheading}>Events</h3>
+                                        </div>
+                                        <div className={styles.bentoboxCont} style={{ display: "flex", margin: "0", flexWrap: "nowrap", alignItems: "stretch" }}>
+                                            <div className={styles.xsviewbentobox}>
                                                 <p id="eventsamt">0</p>
-                                                <p className={styles.viewbentoboxSub}>events</p>
+                                                <p className={styles.xsviewbentoboxSub}>events</p>
                                             </div>
-                                            <div className={styles.viewbentobox} style={{ display: (adminView) ? "inline-block" : "none" }}>
+                                            <div className={styles.xsviewbentobox} style={{ display: (adminView) ? "inline-block" : "none" }}>
                                                 <p id="attcount">{eventAttendees}</p>
-                                                <p className={styles.viewbentoboxSub}>total attendees</p>
+                                                <p className={styles.xsviewbentoboxSub}>total attendees</p>
                                             </div>
-                                            <div className={styles.viewbentobox} style={{ backgroundColor: "#ffff0072", color: "black" }}>
+                                            <div className={styles.xsviewbentobox} style={{ backgroundColor: "#ffff0072", color: "black" }}>
                                                 <p id="pendingcount">0</p>
-                                                <p className={styles.viewbentoboxSub}>pending</p>
+                                                <p className={styles.xsviewbentoboxSub}>pending</p>
                                             </div>
-                                            <div className={styles.viewbentobox} style={{ backgroundColor: "#fbac29ff", animation: styles.pulse + " 3s infinite linear" }}>
+                                            <div className={styles.xsviewbentobox} style={{ backgroundColor: "#fbac29ff", animation: styles.pulse + " 3s infinite linear" }}>
                                                 <p id="inprogcount">0</p>
-                                                <p className={styles.viewbentoboxSub}>in progress</p>
+                                                <p className={styles.xsviewbentoboxSub}>in progress</p>
                                             </div>
-                                            <div className={styles.viewbentobox} style={{ backgroundColor: "#f66d4bff" }}>
+                                            <div className={styles.xsviewbentobox} style={{ backgroundColor: "#f66d4bff" }}>
                                                 <p id="endedcount">0</p>
-                                                <p className={styles.viewbentoboxSub}>ended</p>
+                                                <p className={styles.xsviewbentoboxSub}>ended</p>
                                             </div>
                                         </div>
-                                        <div className={styles.divider}></div>
-                                        <div id="eventsattend">
-                                            <h3 className={styles.screensubheading} style={{ marginLeft: "5px" }}>Your Events</h3>
-                                            <div id="eventsattendlist" className={styles.viewlist} style={{ marginTop: "10px" }}></div>
-                                            <div className={styles.divider}></div>
-                                        </div>
-
+                                    </div>
+                                    <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "0px" }}></div>
+                                </div>
+                                <div id="eventscontent">
+                                    <div id="eventsattend" style={{ padding: "15px 20px 0px" }}>
+                                        <h3 className={styles.screensubheading} style={{ marginLeft: "5px" }}>Your Events</h3>
+                                        <div id="eventsattendlist" className={styles.viewlist} style={{ marginTop: "10px" }}></div>
+                                    </div>
+                                    <div className={styles.divider} style={{ marginBottom: "15px" }}></div>
+                                    <div className={styles.screenInner} style={{ paddingTop: "0px" }}>
                                         <div className={styles.viewlist}>
                                             <div id="eventsnavbar" style={{ gridTemplateColumns: "auto 100px", display: (adminView) ? "grid" : "block" }} className={styles.viewnavbar}>
                                                 <input onInput={() => {
@@ -2756,25 +2960,30 @@ export default function Dash() {
 
                         </div>
                         <div id="donations" className={styles.screen}>
-                            <div className={styles.screenInner}>
-                                <div className={styles.sidebarbuttonGrid} style={{ width: "300px" }}>
-                                    <button className={[styles.sidebarbutton, styles.hover].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                    <h3 className={styles.screenheading}>Donations</h3>
+                            <div className={styles.screenNavbar}>
+                                <div className={styles.doublegrid} style={{ display: "flex", overflowX: "auto", paddingRight: "10px" }}>
                                     <div className={styles.loading} id="donationsloading"></div>
-                                </div>
-
-                                <div id="donationscontent">
-                                    <div className={styles.bentoboxCont}>
-                                        <div className={styles.viewbentobox}>
+                                    <div className={styles.sidebarbuttonGrid} style={{ width: "260px" }}>
+                                        <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                        <span id="donationsicon" className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }}>volunteer_activism</span>
+                                        <h3 className={styles.screenheading}>Donations</h3>
+                                    </div>
+                                    <div className={styles.bentoboxCont} style={{ display: "flex", margin: "0", flexWrap: "nowrap", alignItems: "stretch" }}>
+                                        <div className={styles.xsviewbentobox}>
                                             <p id="donationsnumber">0</p>
-                                            <p className={styles.viewbentoboxSub} id="donationssub">donations</p>
+                                            <p className={styles.xsviewbentoboxSub} id="donationssub">donations</p>
                                         </div>
-                                        <div className={styles.viewbentobox} style={{ minWidth: "250px" }}>
+                                        <div className={styles.xsviewbentobox} style={{ minWidth: "250px" }}>
                                             <p id="donationsamt">$0</p>
-                                            <p className={styles.viewbentoboxSub}>raised</p>
+                                            <p className={styles.xsviewbentoboxSub}>raised</p>
                                         </div>
                                     </div>
-                                    <div className={styles.divider}></div>
+                                </div>
+                                <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "0px" }}></div>
+                            </div>
+
+                            <div className={styles.screenInner} style={{ paddingTop: "10px" }}>
+                                <div id="donationscontent">
                                     <div className={styles.viewlist}>
                                         <div id="donationsnavbar" style={{ display: "grid", gridTemplateColumns: "auto 150px", gridGap: "10px" }}>
                                             <input className={styles.inputScreen} onInput={() => {

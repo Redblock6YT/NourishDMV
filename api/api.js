@@ -257,9 +257,22 @@ app.get("/getEvent", async (req, res) => {
 })
 
 app.post("/updateAccount", jsonParser, async (req, res) => {
-    Account.findOneAndUpdate({ uuid: req.body.uuid }, req.body).then((account) => {
+    Account.findOneAndUpdate({ uuid: req.body.uuid }, req.body.account).then((account) => {
         if (account) {
             res.status(200).send({ uuid: account.uuid, status: "Account updated." });
+        } else {
+            res.status(400).send("Account not found.");
+        }
+    }).catch((err) => {
+        console.log(err)
+        res.status(400, err);
+    });
+});
+
+app.post("/deleteAccount", jsonParser, async (req, res) => {
+    Account.findOneAndDelete({ uuid: req.body.uuid }).then((account) => {
+        if (account) {
+            res.status(200).send({ uuid: account.uuid, status: "Account deleted." });
         } else {
             res.status(400).send("Account not found.");
         }

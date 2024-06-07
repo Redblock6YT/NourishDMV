@@ -386,6 +386,12 @@
     position: relative;
 }
 
+.pinavbar {
+    display: grid;
+    grid-template-columns: auto 300px;
+    grid-gap: 10px;
+}
+
 .eventsTodayBento {
     float: inline-start;
     width: 500px;
@@ -630,12 +636,14 @@
 
 .loading {
     display: block;
-    height: 25px;
-    width: 25px;
+    position: absolute;
+    left: 25px;
+    height: 30px;
+    width: 30px;
     border: 4px rgba(247, 183, 73, 0.418)solid;
     border-top: 4px rgb(247, 183, 73) solid;
     border-radius: 50%;
-    margin-top: 8px;
+    margin-top: 6px;
     opacity: 0;
     -webkit-animation: spin2 0.7s infinite linear;
     animation: spin2 0.7s infinite linear;
@@ -802,13 +810,21 @@
     margin: 0px;
 }
 
+.peoplecontent {
+    display: grid;
+    will-change: transform;
+    grid-template-columns: 1.2fr 0.8fr;
+    height: 100%;
+    grid-gap: 25px;
+}
+
 .eventsoverlay {
     height: 100%;
     width: 60%;
     display: none;
     overflow-y: auto;
     overflow-x: visible;
-    padding: 20%;
+    padding: 10%;
     position: fixed;
     top: 50%;
     left: calc(300px + 50%);
@@ -883,9 +899,11 @@
 
 .sidebarbuttonGrid {
     display: grid;
-    grid-template-columns: auto 50px;
-    grid-gap: 25px;
+    grid-template-columns: 50px auto;
+    grid-gap: 10px;
     margin-left: 20px;
+    overflow: hidden;
+    position: relative;
 }
 
 .xsviewbentobox {
@@ -1006,9 +1024,25 @@
     margin-bottom: 15px;
 }
 
+.piinfo {
+    grid-template-columns: 1fr 1fr;
+}
+
 @media (max-width: 800px) {
     .innerSidebar {
         padding: 10px;
+    }
+
+    .peoplecontent {
+        grid-template-columns: 100% 100%;
+    }
+
+    .pinavbar {
+        grid-template-columns: auto 200px;
+    }
+
+    .piinfo {
+        grid-template-columns: 1fr;
     }
 
     .slickttt {
@@ -1182,7 +1216,7 @@
     }
 
     .sidebarbuttonGrid {
-        grid-template-columns: 60px auto 50px;
+        grid-template-columns: 60px 50px auto;
         grid-gap: 0px;
     }
 
