@@ -69,6 +69,30 @@
     text-overflow: ellipsis;
 }
 
+.graph {
+    border: 1px solid #E3AB4A;
+    border-radius: 20px;
+    background-color: #E3AB4A;
+    padding: 0px 0px 30px 30px;
+    position: relative;
+}
+
+.graphSubtext {
+    position: absolute;
+    margin-top: 0px;
+    text-align: center;
+    left: 50%;
+    font-size: 25px;
+    color: white;
+}
+
+.graphSubtextL {
+    position: absolute;
+    transform: translateX(-50%) rotate(-90deg);
+    font-size: 25px;
+    color: white;
+}
+
 .itemEvents span {
     font-size: 30px;
 }

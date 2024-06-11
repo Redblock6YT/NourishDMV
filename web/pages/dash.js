@@ -7,6 +7,7 @@ import Image from 'next/image'
 import anime from 'animejs'
 import Cookies from 'js-cookie'
 import { uuid } from 'uuidv4'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts'
 
 export default function Dash() {
     const router = useRouter();
@@ -28,6 +29,8 @@ export default function Dash() {
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
     const [piInspecting, setPiInspecting] = useState("")
     const [innerWidth, setInnerWidth] = useState(0);
+
+    const [dgraphData, setDgraphData] = useState([]);
 
     //this uuid will identify the user's session, keeping track of which view they are in and staying anonymous
     const [trackerEnabled, setTrackerEnabled] = useState(false);
@@ -884,6 +887,9 @@ export default function Dash() {
                         var donationsThisMonth = 0;
                         var amountToday = 0;
                         var amountThisMonth = 0;
+                        var graphedDonations = []
+                        var donationamtcache = 0;
+
                         for (var i = 0; i < accounts.length; i++) {
                             const account = accounts[i];
                             var accountItem = document.createElement("div");
@@ -903,15 +909,24 @@ export default function Dash() {
                             if (new Date(account.date).toDateString() == new Date().toDateString()) {
                                 donationsToday++;
                                 amountToday += account.amount;
+
+                                graphedDonations.push({ date: account.date, amount: donationamtcache + account.amount });
                             }
                             if (new Date(account.date).getMonth() == new Date().getMonth()) {
                                 donationsThisMonth++;
                                 amountThisMonth += account.amount;
                             }
 
+                            donationamtcache += account.amount;
                             amount += account.amount;
                             accountItem.appendChild(accountName);
                             accountslist.appendChild(accountItem);
+                        }
+
+                        if (adminViewRef.current) {
+                            graphedDonations.reverse();
+                            graphedDonations.map((donation) => donation.date = new Date(donation.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                            setDgraphData(graphedDonations);
                         }
                         if (accounts.length == 1) {
                             document.getElementById("donationssub").innerHTML = "donation"
@@ -955,6 +970,7 @@ export default function Dash() {
                             duration: 500,
                             easing: 'easeInOutQuad',
                         })
+                        return res.data;
                     }).catch((err) => {
                         apiError(err);
                         anime({
@@ -978,6 +994,7 @@ export default function Dash() {
                             document.getElementById("totalusersm").innerHTML = users.month;
                             document.getElementById("totalusers").innerHTML = users.all;
                         })
+
                         document.getElementById("nonAdminAAG").style.display = "none"
                     } else {
                         var adminElems = document.getElementsByClassName("adminAAG");
@@ -1163,6 +1180,23 @@ export default function Dash() {
             document.getElementById("eestatusverbtop").innerHTML = "Event is";
             document.getElementById("vestatusdiv").style.color = "black";
         }
+    }
+
+    function CustomTooltip({ payload, label, active }) {
+        if (active) {
+            try {
+                return (
+                    <div className="custom-tooltip" style={{ borderRadius: 15, border: "1px solid #E3AB4A", backdropFilter: "blur(10px)", backgroundColor: "", padding: "0px 15px" }}>
+                        <p className="label" style={{ fontWeight: "normal" }}><a style={{ fontWeight: "bold", color: "#E3AB4A" }}>{label}</a>: {`${formatUSD(payload[0].value)} donated`}</p>
+                    </div>
+                );
+            } catch (ignored) {
+                return null;
+            }
+
+        }
+
+        return null;
     }
 
     function closeEventOverlay(overlayId, type) {
@@ -2218,7 +2252,7 @@ export default function Dash() {
                                 <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "0px" }}></div>
                                 <div className={styles.innerSidebar}>
                                     <div id="navbtns">
-                                        <button id="aagbtn" className={styles.sidebarItem} style={{fontSize: (innerWidth <= 800) ? "28px" : "32px"}} onClick={() => switchView("aag")}>
+                                        <button id="aagbtn" className={styles.sidebarItem} style={{ fontSize: (innerWidth <= 800) ? "28px" : "32px" }} onClick={() => switchView("aag")}>
                                             <div className={styles.doublegrid} style={{ gridTemplateColumns: "40px auto", gridGap: '10px' }}><div><span className="material-symbols-rounded" style={{ display: "block", fontSize: "40px" }}>bar_chart_4_bars</span></div><div>At a glance</div></div>
                                         </button>
                                         <button id="peoplebtn" className={styles.sidebarItem} onClick={() => switchView("people")} style={{ display: (adminView) ? "block" : "none" }}><div className={styles.doublegrid} style={{ gridTemplateColumns: "40px auto", gridGap: '10px' }}><div><span className="material-symbols-rounded" style={{ display: "block", fontSize: "40px" }}>group</span></div><div>People</div></div></button>
@@ -2323,33 +2357,49 @@ export default function Dash() {
                                         <div className={styles.divider}></div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Today <a style={{ fontWeight: "normal" }}>{new Date().toLocaleDateString()}</a></h4>
-                                    <div className={styles.bentoboxCont}>
-                                        <div className={styles.eventsTodayBento} id="eventsTodayBento">
-                                            <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "0.9fr 1.1fr" }}>
+                                        <div className={styles.bentoboxCont}>
+                                            <div className={styles.eventsTodayBento} id="eventsTodayBento">
+                                                <div className={styles.fullycenter} style={{ width: "100%" }}>
+                                                    <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
+                                                </div>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p id="tdonsnum">0</p>
+                                                <p className={styles.viewbentoboxSub} id="tdonssub">donations</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p id="tdonsamt">$0</p>
+                                                <p className={styles.viewbentoboxSub}>donated</p>
+                                            </div>
+                                            <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
+                                                <p id="totaluserstd">0</p>
+                                                <p className={styles.viewbentoboxSub}>total users</p>
+                                            </div>
+                                            <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
+                                                <p>0</p>
+                                                <p className={styles.viewbentoboxSub}>new users</p>
+                                            </div>
+                                            <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
+                                                <p>0</p>
+                                                <p className={styles.viewbentoboxSub}>returning users</p>
                                             </div>
                                         </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p id="tdonsnum">0</p>
-                                            <p className={styles.viewbentoboxSub} id="tdonssub">donations</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p id="tdonsamt">$0</p>
-                                            <p className={styles.viewbentoboxSub}>donated</p>
-                                        </div>
-                                        <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
-                                            <p id="totaluserstd">0</p>
-                                            <p className={styles.viewbentoboxSub}>total users</p>
-                                        </div>
-                                        <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
-                                            <p>0</p>
-                                            <p className={styles.viewbentoboxSub}>new users</p>
-                                        </div>
-                                        <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
-                                            <p>0</p>
-                                            <p className={styles.viewbentoboxSub}>returning users</p>
+                                        <div id="donationsgraphaag" className={styles.graph}>
+                                            <h1 className={[styles.graphSubtextL, styles.font].join(" ")}>Total Amount Donated Today ($)</h1>
+                                            <ResponsiveContainer width="100%" height="100%" className={styles.font} style={{ backgroundColor: "#FFD794", borderRadius: "0px 20px 0px 20px" }}>
+                                                <LineChart data={dgraphData} margin={{ top: 15, right: 15, left: 25, bottom: 0 }} style={{ borderRadius: "20px" }}>
+                                                    <CartesianGrid stroke="#E3AB4A" fill="#ffe7bfff" radius={15} />
+                                                    <Line type="linear" dataKey="amount" stroke="#E3AB4A" strokeWidth={5} />
+                                                    <XAxis dataKey="date" stroke='#E3AB4A' fill='#FFD794' />
+                                                    <YAxis stroke='#E3AB4A' fill='#FFD794' />
+                                                    <Tooltip content={<CustomTooltip />} />
+                                                </LineChart>
+                                            </ResponsiveContainer>
+                                            <h1 className={[styles.graphSubtext, styles.font].join(" ")}>Time</h1>
                                         </div>
                                     </div>
+
                                     <div className={"adminAAG"} style={{ position: "relative" }}>
                                         <div className={styles.divider}></div>
                                         <h3 className={styles.screensubheading} style={{ fontSize: "25px", color: "rgb(183 137 58)" }}>REAL-TIME</h3>
@@ -2554,7 +2604,7 @@ export default function Dash() {
                         <div id="people" className={styles.screen} style={{ display: (adminView) ? "block" : "none" }}>
                             <div className={styles.screenNavbar} style={{ position: "initial" }}>
                                 <div className={styles.doublegrid} style={{ gridTemplateColumns: "250px auto", overflowX: "auto", paddingRight: "10px" }}>
-                                    <div className={styles.loading} style={{left: (innerWidth <= 800) ? "80px" : "25px"}} id="peopleloading"></div>
+                                    <div className={styles.loading} style={{ left: (innerWidth <= 800) ? "80px" : "25px" }} id="peopleloading"></div>
                                     <div className={styles.sidebarbuttonGrid} style={{ width: "250px" }}>
                                         <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                         <span id="peopleicon" className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }}>group</span>
@@ -2708,7 +2758,7 @@ export default function Dash() {
                             <div id="affectbyeoverlay">
                                 <div className={styles.screenNavbar}>
                                     <div className={styles.doublegrid} style={{ gridTemplateColumns: "250px auto", overflowX: "auto", paddingRight: "10px" }}>
-                                        <div className={styles.loading} style={{left: (innerWidth <= 800) ? "80px" : "25px"}} id="eventsloading"></div>
+                                        <div className={styles.loading} style={{ left: (innerWidth <= 800) ? "80px" : "25px" }} id="eventsloading"></div>
                                         <div className={styles.sidebarbuttonGrid} style={{ width: "250px" }}>
                                             <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                             <span id="eventsicon" className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }}>local_activity</span>
@@ -2988,7 +3038,7 @@ export default function Dash() {
                         <div id="donations" className={styles.screen}>
                             <div className={styles.screenNavbar}>
                                 <div className={styles.doublegrid} style={{ gridTemplateColumns: "310px auto", overflowX: "auto", paddingRight: "10px" }}>
-                                    <div className={styles.loading} style={{left: (innerWidth <= 800) ? "80px" : "25px"}} id="donationsloading"></div>
+                                    <div className={styles.loading} style={{ left: (innerWidth <= 800) ? "80px" : "25px" }} id="donationsloading"></div>
                                     <div className={styles.sidebarbuttonGrid} style={{ width: "310px" }}>
                                         <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
                                         <span id="donationsicon" className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }}>volunteer_activism</span>
