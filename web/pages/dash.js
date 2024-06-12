@@ -888,7 +888,6 @@ export default function Dash() {
                         var amountToday = 0;
                         var amountThisMonth = 0;
                         var graphedDonations = []
-                        var donationamtcache = 0;
 
                         for (var i = 0; i < accounts.length; i++) {
                             const account = accounts[i];
@@ -901,6 +900,8 @@ export default function Dash() {
                                 accountName.innerHTML = new Date(account.date).toLocaleString() + " - " + formatUSD(account.amount);
                             }
 
+                            graphedDonations.push({ date: account.date, amount: account.amount });
+
                             accountName.style.margin = "0px";
                             accountName.className = styles.font;
                             accountItem.style.cursor = "default";
@@ -909,15 +910,11 @@ export default function Dash() {
                             if (new Date(account.date).toDateString() == new Date().toDateString()) {
                                 donationsToday++;
                                 amountToday += account.amount;
-
-                                graphedDonations.push({ date: account.date, amount: donationamtcache + account.amount });
                             }
                             if (new Date(account.date).getMonth() == new Date().getMonth()) {
                                 donationsThisMonth++;
                                 amountThisMonth += account.amount;
                             }
-
-                            donationamtcache += account.amount;
                             amount += account.amount;
                             accountItem.appendChild(accountName);
                             accountslist.appendChild(accountItem);
@@ -926,7 +923,18 @@ export default function Dash() {
                         if (adminViewRef.current) {
                             graphedDonations.reverse();
                             graphedDonations.map((donation) => donation.date = new Date(donation.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                            setDgraphData(graphedDonations);
+                            var ngraphedDonations = [];
+                            var amount = 0;
+                            var today = new Date();
+                            today.setHours(0, 0, 0, 0);
+
+                            ngraphedDonations.push({ date: today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), amount: 0 })
+                            for (var i = 0; i < graphedDonations.length; i++) {
+                                amount += graphedDonations[i].amount;
+                                ngraphedDonations.push({ date: graphedDonations[i].date, amount: amount });
+                            }
+                            console.log(graphedDonations)
+                            setDgraphData(ngraphedDonations);
                         }
                         if (accounts.length == 1) {
                             document.getElementById("donationssub").innerHTML = "donation"
@@ -2357,8 +2365,8 @@ export default function Dash() {
                                         <div className={styles.divider}></div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Today <a style={{ fontWeight: "normal" }}>{new Date().toLocaleDateString()}</a></h4>
-                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "0.9fr 1.1fr" }}>
-                                        <div className={styles.bentoboxCont}>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "0.8fr 1.2fr", marginTop: "20px" }}>
+                                        <div className={styles.bentoboxCont} style={{marginRight: "0px", marginTop: "0px"}}>
                                             <div className={styles.eventsTodayBento} id="eventsTodayBento">
                                                 <div className={styles.fullycenter} style={{ width: "100%" }}>
                                                     <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
@@ -2386,12 +2394,12 @@ export default function Dash() {
                                             </div>
                                         </div>
                                         <div id="donationsgraphaag" className={styles.graph}>
-                                            <h1 className={[styles.graphSubtextL, styles.font].join(" ")}>Total Amount Donated Today ($)</h1>
+                                            <h1 className={[styles.graphSubtextL, styles.font].join(" ")}>Donation Amount ($)</h1>
                                             <ResponsiveContainer width="100%" height="100%" className={styles.font} style={{ backgroundColor: "#FFD794", borderRadius: "0px 20px 0px 20px" }}>
                                                 <LineChart data={dgraphData} margin={{ top: 15, right: 15, left: 25, bottom: 0 }} style={{ borderRadius: "20px" }}>
                                                     <CartesianGrid stroke="#E3AB4A" fill="#ffe7bfff" radius={15} />
                                                     <Line type="linear" dataKey="amount" stroke="#E3AB4A" strokeWidth={5} />
-                                                    <XAxis dataKey="date" stroke='#E3AB4A' fill='#FFD794' />
+                                                    <XAxis dataKey="date" stroke='#E3AB4A' fill='#FFD794' fontSize={20} />
                                                     <YAxis stroke='#E3AB4A' fill='#FFD794' />
                                                     <Tooltip content={<CustomTooltip />} />
                                                 </LineChart>

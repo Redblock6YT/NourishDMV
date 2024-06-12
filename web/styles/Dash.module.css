@@ -73,13 +73,13 @@
     border: 1px solid #E3AB4A;
     border-radius: 20px;
     background-color: #E3AB4A;
-    padding: 0px 0px 30px 30px;
+    padding: 0px 0px 35px 35px;
     position: relative;
 }
 
 .graphSubtext {
     position: absolute;
-    margin-top: 0px;
+    margin-top: 2px;
     text-align: center;
     left: 50%;
     font-size: 25px;
@@ -88,7 +88,9 @@
 
 .graphSubtextL {
     position: absolute;
-    transform: translateX(-50%) rotate(-90deg);
+    top: 50%;
+    margin-left: -18px;
+    transform: translateX(-50%) translateY(-50%) rotate(-90deg);
     font-size: 25px;
     color: white;
 }
@@ -344,12 +346,12 @@
 
 .viewbentobox {
     border-radius: 25px;
-    width: 250px;
-    height: 100px;
+    width: 230px;
+    height: 90px;
     background-color: #e3ab4a;
     position: relative;
     font-family: 'Outfit', sans-serif;
-    font-size: 50px;
+    font-size: 40px;
     font-weight: bold;
     display: inline-block;
     margin-right: 10px;
@@ -419,7 +421,7 @@
 
 .eventsTodayBento {
     float: inline-start;
-    width: 500px;
+    width: calc(100% - 40px);
     height: 98px;
     margin-right: 10px;
     padding: 20px;
@@ -899,7 +901,7 @@
 }
 
 .viewbentoboxSub {
-    font-size: 30px;
+    font-size: 32px;
     font-weight: normal;
 }
 
