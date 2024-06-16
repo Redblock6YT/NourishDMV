@@ -512,7 +512,7 @@ export default function Dash() {
         })
         anime({
             targets: "#" + view + "content",
-            filter: "blur(80px)",
+            filter: (view !== "aag") ? "blur(80px)" : "blur(100px)",
             scale: 0.9,
             duration: 500,
             easing: 'easeInOutQuad',
@@ -900,7 +900,7 @@ export default function Dash() {
                                 accountName.innerHTML = new Date(account.date).toLocaleString() + " - " + formatUSD(account.amount);
                             }
 
-                            graphedDonations.push({ date: account.date, amount: account.amount });
+
 
                             accountName.style.margin = "0px";
                             accountName.className = styles.font;
@@ -915,27 +915,30 @@ export default function Dash() {
                                 donationsThisMonth++;
                                 amountThisMonth += account.amount;
                             }
+                            console.log(account.amount)
+                            console.log("total amount" + amount)
                             amount += account.amount;
+                            if (new Date(account.date).toDateString() == new Date().toDateString()) {
+                                graphedDonations.push({ date: account.date, amount: account.amount });
+                            }
                             accountItem.appendChild(accountName);
                             accountslist.appendChild(accountItem);
                         }
 
-                        if (adminViewRef.current) {
-                            graphedDonations.reverse();
-                            graphedDonations.map((donation) => donation.date = new Date(donation.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                            var ngraphedDonations = [];
-                            var amount = 0;
-                            var today = new Date();
-                            today.setHours(0, 0, 0, 0);
+                        graphedDonations.reverse();
+                        graphedDonations.map((donation) => donation.date = new Date(donation.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                        var ngraphedDonations = [];
+                        var amountG = 0;
+                        var today = new Date();
+                        today.setHours(0, 0, 0, 0);
 
-                            ngraphedDonations.push({ date: today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), amount: 0 })
-                            for (var i = 0; i < graphedDonations.length; i++) {
-                                amount += graphedDonations[i].amount;
-                                ngraphedDonations.push({ date: graphedDonations[i].date, amount: amount });
-                            }
-                            console.log(graphedDonations)
-                            setDgraphData(ngraphedDonations);
+                        ngraphedDonations.push({ date: today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), amount: 0 })
+                        for (var i = 0; i < graphedDonations.length; i++) {
+                            amountG += graphedDonations[i].amount;
+                            ngraphedDonations.push({ date: graphedDonations[i].date, amount: amountG });
                         }
+                        console.log(graphedDonations)
+                        setDgraphData(ngraphedDonations);
                         if (accounts.length == 1) {
                             document.getElementById("donationssub").innerHTML = "donation"
                             //tdonssub is the subtext for an analytic of the admin view, so if it's undefined, it means the user doesn't have access to the view, and it shouldn't be updated
@@ -991,6 +994,15 @@ export default function Dash() {
                 } else if (view == "aag") {
                     refresh("events");
                     refresh("donations");
+                    if (window.innerWidth < 800) {
+                        const aagdoublegrid = document.getElementById("aagdoublegrid");
+                        aagdoublegrid.style.display = "block"
+                        aagdoublegrid.style.marginTop = "5px"
+                        for (var i = 0; i < aagdoublegrid.children.length; i++) {
+                            aagdoublegrid.children[i].className = styles.viewbentobox
+                        }
+
+                    }
                     if (adminViewRef.current) {
                         refresh("people");
                         axios({
@@ -1012,6 +1024,27 @@ export default function Dash() {
                             adminElems[i].style.display = "none";
                         }
                     }
+                    anime({
+                        targets: "#aagcontent",
+                        filter: "blur(0px)",
+                        duration: 500,
+                        scale: 1,
+                        easing: 'easeInOutQuad',
+                    })
+
+                    anime({
+                        targets: "#aagicon",
+                        opacity: 1,
+                        duration: 300,
+                        easing: 'linear',
+                    })
+
+                    anime({
+                        targets: "#aagloading",
+                        opacity: 0,
+                        duration: 300,
+                        easing: 'linear',
+                    })
                 }
             }
         })
@@ -2296,14 +2329,15 @@ export default function Dash() {
                     }}>
                         <div id="aag" className={styles.screen} style={{ marginTop: "0px" }}>
                             <div className={styles.screenNavbar}>
+                                <div className={styles.loading} style={{ left: (innerWidth <= 800) ? "80px" : "25px" }} id="aagloading"></div>
                                 <div className={styles.sidebarbuttonGrid} style={{ width: "480px" }}>
                                     <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                    <span className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }}>bar_chart_4_bars</span>
+                                    <span className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }} id="aagicon">bar_chart_4_bars</span>
                                     <h3 className={styles.screenheading}>At a glance</h3>
                                 </div>
                                 <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "-5px" }}></div>
                             </div>
-                            <div className={styles.screenInner}>
+                            <div className={styles.screenInner} id="aagcontent">
                                 <div id="youSection" style={{ display: (account != "" && !adminView) ? "block" : "none" }}>
                                     <h4 className={styles.screensubheading}>You</h4>
                                     <div className={styles.bentoboxCont}>
@@ -2365,33 +2399,36 @@ export default function Dash() {
                                         <div className={styles.divider}></div>
                                     </div>
                                     <h4 className={styles.screensubheading}>Today <a style={{ fontWeight: "normal" }}>{new Date().toLocaleDateString()}</a></h4>
-                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "0.8fr 1.2fr", marginTop: "20px" }}>
-                                        <div className={styles.bentoboxCont} style={{marginRight: "0px", marginTop: "0px"}}>
-                                            <div className={styles.eventsTodayBento} id="eventsTodayBento">
+                                    <div className={[styles.graphBBGrid, styles.bentoboxCont].join(" ")} style={{ marginBottom: "30px" }}>
+                                        <div>
+                                            <div className={styles.eventsTodayBento} id="eventsTodayBento" style={{ float: "initial" }}>
                                                 <div className={styles.fullycenter} style={{ width: "100%" }}>
                                                     <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
                                                 </div>
                                             </div>
-                                            <div className={styles.viewbentobox}>
-                                                <p id="tdonsnum">0</p>
-                                                <p className={styles.viewbentoboxSub} id="tdonssub">donations</p>
+                                            <div className={styles.aagdoublegrid} id="aagdoublegrid">
+                                                <div className={styles.viewbentoboxM}>
+                                                    <p id="tdonsnum">0</p>
+                                                    <p className={styles.viewbentoboxSub} id="tdonssub">donations</p>
+                                                </div>
+                                                <div className={styles.viewbentoboxM}>
+                                                    <p id="tdonsamt">$0</p>
+                                                    <p className={styles.viewbentoboxSub}>donated</p>
+                                                </div>
+                                                <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
+                                                    <p id="totaluserstd">0</p>
+                                                    <p className={styles.viewbentoboxSub}>total users</p>
+                                                </div>
+                                                <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
+                                                    <p>0</p>
+                                                    <p className={styles.viewbentoboxSub}>new users</p>
+                                                </div>
+                                                <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
+                                                    <p>0</p>
+                                                    <p className={styles.viewbentoboxSub}>returning users</p>
+                                                </div>
                                             </div>
-                                            <div className={styles.viewbentobox}>
-                                                <p id="tdonsamt">$0</p>
-                                                <p className={styles.viewbentoboxSub}>donated</p>
-                                            </div>
-                                            <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
-                                                <p id="totaluserstd">0</p>
-                                                <p className={styles.viewbentoboxSub}>total users</p>
-                                            </div>
-                                            <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
-                                                <p>0</p>
-                                                <p className={styles.viewbentoboxSub}>new users</p>
-                                            </div>
-                                            <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
-                                                <p>0</p>
-                                                <p className={styles.viewbentoboxSub}>returning users</p>
-                                            </div>
+
                                         </div>
                                         <div id="donationsgraphaag" className={styles.graph}>
                                             <h1 className={[styles.graphSubtextL, styles.font].join(" ")}>Donation Amount ($)</h1>

@@ -115,7 +115,7 @@ export default function Home() {
 
     axios({
       method: "get",
-      url: "http://192.168.1.176:8080/getEvents"
+      url: "http://192.168.1.253:8080/getEvents"
     }).then((res) => {
       if (res.status == 200) {
         console.log("got events")
@@ -440,7 +440,7 @@ export default function Home() {
       Cookies.set("trackerUUID", trackerUUID);
       axios({
         method: "post",
-        url: "http://192.168.1.176:8080/track",
+        url: "http://192.168.1.253:8080/track",
         data: {
           uuid: trackerUUID,
           page: "Homepage",
