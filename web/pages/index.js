@@ -115,7 +115,7 @@ export default function Home() {
 
     axios({
       method: "get",
-      url: "https://nourishapi.rygb.tech:8080/getEvents"
+      url: "https://nourishapi.rygb.tech/getEvents"
     }).then((res) => {
       if (res.status == 200) {
         console.log("got events")
@@ -440,7 +440,7 @@ export default function Home() {
       Cookies.set("trackerUUID", trackerUUID);
       axios({
         method: "post",
-        url: "https://nourishapi.rygb.tech:8080/track",
+        url: "https://nourishapi.rygb.tech/track",
         data: {
           uuid: trackerUUID,
           page: "Homepage",
