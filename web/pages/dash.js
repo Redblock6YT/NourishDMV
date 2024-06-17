@@ -536,6 +536,7 @@ export default function Dash() {
                             var accountItem = document.createElement("div");
                             var accountName = document.createElement("p");
                             accountName.innerHTML = account.name;
+                            accountItem.setAttribute("name", account.name);
                             accountName.style.margin = "0px";
                             accountName.className = styles.font;
                             accountItem.className = styles.item;
@@ -2687,18 +2688,16 @@ export default function Dash() {
                             <div className={styles.innerSidebar} style={{ height: "calc(100% - 95px)" }}>
                                 <div id="peoplecontent" className={styles.peoplecontent}>
                                     <div>
-                                        <div id="peoplenavbar" className={styles.viewnavbar} style={{ gridTemplateColumns: "auto 100px", }}>
-                                            <input onInput={() => {
-                                                const children = document.getElementById("eventslist").children;
-                                                for (let i = 0; i < children.length; i++) {
-                                                    if (children[i].getAttribute("name").toLowerCase().includes(document.getElementById("eventssearch").value.toLowerCase())) {
-                                                        children[i].style.display = "grid";
-                                                    } else {
-                                                        children[i].style.display = "none";
-                                                    }
+                                        <input onInput={() => {
+                                            const children = document.getElementById("peoplelist").children;
+                                            for (let i = 0; i < children.length; i++) {
+                                                if (children[i].getAttribute("name").toLowerCase().includes(document.getElementById("peoplesearch").value.toLowerCase())) {
+                                                    children[i].style.display = "grid";
+                                                } else {
+                                                    children[i].style.display = "none";
                                                 }
-                                            }} className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", marginBottom: "5px", color: "rgb(227, 171, 74)" }} id="eventssearch" placeholder="Search with title"></input>
-                                            <button style={{ width: "100%", marginBottom: "5px", display: (adminView) ? "block" : "none" }} className={styles.managebutton} onClick={() => openEventOverlay("editeventsoverlay")}><span className="material-symbols-rounded" style={{ display: "block" }}>add_circle</span></button></div>
+                                            }
+                                        }} className={styles.inputScreen} type="search" style={{ backgroundColor: "rgba(255, 208, 128, 0.692)", marginBottom: "5px", color: "rgb(227, 171, 74)" }} id="peoplesearch" placeholder="Search with title"></input>
                                         <div id="peoplelist" className={styles.viewlist} style={{ width: "100%", padding: "0px 10px", margin: "0px", marginLeft: "-10px", overflowY: "auto" }}>
 
                                         </div>
