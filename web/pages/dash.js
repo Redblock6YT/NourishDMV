@@ -3222,7 +3222,7 @@ export default function Dash() {
                                     </div>
                                     <textarea rows="3" className={styles.textarea} placeholder="Tell us about yourself"></textarea>
                                     <textarea className={styles.textarea} placeholder="Why do you want to volunteer with us?"></textarea>
-                                    <textarea className={styles.input} placeholder="What tasks are your favorite to complete?"></textarea>
+                                    <textarea className={styles.input} placeholder="What volunteer opportunities are you most interested in?"></textarea>
                                     <input className={styles.input} placeholder="How did you hear about us?"></input>
                                     <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", marginBottom: "20px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
                                 </div>

@@ -669,7 +669,7 @@ export default function Home() {
               <div style={{ position: "relative" }}>
                 <div className={styles.divider}></div>
 
-                <h3 className={styles.header} style={{ color: "black", textAlign: "center", marginBottom: "40px" }}><a style={{ backgroundColor: "#fbac29ff" }}>21,808</a> homeless individiuals need your help</h3>
+                <h3 className={styles.header} style={{ color: "black", textAlign: "center", marginBottom: "40px" }}><a style={{ backgroundColor: "#fbac29ff" }}>21,808</a> homeless individuals need your help</h3>
 
                 <div className={styles.tripplegrid} style={{ textAlign: "center", marginTop: "100px" }}>
                   <div>
@@ -704,7 +704,7 @@ export default function Home() {
                 <div>
                   <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>Our goal</h3>
                   <p className={styles.description} style={{ fontSize: "25px", padding: "0px 20px" }}>
-                    Save lives and create a thriving community by ensuring that everyone in the DMV has food and shelter. We believe in the power of addressing these basic needs comprehensively, as not only a means of survival but also as a building block to create healthier, happier lives. Join us to become a vital part of our movement and directly impact the community.
+                    We save lives and create a thriving community by ensuring that everyone in the DMV has food and shelter. We believe in the power of addressing these basic needs comprehensively, as not only a means of survival but also as a building block to create healthier, happier lives. Join us to become a vital part of our movement and directly impact the community.
                   </p>
                 </div>
                 <div style={{ position: "relative" }}>
@@ -715,7 +715,7 @@ export default function Home() {
               <div className={styles.divider}></div>
               <h3 className={styles.header} style={{ color: "black", marginLeft: "20px", marginBottom: "10px" }}>How we help</h3>
               <p className={styles.description} style={{ fontSize: "25px", padding: "0px 20px" }}>
-                See how NourishDMV makes an impact in commuinities across the DMV.
+                See how NourishDMV makes an impact in communities across the DMV.
               </p>
               <div id="howhelplist">
                 <div className={styles.doublegrid} style={{ gridGap: "100px", margin: "80px 0px" }}>
@@ -739,7 +739,7 @@ export default function Home() {
                   <div>
                     <h3 className={styles.header} style={{ color: "black", marginBottom: "10px" }}>Events</h3>
                     <p className={styles.description} style={{ fontSize: "25px" }}>
-                      NourishDMV hosts events to raise money for it's mission, aswell as to raise awareness about homelessness and hunger in the DMV.
+                      NourishDMV hosts events to raise money for it's mission, as well as to raise awareness about homelessness and hunger in the DMV.
                     </p>
                     <button className={styles.minibutton} onClick={() => push("/dash?view=events")} style={{ width: "100%", marginTop: "10px" }}>View Events</button>
                   </div>
@@ -766,7 +766,7 @@ export default function Home() {
               <div className={styles.doublegrid} style={{ margin: "auto", gridGap: "0px" }}>
                 <div style={{ borderRight: "1px solid rgba(0, 0, 0, 0.104)", padding: "20px" }}>
                   <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Change Lives</a></h3>
-                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>You have the power to change the lives of 21,808 homeless individiuals by volunteering at our Homeless Shelters, Food Banks, or events to provide them with food, shelter, and hope.</p>
+                  <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>You have the power to change the lives of 21,808 homeless individuals by volunteering at our Homeless Shelters, Food Banks, or events to provide them with food, shelter, and hope.</p>
                   <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Network</a></h3>
                   <p className={styles.description} style={{ fontSize: "25px", color: "black" }}>Network with other passionate and caring individuals who share a passion for volunteering.</p>
                   <h3 className={styles.header} style={{ color: "black", marginBottom: "20px" }}><a style={{ backgroundColor: "#fbac29ff", fontWeight: "bold" }}>Teamwork</a></h3>
