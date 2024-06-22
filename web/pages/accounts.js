@@ -591,7 +591,7 @@ export default function Accounts() {
                         } else {
                             switchView("norm");
                         }
-                    }} className={styles.doublegrid} style={{ color: "#a46900", fontSize: "25px", width: "30%", marginTop: "20px", marginLeft: "20px", cursor: "pointer", gridTemplateColumns: "50px auto", gridGap: "0px", position: "relative", zIndex: "100" }}>
+                    }} className={styles.doublegrid} style={{ color: "#a46900", fontSize: "25px", width: "100%", marginTop: "20px", marginLeft: "20px", cursor: "pointer", gridTemplateColumns: "50px auto", gridGap: "0px", position: "relative", zIndex: "100" }}>
                         <span class="material-symbols-rounded" style={{ fontSize: "40px" }}>arrow_circle_left</span>
                         <p className={styles.font} style={{ margin: "auto", marginLeft: "0px", textAlign: "left", width: "100%" }}>Back {(view == "norm") ? (fromRef.current !== undefined) ? "to " + fromRef.current :  "to Home" : ""}</p>
                     </div>

@@ -587,8 +587,7 @@
     background-color: rgba(0, 0, 0, 0.267);
     border-color: #5353537d;
     border-style: none;
-    margin-bottom: 10px;
-    margin-top: 5px;
+    margin-bottom: 7px;
     color: rgb(255, 255, 255);
     font-family: 'Outfit', sans-serif;
     font-weight: bold;
@@ -1085,6 +1084,16 @@
 
 .piinfo {
     grid-template-columns: 1fr 1fr;
+}
+
+.volunteer {
+    margin-top: 0px;
+}
+
+@media (max-height: 730px) {
+    .volunteer {
+        margin-top: 5%;
+    }
 }
 
 @media (max-width: 800px) {

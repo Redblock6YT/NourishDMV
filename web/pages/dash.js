@@ -1053,6 +1053,7 @@ export default function Dash() {
 
     function openEventOverlay(overlayid, id) {
         hideSidebar("events", true);
+        switchView("events");
         setViewState("eventDetails");
         document.getElementById("events").style.overflowY = "hidden";
         const eventsoverlay = document.getElementById(overlayid);
@@ -3200,30 +3201,30 @@ export default function Dash() {
                                     <p className={styles.subheader}>Your donation has been processed. You can close this by clicking the close button on the left.</p>
                                 </div>
                             </div>
-                            <div id="volunteer" style={{ position: "relative", height: "100%" }}>
+                            <div id="volunteer" style={{ position: "relative", height: "100%" }} className={styles.volunteer}>
                                 <div id="v1v" className={styles.zigZagView} style={{ "--maxWidth": "60%" }}>
                                     <h1 className={styles.header}>Volunteer with Us</h1>
                                     <p className={styles.subheader}>Thank you for your interest in being a NourishDMV Volunteer! Please fill out this application and we'll get back to you as soon as possible.</p>
                                     <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px", gridTemplateColumns: "auto auto auto" }}>
-                                        <input className={styles.input} type='text' placeholder="Name"></input>
-                                        <input className={styles.input} type="tel" placeholder="Phone Number"></input>
-                                        <input className={styles.input} type="text" placeholder="Email"></input>
+                                        <input className={styles.input} type='text' style={{marginBottom: "10px", marginTop: "0px"}} placeholder="Name"></input>
+                                        <input className={styles.input} type="tel" style={{marginBottom: "10px", marginTop: "0px"}} placeholder="Phone Number"></input>
+                                        <input className={styles.input} type="text" style={{marginBottom: "10px", marginTop: "0px"}} placeholder="Email"></input>
                                     </div>
 
-                                    <select className={styles.input} placeholder="Name">
+                                    <select className={styles.input} placeholder="Name" style={{marginBottom: "10px", marginTop: "0px"}}>
                                         <option>Area</option>
                                         <option>D.C.</option>
                                         <option>Maryland</option>
                                         <option>Virginia</option>
                                     </select>
-                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto 150px", gridGap: "15px" }}>
-                                        <input className={styles.input} type='text' placeholder="Address"></input>
-                                        <input className={styles.input} type='text' placeholder="City"></input>
+                                    <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto 150px", gridGap: "10px" }}>
+                                        <input className={styles.input} type='text' style={{marginBottom: "10px", marginTop: "0px"}} placeholder="Address"></input>
+                                        <input className={styles.input} type='text' style={{marginBottom: "10px", marginTop: "0px"}} placeholder="City"></input>
                                     </div>
                                     <textarea rows="3" className={styles.textarea} placeholder="Tell us about yourself"></textarea>
                                     <textarea className={styles.textarea} placeholder="Why do you want to volunteer with us?"></textarea>
-                                    <textarea className={styles.input} placeholder="What volunteer opportunities are you most interested in?"></textarea>
-                                    <input className={styles.input} placeholder="How did you hear about us?"></input>
+                                    <textarea className={styles.input} style={{marginBottom: "7px", marginTop: "0px"}} placeholder="What volunteer opportunities are you most interested in?"></textarea>
+                                    <input className={styles.input} style={{marginBottom: "7px", marginTop: "0px"}} placeholder="How did you hear about us?"></input>
                                     <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", marginBottom: "20px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
                                 </div>
                                 <div id="v2v" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>
