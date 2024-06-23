@@ -60,12 +60,6 @@
     /* bring your own prefixes */
 }
 
-@media (max-width: 600px) {
-    .modal {
-        width: 350px;
-    }
-}
-
 .verbage {
     font-family: 'Outfit', sans-serif;
     color: #ffffff96;
@@ -198,9 +192,15 @@
     }
 
     .bigbutton {
-        font-size: 60px;
+        font-size: 50px;
     }
     .blurredBehind {
         display: none;
+    }
+
+    .modal {
+        width: calc(100% - 30px);
+        left: 50%;
+        padding: 20px 10px;
     }
 }
