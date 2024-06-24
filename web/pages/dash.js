@@ -7,7 +7,7 @@ import Image from 'next/image'
 import anime from 'animejs'
 import Cookies from 'js-cookie'
 import { uuid } from 'uuidv4'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, BarChart, Bar } from 'recharts'
 
 export default function Dash() {
     const router = useRouter();
@@ -29,8 +29,10 @@ export default function Dash() {
     const [currentOverlayType, setCurrentOverlayType] = useState("d");
     const [piInspecting, setPiInspecting] = useState("")
     const [innerWidth, setInnerWidth] = useState(0);
+    const [ipAddr, setIPAddr] = useState("");
 
     const [dgraphData, setDgraphData] = useState([]);
+    const [tusersbstateData, setTusersbstateData] = useState([{ name: "Maryland", amount: 1 }]);
 
     //this uuid will identify the user's session, keeping track of which view they are in and staying anonymous
     const [trackerEnabled, setTrackerEnabled] = useState(false);
@@ -84,17 +86,30 @@ export default function Dash() {
         if (trackerUUID != "") {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
-                method: "post",
-                url: "https://nourishapi.rygb.tech/track",
-                data: {
-                    uuid: trackerUUID,
-                    page: "Dashboard",
-                    view: viewState
-                }
-            }).catch((err) => {
-                console.log(err);
-                console.log("Tracking issue")
-            })
+                method: 'get',
+                url: 'https://api.geoapify.com/v1/ipinfo?&apiKey=03a7b1dd209e453f9d7d32c3fbf96c1a',
+            }).then(function (response) {
+                setIPAddr(response.data.ip);
+                axios({
+                    method: "post",
+                    url: "https://nourishapi.rygb.tech/track",
+                    data: {
+                        uuid: trackerUUID,
+                        page: "Dashboard",
+                        view: viewState,
+                        ip: response.data.ip,
+                        state: response.data.state.name,
+                        city: response.data.city.name,
+                    }
+                }).then(function (res) {
+                    console.log(res.data);
+                }).catch((err) => {
+                    console.log(err);
+                    console.log("Tracking issue")
+                })
+            }).catch(function (error) {
+                console.log(error);
+            });
         }
     }, [viewState, trackerUUID]);
 
@@ -1002,7 +1017,6 @@ export default function Dash() {
                         for (var i = 0; i < aagdoublegrid.children.length; i++) {
                             aagdoublegrid.children[i].className = styles.viewbentobox
                         }
-
                     }
                     if (adminViewRef.current) {
                         refresh("people");
@@ -1014,6 +1028,58 @@ export default function Dash() {
                             document.getElementById("totaluserstd").innerHTML = users.today;
                             document.getElementById("totalusersm").innerHTML = users.month;
                             document.getElementById("totalusers").innerHTML = users.all;
+                        })
+
+                        axios({
+                            method: "get",
+                            url: "https://nourishapi.rygb.tech/getRetentionFromTrackers"
+                        }).then((res) => {
+                            var data = res.data
+                            var month = data.month;
+                            document.getElementById("monthretnew").innerHTML = month.new;
+                            document.getElementById("monthretreturn").innerHTML = month.returning;
+
+                            document.getElementById("tdretnew").innerHTML = data.today.new;
+                            document.getElementById("tdretreturn").innerHTML = data.today.returning;
+                        })
+
+
+                        axios({
+                            method: "get",
+                            url: "https://nourishapi.rygb.tech/getTrackersByState"
+                        }).then((res) => {
+                            console.log(res.data)
+                            var allTime = res.data.allTime;
+                            document.getElementById("userLocationsBento").innerHTML = ""
+                            document.getElementById("userLocationsBentoM").innerHTML = ""
+                            for (var i = 0; i < allTime.length; i++) {
+                                var bentobox = document.createElement("div");
+                                bentobox.className = styles.viewbentobox;
+                                var amount = document.createElement("p");
+                                amount.innerHTML = allTime[i].amount;
+                                var state = document.createElement("p");
+                                state.className = styles.viewbentoboxSub
+                                state.innerHTML = "users from " + allTime[i].name;
+                                bentobox.appendChild(amount);
+                                bentobox.appendChild(state);
+                                document.getElementById("userLocationsBento").appendChild(bentobox);
+                            }
+
+                            var month = res.data.month;
+                            for (var i = 0; i < month.length; i++) {
+                                var bentobox = document.createElement("div");
+                                bentobox.className = styles.viewbentobox;
+                                var amount = document.createElement("p");
+                                amount.innerHTML = month[i].amount;
+                                var state = document.createElement("p");
+                                state.className = styles.viewbentoboxSub
+                                state.innerHTML = "users from " + month[i].name;
+                                bentobox.appendChild(amount);
+                                bentobox.appendChild(state);
+                                document.getElementById("userLocationsBentoM").appendChild(bentobox);
+                            }
+                        }).catch((err) => {
+                            apiError(err);
                         })
 
                         document.getElementById("nonAdminAAG").style.display = "none"
@@ -1708,7 +1774,7 @@ export default function Dash() {
                 data: {
                     uuid: trackerUUID,
                     page: "Dashboard",
-                    view: "donationFlow"
+                    view: "donationFlow",
                 }
             }).catch((err) => {
                 console.log(err);
@@ -2422,11 +2488,11 @@ export default function Dash() {
                                                     <p className={styles.viewbentoboxSub}>total users</p>
                                                 </div>
                                                 <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
-                                                    <p>0</p>
+                                                    <p id="tdretnew">0</p>
                                                     <p className={styles.viewbentoboxSub}>new users</p>
                                                 </div>
                                                 <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
-                                                    <p>0</p>
+                                                    <p id="tdretreturn">0</p>
                                                     <p className={styles.viewbentoboxSub}>returning users</p>
                                                 </div>
                                             </div>
@@ -2444,6 +2510,19 @@ export default function Dash() {
                                                 </LineChart>
                                             </ResponsiveContainer>
                                             <h1 className={[styles.graphSubtext, styles.font].join(" ")}>Time</h1>
+                                        </div>
+                                    </div>
+                                    <div className="adminAAG" style={{ display: "none" }}>
+                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Users by State</h4>
+                                        <div className={styles.graph}>
+                                            <ResponsiveContainer width="100%" height="500px" className={styles.font} style={{ backgroundColor: "#FFD794", borderRadius: "0px 20px 0px 20px" }}>
+                                                <BarChart data={[{ name: "Maryland", amount: 1 }]} margin={{ top: 15, right: 15, left: 25, bottom: 0 }} style={{ borderRadius: "20px" }}>
+                                                    <CartesianGrid stroke="#E3AB4A" fill="#ffe7bfff" radius={15} />
+                                                    <Bar dataKey="amount" stroke="#E3AB4A" strokeWidth={5} />
+                                                    <XAxis dataKey="name" stroke='#E3AB4A' fill='#FFD794' fontSize={20} />
+                                                    <YAxis stroke='#E3AB4A' fill='#FFD794' />
+                                                </BarChart>
+                                            </ResponsiveContainer>
                                         </div>
                                     </div>
 
@@ -2536,12 +2615,21 @@ export default function Dash() {
                                         <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Retention</h4>
                                         <div className={styles.bentoboxCont}>
                                             <div className={styles.viewbentobox}>
-                                                <p>5,554</p>
+                                                <p id="monthretnew">0</p>
                                                 <p className={styles.viewbentoboxSub}>new users</p>
                                             </div>
                                             <div className={styles.viewbentobox}>
-                                                <p>2,345</p>
+                                                <p id="monthretreturn">0</p>
                                                 <p className={styles.viewbentoboxSub}>returning users</p>
+                                            </div>
+                                        </div>
+                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Demographics</h4>
+                                        <div className={styles.bentoboxCont}>
+                                            <div id="userLocationsBentoM">
+                                                <div className={styles.viewbentobox}>
+                                                    <p>40%</p>
+                                                    <p className={styles.viewbentoboxSub}>from Maryland</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -2570,33 +2658,6 @@ export default function Dash() {
                                             <p className={styles.viewbentoboxSub}>homepage views</p>
                                         </div>
                                     </div>
-                                    <div className="adminAAG">
-                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Demographics</h4>
-                                        <div className={styles.bentoboxCont}>
-                                            <div className={styles.viewbentobox}>
-                                                <p>40%</p>
-                                                <p className={styles.viewbentoboxSub}>from Maryland</p>
-                                            </div>
-                                            <div className={styles.viewbentobox}>
-                                                <p>30%</p>
-                                                <p className={styles.viewbentoboxSub}>from DC</p>
-                                            </div>
-                                            <div className={styles.viewbentobox}>
-                                                <p>30%</p>
-                                                <p className={styles.viewbentoboxSub}>from Virginia</p>
-                                            </div>
-                                            <br />
-                                            <div className={styles.viewbentobox}>
-                                                <p>77%</p>
-                                                <p className={styles.viewbentoboxSub}>using a mobile device</p>
-                                            </div>
-                                            <div className={styles.viewbentobox}>
-                                                <p>23%</p>
-                                                <p className={styles.viewbentoboxSub}>using a desktop device</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Events</h4>
                                     <div className={styles.bentoboxCont}>
                                         <div className={styles.viewbentobox}>
@@ -2608,6 +2669,27 @@ export default function Dash() {
                                             <p className={styles.viewbentoboxSub}>event attendees</p>
                                         </div>
                                     </div>
+                                    <div className="adminAAG">
+                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Demographics</h4>
+                                        <div className={styles.bentoboxCont}>
+                                            <div id="userLocationsBento">
+                                                <div className={styles.viewbentobox}>
+                                                    <p>40%</p>
+                                                    <p className={styles.viewbentoboxSub}>from Maryland</p>
+                                                </div>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p>77%</p>
+                                                <p className={styles.viewbentoboxSub}>using a mobile device</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p>23%</p>
+                                                <p className={styles.viewbentoboxSub}>using a desktop device</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                                 </div>
                                 <div id="non-admin" style={{ display: "none" }}>
                                     <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", marginTop: "10px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
@@ -3206,25 +3288,25 @@ export default function Dash() {
                                     <h1 className={styles.header}>Volunteer with Us</h1>
                                     <p className={styles.subheader}>Thank you for your interest in being a NourishDMV Volunteer! Please fill out this application and we'll get back to you as soon as possible.</p>
                                     <div className={styles.doublegrid} style={{ gridGap: "15px", marginTop: "50px", gridTemplateColumns: "auto auto auto" }}>
-                                        <input className={styles.input} type='text' style={{marginBottom: "10px", marginTop: "0px"}} placeholder="Name"></input>
-                                        <input className={styles.input} type="tel" style={{marginBottom: "10px", marginTop: "0px"}} placeholder="Phone Number"></input>
-                                        <input className={styles.input} type="text" style={{marginBottom: "10px", marginTop: "0px"}} placeholder="Email"></input>
+                                        <input className={styles.input} type='text' style={{ marginBottom: "10px", marginTop: "0px" }} placeholder="Name"></input>
+                                        <input className={styles.input} type="tel" style={{ marginBottom: "10px", marginTop: "0px" }} placeholder="Phone Number"></input>
+                                        <input className={styles.input} type="text" style={{ marginBottom: "10px", marginTop: "0px" }} placeholder="Email"></input>
                                     </div>
 
-                                    <select className={styles.input} placeholder="Name" style={{marginBottom: "10px", marginTop: "0px"}}>
+                                    <select className={styles.input} placeholder="Name" style={{ marginBottom: "10px", marginTop: "0px" }}>
                                         <option>Area</option>
                                         <option>D.C.</option>
                                         <option>Maryland</option>
                                         <option>Virginia</option>
                                     </select>
                                     <div className={styles.doublegrid} style={{ gridTemplateColumns: "auto 150px", gridGap: "10px" }}>
-                                        <input className={styles.input} type='text' style={{marginBottom: "10px", marginTop: "0px"}} placeholder="Address"></input>
-                                        <input className={styles.input} type='text' style={{marginBottom: "10px", marginTop: "0px"}} placeholder="City"></input>
+                                        <input className={styles.input} type='text' style={{ marginBottom: "10px", marginTop: "0px" }} placeholder="Address"></input>
+                                        <input className={styles.input} type='text' style={{ marginBottom: "10px", marginTop: "0px" }} placeholder="City"></input>
                                     </div>
                                     <textarea rows="3" className={styles.textarea} placeholder="Tell us about yourself"></textarea>
                                     <textarea className={styles.textarea} placeholder="Why do you want to volunteer with us?"></textarea>
-                                    <textarea className={styles.input} style={{marginBottom: "7px", marginTop: "0px"}} placeholder="What volunteer opportunities are you most interested in?"></textarea>
-                                    <input className={styles.input} style={{marginBottom: "7px", marginTop: "0px"}} placeholder="How did you hear about us?"></input>
+                                    <textarea className={styles.input} style={{ marginBottom: "7px", marginTop: "0px" }} placeholder="What volunteer opportunities are you most interested in?"></textarea>
+                                    <input className={styles.input} style={{ marginBottom: "7px", marginTop: "0px" }} placeholder="How did you hear about us?"></input>
                                     <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", marginBottom: "20px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
                                 </div>
                                 <div id="v2v" className={styles.zigZagView} style={{ "--maxWidth": "85%" }}>

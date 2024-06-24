@@ -50,6 +50,10 @@ const Tracker = mongoose.model("Tracker", {
     page: { type: String, default: "" },
     view: { type: String, default: "" },
     date: { type: Date, default: Date.now },
+    ip: { type: String, default: "" },
+    state: { type: String, default: "" },
+    city: { type: String, default: "" },
+    firstVisit: { type: Date, default: Date.now },
 })
 
 const Event = mongoose.model("Event", {
@@ -351,7 +355,14 @@ app.post("/track", jsonParser, async (req, res) => {
             res.status(400).send(err);
         })
     } else {
-        Tracker.findOneAndUpdate({ uuid: req.body.uuid }, { page: req.body.page, view: req.body.view, date: Date.now() }, { upsert: true }).then((tracker) => {
+        Tracker.findOneAndUpdate(
+            { uuid: req.body.uuid },
+            {
+                $set: { page: req.body.page, view: req.body.view, date: Date.now(), ip: req.body.ip, state: req.body.state, city: req.body.city },
+                $setOnInsert: { firstVisit: Date.now() } // This field is set only if a new document is inserted
+            },
+            { upsert: true }
+        ).then((tracker) => {
             res.status(200).send("Tracked.");
         }).catch((err) => {
             console.log(err)
@@ -450,6 +461,88 @@ app.get("/getTrackerStats", async (req, res) => {
         }
         res.status(200).send({ active: active, homepage: homepage, accounts: accounts, dashboard: dashboard });
     }).catch((err) => {
+        console.log(err)
+        res.status(400).send(err);
+    })
+})
+
+app.get("/getTrackers", async (req, res) => {
+    Tracker.find({}).then((trackers) => {
+        res.status(200).send(trackers);
+    }).catch((err) => {
+        console.log(err)
+        res.status(400).send(err);
+    })
+})
+
+app.get("/getTrackersByState", async (req, res) => {
+    Tracker.find({}).then((trackers) => {
+        var trackersToday = [];
+        var trackersMonth = [];
+        var trackersAllTime = [];
+
+        trackers.forEach(tracker => {
+            if (tracker.state !== undefined && tracker.state !== "") {
+                // Update trackersAllTime
+                let allTimeIndex = trackersAllTime.findIndex(obj => obj.name === tracker.state);
+                if (allTimeIndex !== -1) {
+                    trackersAllTime[allTimeIndex].amount += 1;
+                } else {
+                    trackersAllTime.push({ name: tracker.state, amount: 1 });
+                }
+
+                if (new Date(tracker.date).getMonth() === new Date().getMonth()) {
+                    // Check if the tracker is from today and update trackersToday
+                    if (new Date(tracker.date).toDateString() === new Date().toDateString()) {
+                        let todayIndex = trackersToday.findIndex(obj => obj.name === tracker.state);
+                        if (todayIndex !== -1) {
+                            trackersToday[todayIndex].amount += 1;
+                        } else {
+                            trackersToday.push({ name: tracker.state, amount: 1 });
+                        }
+                    }
+
+                    // Check if the tracker is from this month and update trackersMonth
+                    let monthIndex = trackersMonth.findIndex(obj => obj.name === tracker.state);
+                    if (monthIndex !== -1) {
+                        trackersMonth[monthIndex].amount += 1;
+                    } else {
+                        trackersMonth.push({ name: tracker.state, amount: 1 });
+                    }
+                }
+            }
+        });
+        res.status(200).send({ today: trackersToday, month: trackersMonth, allTime: trackersAllTime });
+    }).catch((err) => {
+        console.log(err)
+        res.status(400).send(err);
+    })
+})
+
+app.get("/getRetentionFromTrackers", async (req, res) => {
+    var today = {new: 0, returning: 0};
+    var month = {new: 0, returning: 0};
+
+    Tracker.find({}).then((trackers) => {
+        for (var i = 0; i < trackers.length; i++) {
+            var tracker = trackers[i];
+            var trackerFirstVisit = new Date(tracker.firstVisit);
+            var trackerDate = new Date(tracker.date);
+
+            if (trackerFirstVisit.getDate() == new Date().getDate()) {
+                today.new++;
+            } else if (trackerDate.getDate() == new Date().getDate()) {
+                today.returning++;
+            }
+
+            if (trackerFirstVisit.getMonth() == new Date().getMonth()) {
+                month.new++;
+            } else if (trackerDate.getMonth() == new Date().getMonth()) {
+                month.returning++;
+            }
+        }
+        res.status(200).send({ today: today, month: month });
+    }).then((err) => {
         console.log(err)
         res.status(400).send(err);
     })
