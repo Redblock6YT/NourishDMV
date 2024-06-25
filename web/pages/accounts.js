@@ -27,17 +27,30 @@ export default function Accounts() {
         if (trackerUUID != "") {
             Cookies.set("trackerUUID", trackerUUID);
             axios({
-                method: "post",
-                url: "https://nourishapi.rygb.tech/track",
-                data: {
-                    uuid: trackerUUID,
-                    page: "Accounts",
-                    view: (view == "norm") ? "Landing" : actionType,
-                }
-            }).catch((err) => {
-                console.log(err)
-                console.log("Tracking failed.")
-            })
+                method: 'get',
+                url: 'https://api.geoapify.com/v1/ipinfo?&apiKey=03a7b1dd209e453f9d7d32c3fbf96c1a',
+            }).then(function (response) {
+                setIPAddr(response.data.ip);
+                axios({
+                    method: "post",
+                    url: "https://nourishapi.rygb.tech/track",
+                    data: {
+                        uuid: trackerUUID,
+                        page: "Accounts",
+                        view: (view == "norm") ? "Landing" : actionType,
+                        ip: response.data.ip,
+                        state: response.data.state.name,
+                        city: response.data.city.name,
+                    }
+                }).then(function (res) {
+                    console.log(res.data);
+                }).catch((err) => {
+                    console.log(err);
+                    console.log("Tracking issue")
+                })
+            }).catch(function (error) {
+                console.log(error);
+            });
         }
     }, [view, trackerUUID]);
 
@@ -586,14 +599,14 @@ export default function Accounts() {
                                     push("/dash");
                                 }
                             } else {
-                               push("/"); 
+                                push("/");
                             }
                         } else {
                             switchView("norm");
                         }
                     }} className={styles.doublegrid} style={{ color: "#a46900", fontSize: "25px", width: "100%", marginTop: "20px", marginLeft: "20px", cursor: "pointer", gridTemplateColumns: "50px auto", gridGap: "0px", position: "relative", zIndex: "100" }}>
                         <span class="material-symbols-rounded" style={{ fontSize: "40px" }}>arrow_circle_left</span>
-                        <p className={styles.font} style={{ margin: "auto", marginLeft: "0px", textAlign: "left", width: "100%" }}>Back {(view == "norm") ? (fromRef.current !== undefined) ? "to " + fromRef.current :  "to Home" : ""}</p>
+                        <p className={styles.font} style={{ margin: "auto", marginLeft: "0px", textAlign: "left", width: "100%" }}>Back {(view == "norm") ? (fromRef.current !== undefined) ? "to " + fromRef.current : "to Home" : ""}</p>
                     </div>
                     <div className={styles.fullycenter} style={{ width: "90%", height: (mobile) ? "75%" : "83%" }}>
                         <div id="home" className={styles.buttonsgrid}>

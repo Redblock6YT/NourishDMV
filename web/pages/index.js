@@ -149,7 +149,7 @@ export default function Home() {
             return 0;
           }
         });
-        
+
         const currentEventsList = document.getElementById("currentEventsList");
         for (var i = 0; i < currentEventsList.children.length; i++) {
           currentEventsList.children[i].remove();
@@ -439,16 +439,28 @@ export default function Home() {
     if (trackerUUID != "") {
       Cookies.set("trackerUUID", trackerUUID);
       axios({
-        method: "post",
-        url: "https://nourishapi.rygb.tech/track",
-        data: {
-          uuid: trackerUUID,
-          page: "Homepage",
-          view: viewingContent,
-        }
-      }).catch((err) => {
-        console.log(err);
-        console.log("Failed to track.")
+        method: 'get',
+        url: 'https://api.geoapify.com/v1/ipinfo?&apiKey=03a7b1dd209e453f9d7d32c3fbf96c1a',
+      }).then(function (response) {
+        axios({
+          method: "post",
+          url: "https://nourishapi.rygb.tech/track",
+          data: {
+            uuid: trackerUUID,
+            page: "Homepage",
+            view: viewingContent,
+            ip: response.data.ip,
+            state: response.data.state.name,
+            city: response.data.city.name,
+          }
+        }).then(function (res) {
+          console.log(res.data);
+        }).catch((err) => {
+          console.log(err);
+          console.log("Tracking issue")
+        })
+      }).catch(function (error) {
+        console.log(error);
       });
     }
   }, [trackerUUID, viewingContent]);
