@@ -685,6 +685,9 @@ export default function Dash() {
                         var displayEventInAAG = null;
                         for (var i = 0; i < events.length; i++) {
                             const event = events[i].event;
+                            if (event.hidden && !adminViewRef.current) {
+                                continue;
+                            }
                             attendees += events[i].analytics.attendees.length;
                             console.log(events[i].analytics.attendees);
                             document.getElementById("eea").innerHTML = events[i].analytics.attendees.length + " Attendees";
@@ -1331,6 +1334,8 @@ export default function Dash() {
                 document.getElementById("events").style.overflowY = "auto";
                 if (!mobileRef.current && userSidebarOpen) {
                     showSidebar();
+                } else {
+                    hideSidebar();
                 }
             }
         })
@@ -2356,7 +2361,7 @@ export default function Dash() {
                             <div id="sidebarInteractions">
                                 <div style={{ display: "flex", margin: "auto", marginTop: "5px", alignItems: "center", width: "calc(100% - 15px)" }}>
                                     <button className={[styles.sidebarbutton, styles.hover].join(" ")} style={{ width: "60px", height: "40px", borderRadius: "20px", marginLeft: "10px", marginRight: '5px' }} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")} style={{ fontSize: "20px" }}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                    <Image src="logo.svg" alt="NourishDMV Logo" onClick={() => push("/")} height={35} width={(mobile) ? 190 : 190} style={{cursor: "pointer"}} />
+                                    <Image src="logo.svg" alt="NourishDMV Logo" onClick={() => push("/")} height={35} width={(mobile) ? 190 : 190} style={{ cursor: "pointer" }} />
                                 </div>
                                 <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "0px" }}></div>
                                 <div className={styles.innerSidebar}>
