@@ -204,7 +204,7 @@
     font-family: 'Outfit', sans-serif;
     font-size: 20px;
     height: 130px;
-    width: 600px;
+    width: 570px;
     border-radius: 25px;
     padding: 15px;
     display: inline-block;
@@ -482,6 +482,10 @@
     grid-template-rows: 1fr 1fr;
 }
 
+.cediv {
+    margin-top: 240px;
+}
+
 @media(max-width: 1330px) {
     .tripplegrid {
         grid-template-columns: 1fr 1fr;
@@ -507,6 +511,23 @@
 @media (max-width: 800px) {
     .currentEventsList {
         overflow-x: scroll;
+        grid-template-columns: 100% 100%;
+        grid-gap: 45px;
+    }
+
+    .itemEvents {
+        width: 100%;
+        font-size: 18px;
+        height: 110px;
+    }
+
+    .expandItem {
+        width: 200px;
+        height: 107px;
+    }
+
+    .cediv {
+        margin-top: 230px;
     }
 
     .differenceButtons {

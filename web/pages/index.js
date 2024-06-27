@@ -170,7 +170,12 @@ export default function Home() {
           currentEventsList.appendChild(noevents);
         }
 
-        for (var i = 0; i < 3; i++) {
+        var amtShown = 3;
+        if (mobile) {
+          amtShown = 1;
+        }
+
+        for (var i = 0; i < amtShown; i++) {
           if (events[i] == undefined || events[i].event.visible == "Hidden") {
             continue;
           }
@@ -191,7 +196,6 @@ export default function Home() {
           eventcard.className = styles.itemEvents;
           eventcard.onclick = () => push("/dash?view=events&eventid=" + eventid);
           eventcard.style.borderRadius = "30px"
-          eventcard.style.width = "570px"
           eventcard.style.marginBottom = "20px"
           const eventcountdownline = document.createElement("a");
 
@@ -274,7 +278,7 @@ export default function Home() {
           eventcontent.appendChild(eventcountdownline);
           eventcontent.appendChild(eventtitle);
 
-          if (event.location != "") {
+          if (event.location != "" && !mobile) {
             const eventlocationdiv = document.createElement("div");
             const eventlocicon = document.createElement("span");
             const eventlocation = document.createElement("p");
@@ -355,6 +359,7 @@ export default function Home() {
         icontext.style.top = "50%";
         icontext.style.left = "50%";
         icontext.style.transform = "translate(-50%, -50%)";
+        icontext.style.width = "100%"
 
         icontext.style.margin = "auto"
         seeAllButton.appendChild(icontext);
@@ -672,7 +677,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className={styles.divider} style={{ marginTop: "240px" }}></div>
+              <div id="cediv" className={[styles.divider, styles.cediv].join(" ")}></div>
               <h3 className={styles.header} style={{ color: "black", marginBottom: "20px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
               <div className={styles.doublegrid} style={{ margin: "auto" }}>
                 <button className={styles.diffbutton} style={{ backgroundColor: "#f66d4bff" }} onClick={() => push("/dash?view=donate")}>Donate</button>

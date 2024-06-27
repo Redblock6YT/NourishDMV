@@ -2356,7 +2356,7 @@ export default function Dash() {
                             <div id="sidebarInteractions">
                                 <div style={{ display: "flex", margin: "auto", marginTop: "5px", alignItems: "center", width: "calc(100% - 15px)" }}>
                                     <button className={[styles.sidebarbutton, styles.hover].join(" ")} style={{ width: "60px", height: "40px", borderRadius: "20px", marginLeft: "10px", marginRight: '5px' }} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")} style={{ fontSize: "20px" }}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                    <Image src="logo.svg" alt="NourishDMV Logo" onClick={() => push("/")} height={35} width={(mobile) ? 190 : 190} />
+                                    <Image src="logo.svg" alt="NourishDMV Logo" onClick={() => push("/")} height={35} width={(mobile) ? 190 : 190} style={{cursor: "pointer"}} />
                                 </div>
                                 <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "0px" }}></div>
                                 <div className={styles.innerSidebar}>
@@ -2431,12 +2431,8 @@ export default function Dash() {
                                         </div>
                                     </div>
                                     <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Your Upcoming Events</h4>
-                                    <div id="upcomingeventsl" style={{ margin: "20px" }}>
-                                        <div className={styles.card} style={{ height: "130px" }}>
-                                            <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                <p className={styles.font} style={{ fontSize: "25px", textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>You aren't apart of any events</p>
-                                            </div>
-                                        </div>
+                                    <div className={styles.viewbentobox} id="upcomingeventsl" style={{ margin: "20px", border: "dashed 1px rgb(214, 164, 78)", backgroundColor: "rgba(255, 208, 128, 0.692)" }}>
+                                        <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold", margin: "25px", fontSize: "32px" }}>You aren't apart of any events</p>
                                     </div>
                                     <div className={styles.divider}></div>
                                 </div>
@@ -2688,45 +2684,6 @@ export default function Dash() {
                                             </div>
                                         </div>
                                     </div>
-
-
-                                </div>
-                                <div id="non-admin" style={{ display: "none" }}>
-                                    <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", marginTop: "10px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
-                                    <div className={styles.makeDifferenceCont}>
-                                        <button
-                                            className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
-                                            style={{
-                                                backgroundColor: "#f66d4bff",
-                                            }}
-                                            onClick={() => openOverlay("d")}
-                                        >
-                                            Donate
-                                        </button>
-                                        <button
-                                            className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
-                                            style={{
-                                                backgroundColor: "#fbe85dff",
-                                                color: "black",
-                                            }}
-                                            onClick={() => openOverlay("v")}
-                                        >
-                                            Join our team
-                                        </button>
-                                    </div>
-                                    <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading}>Today</h4>
-                                    <div>
-                                        <h4 className={styles.screensubheading}>Recent Events</h4>
-                                        <div id="othereventsl" className={styles.bentoboxCont} style={{ overflowX: "auto" }}>
-                                            <div id="reaagetb" className={styles.eventsTodayBento} style={{ marginBottom: "0px" }}>
-                                                <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                    <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No events to show</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
@@ -2952,63 +2909,63 @@ export default function Dash() {
 
                             <div id="vieweventsoverlay" className={styles.eventsoverlay}>
                                 <button className={[styles.closebutton, styles.hover].join(" ")} onClick={() => closeEventOverlay("vieweventsoverlay")}><span class="material-symbols-rounded" style={{ fontSize: "40px" }}>close</span></button>
-                                <div id="vestatusdiv" className={styles.font} style={{ backgroundColor: "#ffff0072", height: "300px", width: "100%", borderRadius: "25px", color: "black", position: "relative" }}>
+                                <div id="vestatusdiv" className={[styles.font, styles.evstatusdiv].join(" ")} style={{ backgroundColor: "#ffff0072", color: "black" }}>
                                     <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                        <p id="vestatusverbtop" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>Event is</p>
-                                        <h2 id="vestatus" style={{ margin: "0px", fontSize: "80px", textAlign: "center" }}>PENDING</h2>
-                                        <p id="vestatusverb" style={{ textAlign: "center", fontSize: "30px", margin: "0px" }}>It will start in 0 days</p>
+                                        <p id="vestatusverbtop" className={styles.evstatusverb}>Event is</p>
+                                        <h2 id="vestatus" className={styles.evstatus}>PENDING</h2>
+                                        <p id="vestatusverb" className={styles.evstatusverb}>It will start in 0 days</p>
                                     </div>
                                 </div>
                                 <div>
-                                    <h1 id="vename" className={styles.screenheading} style={{ marginTop: "20px", marginLeft: "20px", marginBottom: "0px" }}>Event Title</h1>
-                                    <p id="vedesc" className={styles.font} style={{ fontSize: "30px", marginTop: "10px", fontWeight: "normal", marginLeft: "20px" }}>Event Description</p>
+                                    <h1 id="vename" className={styles.etitle}>Event Title</h1>
+                                    <p id="vedesc" className={styles.edesc}>Event Description</p>
                                 </div>
                                 <div className={styles.divider}></div>
                                 <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "20px" }}>
-                                    <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>pin_drop</span>
+                                    <span className={["material-symbols-rounded", styles.eicon].join(" ")}>pin_drop</span>
                                     <div>
-                                        <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event Location:</h3>
-                                        <p id="veloc" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Location</p>
+                                        <h3 className={styles.einfolabel}>Event Location:</h3>
+                                        <p id="veloc" className={styles.einfo}>Location</p>
                                     </div>
                                 </div>
 
                                 <div id="regdef" style={{ display: (mobile) ? "block" : "grid", marginBottom: "20px" }} className={styles.doublegrid}>
                                     <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
-                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_available</span>
+                                        <span className={["material-symbols-rounded", styles.eicon].join(" ")}>event_available</span>
                                         <div>
-                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Registration Start:</h3>
-                                            <p id="veregstart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
+                                            <h3 className={styles.einfolabel}>Registration Start:</h3>
+                                            <p id="veregstart" className={styles.einfo}>Date Time</p>
                                         </div>
                                     </div>
                                     <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
-                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event_busy</span>
+                                        <span className={["material-symbols-rounded", styles.eicon].join(" ")}>event_busy</span>
                                         <div>
-                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Registration End:</h3>
-                                            <p id="veregend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
+                                            <h3 className={styles.einfolabel}>Registration End:</h3>
+                                            <p id="veregend" className={styles.einfo}>Date Time</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div className={styles.doublegrid} style={{ display: (mobile) ? "block" : "grid" }}>
                                     <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
-                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
+                                        <span className={["material-symbols-rounded", styles.eicon].join(" ")}>event</span>
                                         <div>
-                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event Start:</h3>
-                                            <p id="vestart" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
+                                            <h3 className={styles.einfolabel}>Event Start:</h3>
+                                            <p id="vestart" className={styles.einfo}>Date Time</p>
                                         </div>
                                     </div>
                                     <div className={styles.doublegrid} style={{ gridTemplateColumns: "55px auto", marginBottom: "10px" }}>
-                                        <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>event</span>
+                                        <span className={["material-symbols-rounded", styles.eicon].join(" ")}>event</span>
                                         <div>
-                                            <h3 className={styles.font} style={{ fontSize: "23px", margin: "auto" }}>Event End:</h3>
-                                            <p id="veend" className={styles.font} style={{ margin: "auto", marginLeft: "0px", fontSize: "25px" }}>Date Time</p>
+                                            <h3 className={styles.einfolabel}>Event End:</h3>
+                                            <p id="veend" className={styles.einfo}>Date Time</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className={styles.divider}></div>
                                 <div className={styles.doublegrid} style={{ gridTemplateColumns: "50px auto", marginBottom: "15px" }}>
-                                    <span className="material-symbols-rounded" style={{ margin: "auto", fontSize: "40px" }}>local_activity</span>
-                                    <h3 id="vecost" className={styles.font} style={{ fontSize: "30px", margin: "auto", marginLeft: "0px" }}>Free Registration</h3>
+                                    <span className={["material-symbols-rounded", styles.eicon].join(" ")}>local_activity</span>
+                                    <h3 id="vecost" className={styles.einfo}>Free Registration</h3>
                                 </div>
                                 <button id="eregistertbtn" className={styles.managebutton}>Register</button>
                             </div>
@@ -3305,7 +3262,7 @@ export default function Dash() {
                                     </div>
                                     <textarea rows="3" className={styles.textarea} placeholder="Tell us about yourself"></textarea>
                                     <textarea className={styles.textarea} placeholder="Why do you want to volunteer with us?"></textarea>
-                                    <textarea className={styles.input} style={{ marginBottom: "7px", marginTop: "0px" }} placeholder="What volunteer opportunities are you most interested in?"></textarea>
+                                    <textarea className={styles.textarea} style={{ marginBottom: "7px", marginTop: "0px" }} placeholder="What volunteer opportunities are you most interested in?"></textarea>
                                     <input className={styles.input} style={{ marginBottom: "7px", marginTop: "0px" }} placeholder="How did you hear about us?"></input>
                                     <button onClick={() => nextStep("v")} className={[styles.minibutton, styles.hover].join(" ")} style={{ width: "100%", marginTop: "5px", marginBottom: "20px", backgroundColor: "rgb(0 0 0 / 42%)" }}>Submit</button>
                                 </div>

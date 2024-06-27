@@ -837,6 +837,23 @@
     overflow-x: hidden;
 }
 
+.etitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 40px;
+    color: rgb(227, 171, 74);
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-bottom: 0px;
+}
+
+.edesc {
+    font-family: 'Outfit', sans-serif;
+    font-size: 30px;
+    margin-top: 10px;
+    font-weight: "normal";
+    margin-left: 20px;
+}
+
 .screenheading {
     font-family: 'Outfit', sans-serif;
     font-size: 40px;
@@ -1096,6 +1113,24 @@
     }
 }
 
+.eicon {
+    margin: auto;
+    font-size: 40px;
+}
+
+.einfolabel {
+    font-size: 20px;
+    margin: auto;
+    font-family: 'Outfit', sans-serif;
+}
+
+.einfo {
+    margin: auto;
+    margin-left: 0px;
+    font-size: 25px;
+    font-family: 'Outfit', sans-serif;
+}
+
 @media (max-width: 800px) {
     .graphBBGrid {
         grid-template-columns: 1fr;
@@ -1121,6 +1156,26 @@
         font-size: 30px;
         padding: 12px;
         margin-top: 5px;
+    }
+
+    .etitle {
+        font-size: 30px;
+    }
+
+    .edesc {
+        font-size: 20px;
+    }
+
+    .eicon {
+        font-size: 30px;
+    }
+
+    .einfo {
+        font-size: 20px;
+    }
+
+    .einfolabel {
+        font-size: 15px;
     }
 
     .evlabeltext {
