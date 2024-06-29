@@ -1037,7 +1037,7 @@
 
     .eventsTodayBentoFilled {
         height: 60px;
-        width: 400px;
+        width: calc(100% - 35px);
     }
 
     .graphBBGrid {

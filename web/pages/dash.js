@@ -2202,6 +2202,12 @@ export default function Dash() {
                 setAccount(Cookies.get("account"));
             }
 
+            document.addEventListener('keydown', function(e) {
+                if (e.keyCode == 9) {  //tab pressed
+                    e.preventDefault(); // stops its action
+                }
+            })
+
             if (window.innerWidth <= 1060) {
                 hideSidebar();
                 try {
