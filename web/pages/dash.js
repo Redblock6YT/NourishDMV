@@ -685,7 +685,7 @@ export default function Dash() {
                         var displayEventInAAG = null;
                         for (var i = 0; i < events.length; i++) {
                             const event = events[i].event;
-                            if (event.hidden && !adminViewRef.current) {
+                            if (event.visible == "Hidden" && !adminViewRef.current) {
                                 continue;
                             }
                             attendees += events[i].analytics.attendees.length;
@@ -1121,13 +1121,14 @@ export default function Dash() {
     }
 
     function openEventOverlay(overlayid, id) {
-        hideSidebar("events", true);
         switchView("events");
+        hideSidebar("events", true);
         setViewState("eventDetails");
+
         document.getElementById("events").style.overflowY = "hidden";
         const eventsoverlay = document.getElementById(overlayid);
         anime({
-            targets: "#affectbyeoverlay",
+            targets: ["#affectbyeoverlay", "#allaagcontent"],
             scale: 0.8,
             opacity: 0.5,
             duration: 500,
@@ -1292,6 +1293,7 @@ export default function Dash() {
             document.getElementById("eestatusverbtop").innerHTML = "Event is";
             document.getElementById("vestatusdiv").style.color = "black";
         }
+
     }
 
     function CustomTooltip({ payload, label, active }) {
@@ -1314,7 +1316,7 @@ export default function Dash() {
     function closeEventOverlay(overlayId, type) {
         setViewState("events");
         anime({
-            targets: "#affectbyeoverlay",
+            targets: ["#affectbyeoverlay", "#allaagcontent"],
             scale: 1,
             opacity: 1,
             filter: "blur(0px)",
@@ -2202,7 +2204,7 @@ export default function Dash() {
                 setAccount(Cookies.get("account"));
             }
 
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener('keydown', function (e) {
                 if (e.keyCode == 9) {  //tab pressed
                     e.preventDefault(); // stops its action
                 }
@@ -2407,296 +2409,299 @@ export default function Dash() {
                         }
                     }}>
                         <div id="aag" className={styles.screen} style={{ marginTop: "0px" }}>
-                            <div className={styles.screenNavbar}>
-                                <div className={styles.loading} style={{ left: (innerWidth <= 800) ? "80px" : "25px" }} id="aagloading"></div>
-                                <div className={styles.sidebarbuttonGrid} style={{ width: "480px" }}>
-                                    <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
-                                    <span className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }} id="aagicon">bar_chart_4_bars</span>
-                                    <h3 className={styles.screenheading}>At a glance</h3>
-                                </div>
-                                <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "-5px" }}></div>
-                            </div>
-                            <div className={styles.screenInner} id="aagcontent">
-                                <div id="youSection" style={{ display: (account != "" && !adminView) ? "block" : "none" }}>
-                                    <h4 className={styles.screensubheading}>You</h4>
-                                    <div className={styles.bentoboxCont}>
-                                        <div className={styles.viewbentobox} style={{ minWidth: "350px" }}>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>role</p>
-                                            <p>SUPPORTER</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>joined</p>
-                                            <p>2/23/24</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p>$0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p>0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteer hours</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p>0</p>
-                                            <p style={{ fontWeight: "normal", fontSize: "30px" }}>events attended</p>
-                                        </div>
+                            <div id="allaagcontent">
+                                <div className={styles.screenNavbar}>
+                                    <div className={styles.loading} style={{ left: (innerWidth <= 800) ? "80px" : "25px" }} id="aagloading"></div>
+                                    <div className={styles.sidebarbuttonGrid} style={{ width: "480px" }}>
+                                        <button className={[styles.sidebarbutton, styles.hover, styles.viewtogglesidebar].join(" ")} onClick={() => toggleSidebar()} id="openCloseSidebarAcc"><span className={["material-symbols-rounded", styles.sidebarButtonIcon].join(" ")}>{(sidebarOpen) ? "left_panel_close" : "left_panel_open"}</span></button>
+                                        <span className="material-symbols-rounded" style={{ display: "block", fontSize: "50px", color: "rgb(227, 171, 74)" }} id="aagicon">bar_chart_4_bars</span>
+                                        <h3 className={styles.screenheading}>At a glance</h3>
                                     </div>
-                                    <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Your Upcoming Events</h4>
-                                    <div className={styles.viewbentobox} id="upcomingeventsl" style={{ margin: "20px", border: "dashed 1px rgb(214, 164, 78)", backgroundColor: "rgba(255, 208, 128, 0.692)" }}>
-                                        <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold", margin: "25px", fontSize: "32px" }}>You aren't apart of any events</p>
-                                    </div>
-                                    <div className={styles.divider}></div>
+                                    <div className={styles.divider} style={{ marginTop: "5px", marginBottom: "-5px" }}></div>
                                 </div>
-                                <div id="admin" style={{ display: "block" }}>
-                                    <div id="nonAdminAAG">
-                                        <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", marginTop: "10px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
-                                        <div className={styles.makeDifferenceCont}>
-                                            <button
-                                                className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
-                                                style={{
-                                                    backgroundColor: "#f66d4bff",
-                                                }}
-                                                onClick={() => openOverlay("d")}
-                                            >
-                                                Donate
-                                            </button>
-                                            <button
-                                                className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
-                                                style={{
-                                                    backgroundColor: "#fbe85dff",
-                                                    color: "black",
-                                                }}
-                                                onClick={() => openOverlay("v")}
-                                            >
-                                                Join our team
-                                            </button>
+                                <div className={styles.screenInner} id="aagcontent">
+                                    <div id="youSection" style={{ display: (account != "" && !adminView) ? "block" : "none" }}>
+                                        <h4 className={styles.screensubheading}>You</h4>
+                                        <div className={styles.bentoboxCont}>
+                                            <div className={styles.viewbentobox} style={{ minWidth: "350px" }}>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>role</p>
+                                                <p>SUPPORTER</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>joined</p>
+                                                <p>2/23/24</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p>$0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>donated</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p>0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>volunteer hours</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p>0</p>
+                                                <p style={{ fontWeight: "normal", fontSize: "30px" }}>events attended</p>
+                                            </div>
+                                        </div>
+                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Your Upcoming Events</h4>
+                                        <div className={styles.viewbentobox} id="upcomingeventsl" style={{ margin: "20px", border: "dashed 1px rgb(214, 164, 78)", backgroundColor: "rgba(255, 208, 128, 0.692)" }}>
+                                            <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold", margin: "25px", fontSize: "32px" }}>You aren't apart of any events</p>
                                         </div>
                                         <div className={styles.divider}></div>
                                     </div>
-                                    <h4 className={styles.screensubheading}>Today <a style={{ fontWeight: "normal" }}>{new Date().toLocaleDateString()}</a></h4>
-                                    <div className={[styles.graphBBGrid, styles.bentoboxCont].join(" ")} style={{ marginBottom: "30px" }}>
-                                        <div>
-                                            <div className={styles.eventsTodayBento} id="eventsTodayBento" style={{ float: "initial" }}>
-                                                <div className={styles.fullycenter} style={{ width: "100%" }}>
-                                                    <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
+                                    <div id="admin" style={{ display: "block" }}>
+                                        <div id="nonAdminAAG">
+                                            <h3 className={styles.screensubheading} style={{ color: "black", marginBottom: "20px", marginTop: "10px", textAlign: "center" }}>Make a difference in <a style={{ backgroundColor: "#fbac29ff" }}>your community</a></h3>
+                                            <div className={styles.makeDifferenceCont}>
+                                                <button
+                                                    className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
+                                                    style={{
+                                                        backgroundColor: "#f66d4bff",
+                                                    }}
+                                                    onClick={() => openOverlay("d")}
+                                                >
+                                                    Donate
+                                                </button>
+                                                <button
+                                                    className={[styles.button, styles.hover, styles.makeDifferenceBtn].join(" ")}
+                                                    style={{
+                                                        backgroundColor: "#fbe85dff",
+                                                        color: "black",
+                                                    }}
+                                                    onClick={() => openOverlay("v")}
+                                                >
+                                                    Join our team
+                                                </button>
+                                            </div>
+                                            <div className={styles.divider}></div>
+                                        </div>
+                                        <h4 className={styles.screensubheading}>Today <a style={{ fontWeight: "normal" }}>{new Date().toLocaleDateString()}</a></h4>
+                                        <div className={[styles.graphBBGrid, styles.bentoboxCont].join(" ")} style={{ marginBottom: "30px" }}>
+                                            <div>
+                                                <div className={styles.eventsTodayBento} id="eventsTodayBento" style={{ float: "initial" }}>
+                                                    <div className={styles.fullycenter} style={{ width: "100%" }}>
+                                                        <p className={styles.font} style={{ textAlign: "center", color: "rgba(0, 0, 0, 0.300)", fontWeight: "bold" }}>No event</p>
+                                                    </div>
+                                                </div>
+                                                <div className={styles.aagdoublegrid} id="aagdoublegrid">
+                                                    <div className={styles.viewbentoboxM}>
+                                                        <p id="tdonsnum">0</p>
+                                                        <p className={styles.viewbentoboxSub} id="tdonssub">donations</p>
+                                                    </div>
+                                                    <div className={styles.viewbentoboxM}>
+                                                        <p id="tdonsamt">$0</p>
+                                                        <p className={styles.viewbentoboxSub}>donated</p>
+                                                    </div>
+                                                    <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
+                                                        <p id="totaluserstd">0</p>
+                                                        <p className={styles.viewbentoboxSub}>total users</p>
+                                                    </div>
+                                                    <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
+                                                        <p id="tdretnew">0</p>
+                                                        <p className={styles.viewbentoboxSub}>new users</p>
+                                                    </div>
+                                                    <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
+                                                        <p id="tdretreturn">0</p>
+                                                        <p className={styles.viewbentoboxSub}>returning users</p>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div id="donationsgraphaag" className={styles.graph}>
+                                                <h1 className={[styles.graphSubtextL, styles.font].join(" ")}>Donation Amount ($)</h1>
+                                                <ResponsiveContainer width="100%" height="100%" className={styles.font} style={{ backgroundColor: "#FFD794", borderRadius: "0px 20px 0px 20px" }}>
+                                                    <LineChart data={dgraphData} margin={{ top: 15, right: 15, left: 25, bottom: 0 }} style={{ borderRadius: "20px" }}>
+                                                        <CartesianGrid stroke="#E3AB4A" fill="#ffe7bfff" radius={15} />
+                                                        <Line type="linear" dataKey="amount" stroke="#E3AB4A" strokeWidth={5} />
+                                                        <XAxis dataKey="date" stroke='#E3AB4A' fill='#FFD794' fontSize={20} />
+                                                        <YAxis stroke='#E3AB4A' fill='#FFD794' />
+                                                        <Tooltip content={<CustomTooltip />} />
+                                                    </LineChart>
+                                                </ResponsiveContainer>
+                                                <h1 className={[styles.graphSubtext, styles.font].join(" ")}>Time</h1>
+                                            </div>
+                                        </div>
+                                        <div className="adminAAG" style={{ display: "none" }}>
+                                            <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Users by State</h4>
+                                            <div className={styles.graph}>
+                                                <ResponsiveContainer width="100%" height="500px" className={styles.font} style={{ backgroundColor: "#FFD794", borderRadius: "0px 20px 0px 20px" }}>
+                                                    <BarChart data={[{ name: "Maryland", amount: 1 }]} margin={{ top: 15, right: 15, left: 25, bottom: 0 }} style={{ borderRadius: "20px" }}>
+                                                        <CartesianGrid stroke="#E3AB4A" fill="#ffe7bfff" radius={15} />
+                                                        <Bar dataKey="amount" stroke="#E3AB4A" strokeWidth={5} />
+                                                        <XAxis dataKey="name" stroke='#E3AB4A' fill='#FFD794' fontSize={20} />
+                                                        <YAxis stroke='#E3AB4A' fill='#FFD794' />
+                                                    </BarChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                        </div>
+
+                                        <div className={"adminAAG"} style={{ position: "relative" }}>
+                                            <div className={styles.divider}></div>
+                                            <h3 className={styles.screensubheading} style={{ fontSize: "25px", color: "rgb(183 137 58)" }}>REAL-TIME</h3>
+                                            <h4 className={styles.screensubheading}>User Activity Monitor</h4>
+                                            <div className={styles.bentoboxCont}>
+                                                <div className={styles.viewbentobox} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
+                                                    <p id="activeusersnum">0</p>
+                                                    <p className={styles.viewbentoboxSub}>total active users</p>
+                                                </div>
+                                                <div id="homepageuam" className={styles.bentoboxLive}>
+                                                    <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
+                                                        <p style={{ margin: "0px", textAlign: "center" }}><a id="homepagenum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
+                                                        <div className={styles.collapse} onClick={() => collapse("homepageuam", 53, 38, "hpuamcico")} style={{ cursor: "pointer" }}>
+                                                            <span className='material-symbols-rounded' id="hpuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className={[styles.divider, styles.bbldivider].join(" ")}></div>
+                                                    <div style={{ padding: "0px 25px" }}>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="heronum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Hero</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="goalgridnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Statistics/Goal</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="howhelplistnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>How we help</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="makedifferencenum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Difference Together</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="getintouchnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Get In Touch</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="footernum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Footer</a></p>
+                                                    </div>
+                                                </div>
+                                                <div id="accountsuam" className={styles.bentoboxLive} style={{ width: "230px" }}>
+                                                    <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
+                                                        <p style={{ margin: "0px", textAlign: "center" }}><a id="accountsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
+                                                        <div className={styles.collapse} onClick={() => collapse("accountsuam", 53, 38, "accuamcico")} style={{ cursor: "pointer" }}>
+                                                            <span className='material-symbols-rounded' id="accuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
+                                                    <div style={{ padding: "0px 15px" }}>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="landingnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Landing</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="innum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Sign In</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="upnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Sign Up</a></p>
+                                                    </div>
+                                                </div>
+                                                <div className={styles.bentoboxLive} id="dashboarduam" style={{ width: "250px", height: "350px", float: "none" }}>
+                                                    <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
+                                                        <p style={{ margin: "0px", textAlign: "center" }}><a id="dashboardnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
+                                                        <div className={styles.collapse} onClick={() => collapse("dashboarduam", 53, 38, "dashuamico")} style={{ cursor: "pointer" }}>
+                                                            <span className='material-symbols-rounded' id="dashuamico" style={{ fontSize: "40px" }}>expand_circle_up</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
+                                                    <div style={{ padding: "0px 10px" }}>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="aagnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>At a glance</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="eventsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Events</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="eventdetailsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Event Details</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="donationsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Donations</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="donationflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Donation Flow</a></p>
+                                                        <p style={{ margin: "0px", fontSize: "30px" }}><a id="volunteerflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Volunteer Flow</a></p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className={styles.aagdoublegrid} id="aagdoublegrid">
-                                                <div className={styles.viewbentoboxM}>
-                                                    <p id="tdonsnum">0</p>
-                                                    <p className={styles.viewbentoboxSub} id="tdonssub">donations</p>
-                                                </div>
-                                                <div className={styles.viewbentoboxM}>
-                                                    <p id="tdonsamt">$0</p>
-                                                    <p className={styles.viewbentoboxSub}>donated</p>
-                                                </div>
-                                                <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
-                                                    <p id="totaluserstd">0</p>
-                                                    <p className={styles.viewbentoboxSub}>total users</p>
-                                                </div>
-                                                <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
-                                                    <p id="tdretnew">0</p>
+                                        </div>
+                                        <div className={styles.divider}></div>
+                                        <h4 className={styles.screensubheading}>{new Date().toLocaleString('default', { month: 'long' })}</h4>
+                                        <div className={styles.bentoboxCont}>
+                                            <div className={styles.viewbentobox}>
+                                                <p id="maagdonsamt">$0</p>
+                                                <p className={styles.viewbentoboxSub}>donated</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p id="maagdonsnum">0</p>
+                                                <p className={styles.viewbentoboxSub}>donations</p>
+                                            </div>
+                                            <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
+                                                <p>{accounts.length}</p>
+                                                <p className={styles.viewbentoboxSub}>new accounts</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p>0</p>
+                                                <p className={styles.viewbentoboxSub}>event attendees</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p id="totalusersm">0</p>
+                                                <p className={styles.viewbentoboxSub}>total users</p>
+                                            </div>
+                                        </div>
+                                        <div className="adminAAG">
+                                            <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Retention</h4>
+                                            <div className={styles.bentoboxCont}>
+                                                <div className={styles.viewbentobox}>
+                                                    <p id="monthretnew">0</p>
                                                     <p className={styles.viewbentoboxSub}>new users</p>
                                                 </div>
-                                                <div className={[styles.viewbentoboxM, "adminAAG"].join(" ")}>
-                                                    <p id="tdretreturn">0</p>
+                                                <div className={styles.viewbentobox}>
+                                                    <p id="monthretreturn">0</p>
                                                     <p className={styles.viewbentoboxSub}>returning users</p>
                                                 </div>
                                             </div>
+                                            <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Demographics</h4>
+                                            <div className={styles.bentoboxCont}>
+                                                <div id="userLocationsBentoM">
+                                                    <div className={styles.viewbentobox}>
+                                                        <p>40%</p>
+                                                        <p className={styles.viewbentoboxSub}>from Maryland</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                        </div>
-                                        <div id="donationsgraphaag" className={styles.graph}>
-                                            <h1 className={[styles.graphSubtextL, styles.font].join(" ")}>Donation Amount ($)</h1>
-                                            <ResponsiveContainer width="100%" height="100%" className={styles.font} style={{ backgroundColor: "#FFD794", borderRadius: "0px 20px 0px 20px" }}>
-                                                <LineChart data={dgraphData} margin={{ top: 15, right: 15, left: 25, bottom: 0 }} style={{ borderRadius: "20px" }}>
-                                                    <CartesianGrid stroke="#E3AB4A" fill="#ffe7bfff" radius={15} />
-                                                    <Line type="linear" dataKey="amount" stroke="#E3AB4A" strokeWidth={5} />
-                                                    <XAxis dataKey="date" stroke='#E3AB4A' fill='#FFD794' fontSize={20} />
-                                                    <YAxis stroke='#E3AB4A' fill='#FFD794' />
-                                                    <Tooltip content={<CustomTooltip />} />
-                                                </LineChart>
-                                            </ResponsiveContainer>
-                                            <h1 className={[styles.graphSubtext, styles.font].join(" ")}>Time</h1>
-                                        </div>
-                                    </div>
-                                    <div className="adminAAG" style={{ display: "none" }}>
-                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Users by State</h4>
-                                        <div className={styles.graph}>
-                                            <ResponsiveContainer width="100%" height="500px" className={styles.font} style={{ backgroundColor: "#FFD794", borderRadius: "0px 20px 0px 20px" }}>
-                                                <BarChart data={[{ name: "Maryland", amount: 1 }]} margin={{ top: 15, right: 15, left: 25, bottom: 0 }} style={{ borderRadius: "20px" }}>
-                                                    <CartesianGrid stroke="#E3AB4A" fill="#ffe7bfff" radius={15} />
-                                                    <Bar dataKey="amount" stroke="#E3AB4A" strokeWidth={5} />
-                                                    <XAxis dataKey="name" stroke='#E3AB4A' fill='#FFD794' fontSize={20} />
-                                                    <YAxis stroke='#E3AB4A' fill='#FFD794' />
-                                                </BarChart>
-                                            </ResponsiveContainer>
-                                        </div>
-                                    </div>
-
-                                    <div className={"adminAAG"} style={{ position: "relative" }}>
                                         <div className={styles.divider}></div>
-                                        <h3 className={styles.screensubheading} style={{ fontSize: "25px", color: "rgb(183 137 58)" }}>REAL-TIME</h3>
-                                        <h4 className={styles.screensubheading}>User Activity Monitor</h4>
-                                        <div className={styles.bentoboxCont}>
-                                            <div className={styles.viewbentobox} style={{ float: "inline-start", backgroundColor: "#ff00008a", animation: styles.pulseLive2 + " 3s infinite linear" }}>
-                                                <p id="activeusersnum">0</p>
-                                                <p className={styles.viewbentoboxSub}>total active users</p>
-                                            </div>
-                                            <div id="homepageuam" className={styles.bentoboxLive}>
-                                                <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
-                                                    <p style={{ margin: "0px", textAlign: "center" }}><a id="homepagenum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>homepage</a></p>
-                                                    <div className={styles.collapse} onClick={() => collapse("homepageuam", 53, 38, "hpuamcico")} style={{ cursor: "pointer" }}>
-                                                        <span className='material-symbols-rounded' id="hpuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className={[styles.divider, styles.bbldivider].join(" ")}></div>
-                                                <div style={{ padding: "0px 25px" }}>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="heronum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Hero</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="goalgridnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Statistics/Goal</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="howhelplistnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>How we help</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="makedifferencenum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Difference Together</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="getintouchnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Get In Touch</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="footernum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Footer</a></p>
-                                                </div>
-                                            </div>
-                                            <div id="accountsuam" className={styles.bentoboxLive} style={{ width: "230px" }}>
-                                                <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
-                                                    <p style={{ margin: "0px", textAlign: "center" }}><a id="accountsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>accounts</a></p>
-                                                    <div className={styles.collapse} onClick={() => collapse("accountsuam", 53, 38, "accuamcico")} style={{ cursor: "pointer" }}>
-                                                        <span className='material-symbols-rounded' id="accuamcico" style={{ fontSize: "40px" }}>expand_circle_up</span>
-                                                    </div>
-                                                </div>
-                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
-                                                <div style={{ padding: "0px 15px" }}>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="landingnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Landing</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="innum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Sign In</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="upnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Sign Up</a></p>
-                                                </div>
-                                            </div>
-                                            <div className={styles.bentoboxLive} id="dashboarduam" style={{ width: "250px", height: "350px", float: "none" }}>
-                                                <div style={{ display: "grid", gridTemplateColumns: "auto 50px" }}>
-                                                    <p style={{ margin: "0px", textAlign: "center" }}><a id="dashboardnum">0</a> <a style={{ fontWeight: "normal", fontSize: "30px" }}>dashboard</a></p>
-                                                    <div className={styles.collapse} onClick={() => collapse("dashboarduam", 53, 38, "dashuamico")} style={{ cursor: "pointer" }}>
-                                                        <span className='material-symbols-rounded' id="dashuamico" style={{ fontSize: "40px" }}>expand_circle_up</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className={styles.divider} style={{ borderTop: "0.5px solid rgb(255 255 255 / 34%)", marginTop: "10px", marginBottom: "10px", borderBottom: "0.5px solid rgb(255 255 255 / 34%)" }}></div>
-                                                <div style={{ padding: "0px 10px" }}>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="aagnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>At a glance</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="eventsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Events</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="eventdetailsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Event Details</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="donationsnum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Donations</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="donationflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Donation Flow</a></p>
-                                                    <p style={{ margin: "0px", fontSize: "30px" }}><a id="volunteerflownum">0</a> <a style={{ fontWeight: "normal", fontSize: "23px" }}>Volunteer Flow</a></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading}>{new Date().toLocaleString('default', { month: 'long' })}</h4>
-                                    <div className={styles.bentoboxCont}>
-                                        <div className={styles.viewbentobox}>
-                                            <p id="maagdonsamt">$0</p>
-                                            <p className={styles.viewbentoboxSub}>donated</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p id="maagdonsnum">0</p>
-                                            <p className={styles.viewbentoboxSub}>donations</p>
-                                        </div>
-                                        <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
-                                            <p>{accounts.length}</p>
-                                            <p className={styles.viewbentoboxSub}>new accounts</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p>0</p>
-                                            <p className={styles.viewbentoboxSub}>event attendees</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p id="totalusersm">0</p>
-                                            <p className={styles.viewbentoboxSub}>total users</p>
-                                        </div>
-                                    </div>
-                                    <div className="adminAAG">
-                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Retention</h4>
+                                        <h4 className={styles.screensubheading}>All Time</h4>
                                         <div className={styles.bentoboxCont}>
                                             <div className={styles.viewbentobox}>
-                                                <p id="monthretnew">0</p>
-                                                <p className={styles.viewbentoboxSub}>new users</p>
+                                                <p id="aagdonsamt">$0</p>
+                                                <p className={styles.viewbentoboxSub}>donated</p>
                                             </div>
                                             <div className={styles.viewbentobox}>
-                                                <p id="monthretreturn">0</p>
-                                                <p className={styles.viewbentoboxSub}>returning users</p>
+                                                <p>0</p>
+                                                <p className={styles.viewbentoboxSub}>volunteers</p>
+                                            </div>
+                                            <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
+                                                <p>{accounts.length}</p>
+                                                <p className={styles.viewbentoboxSub}>accounts</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p id="totalusers">0</p>
+                                                <p className={styles.viewbentoboxSub}>total users</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p>0</p>
+                                                <p className={styles.viewbentoboxSub}>homepage views</p>
                                             </div>
                                         </div>
-                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Demographics</h4>
+                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Events</h4>
                                         <div className={styles.bentoboxCont}>
-                                            <div id="userLocationsBentoM">
+                                            <div className={styles.viewbentobox}>
+                                                <p>{eventsLength}</p>
+                                                <p className={styles.viewbentoboxSub}>events</p>
+                                            </div>
+                                            <div className={styles.viewbentobox}>
+                                                <p id="vacount">{eventAttendees}</p>
+                                                <p className={styles.viewbentoboxSub}>event attendees</p>
+                                            </div>
+                                        </div>
+                                        <div className="adminAAG">
+                                            <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Demographics</h4>
+                                            <div className={styles.bentoboxCont}>
+                                                <div id="userLocationsBento">
+                                                    <div className={styles.viewbentobox}>
+                                                        <p>40%</p>
+                                                        <p className={styles.viewbentoboxSub}>from Maryland</p>
+                                                    </div>
+                                                </div>
                                                 <div className={styles.viewbentobox}>
-                                                    <p>40%</p>
-                                                    <p className={styles.viewbentoboxSub}>from Maryland</p>
+                                                    <p>77%</p>
+                                                    <p className={styles.viewbentoboxSub}>using a mobile device</p>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.divider}></div>
-                                    <h4 className={styles.screensubheading}>All Time</h4>
-                                    <div className={styles.bentoboxCont}>
-                                        <div className={styles.viewbentobox}>
-                                            <p id="aagdonsamt">$0</p>
-                                            <p className={styles.viewbentoboxSub}>donated</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p>0</p>
-                                            <p className={styles.viewbentoboxSub}>volunteers</p>
-                                        </div>
-                                        <div className={[styles.viewbentobox, "adminAAG"].join(" ")}>
-                                            <p>{accounts.length}</p>
-                                            <p className={styles.viewbentoboxSub}>accounts</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p id="totalusers">0</p>
-                                            <p className={styles.viewbentoboxSub}>total users</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p>0</p>
-                                            <p className={styles.viewbentoboxSub}>homepage views</p>
-                                        </div>
-                                    </div>
-                                    <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Events</h4>
-                                    <div className={styles.bentoboxCont}>
-                                        <div className={styles.viewbentobox}>
-                                            <p>{eventsLength}</p>
-                                            <p className={styles.viewbentoboxSub}>events</p>
-                                        </div>
-                                        <div className={styles.viewbentobox}>
-                                            <p id="vacount">{eventAttendees}</p>
-                                            <p className={styles.viewbentoboxSub}>event attendees</p>
-                                        </div>
-                                    </div>
-                                    <div className="adminAAG">
-                                        <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Demographics</h4>
-                                        <div className={styles.bentoboxCont}>
-                                            <div id="userLocationsBento">
                                                 <div className={styles.viewbentobox}>
-                                                    <p>40%</p>
-                                                    <p className={styles.viewbentoboxSub}>from Maryland</p>
+                                                    <p>23%</p>
+                                                    <p className={styles.viewbentoboxSub}>using a desktop device</p>
                                                 </div>
-                                            </div>
-                                            <div className={styles.viewbentobox}>
-                                                <p>77%</p>
-                                                <p className={styles.viewbentoboxSub}>using a mobile device</p>
-                                            </div>
-                                            <div className={styles.viewbentobox}>
-                                                <p>23%</p>
-                                                <p className={styles.viewbentoboxSub}>using a desktop device</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                         <div id="people" className={styles.screen} style={{ display: (adminView) ? "block" : "none" }}>
                             <div className={styles.screenNavbar} style={{ position: "initial" }}>
