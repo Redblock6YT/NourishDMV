@@ -2663,10 +2663,6 @@ export default function Dash() {
                                                 <p id="totalusers">0</p>
                                                 <p className={styles.viewbentoboxSub}>total users</p>
                                             </div>
-                                            <div className={styles.viewbentobox}>
-                                                <p>0</p>
-                                                <p className={styles.viewbentoboxSub}>homepage views</p>
-                                            </div>
                                         </div>
                                         <h4 className={styles.screensubheading} style={{ fontWeight: "normal" }}>Events</h4>
                                         <div className={styles.bentoboxCont}>
