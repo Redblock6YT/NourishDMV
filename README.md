@@ -1,4 +1,5 @@
 ![gh logo for readme](https://github.com/Redblock6YT/NourishDMV/assets/37982990/71a690d9-42d5-4a22-9f4a-bb2f73dfb7d8)
+![Slide2](https://github.com/Redblock6YT/NourishDMV/assets/37982990/5d3d18aa-69a3-4b09-b23b-385b095e2719)
 
 # Note
 NourishDMV is not a real non-profit. It was created for this 2024 FBLA Website Design Project.
