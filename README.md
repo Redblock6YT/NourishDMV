@@ -1,8 +1,8 @@
 ![gh logo for readme](https://github.com/Redblock6YT/NourishDMV/assets/37982990/71a690d9-42d5-4a22-9f4a-bb2f73dfb7d8)
-![Slide2](https://github.com/Redblock6YT/NourishDMV/assets/37982990/5d3d18aa-69a3-4b09-b23b-385b095e2719)
+![dssghreadme](https://github.com/Redblock6YT/NourishDMV/assets/37982990/0bf9eb45-aebf-4ef5-bc7b-e6e01491029d)
+![mtndmvweb](https://github.com/Redblock6YT/NourishDMV/assets/37982990/7119a99e-a84e-41ff-9a42-716244f1ffca)
+![ndmvfic](https://github.com/Redblock6YT/NourishDMV/assets/37982990/50859fbc-1a2a-45fe-a720-3413ebeedaff)
 
-# Note
-NourishDMV is not a real non-profit. It was created for this 2024 FBLA Website Design Project.
 
 # Awards
 __ Place - FBLA National Leadership Conference<br />
